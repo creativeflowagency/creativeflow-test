@@ -118,6 +118,12 @@
   .pl-card.new .pl-front { background: transparent; border: 1.5px dashed var(--border); box-shadow: none; color: var(--text-muted); flex-direction: column; gap: 4px; }
   .pl-plus { font-size: 30px; line-height: 1; font-weight: 300; }
   .folder-grid .empty-home { grid-column: 1 / -1; }
+  .pl-thumb-row { display: flex; gap: 12px; align-items: center; margin-bottom: 4px; }
+  .pl-thumb-preview { width: 128px; flex: none; aspect-ratio: 16 / 9; border-radius: 10px; background: var(--surface-2) center / cover no-repeat; border: 1px solid var(--border); }
+  .pl-thumb-actions { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .pl-thumb-actions .sheet-btn { margin-bottom: 6px; }
+  #playlistHeadMenu { font-size: 18px; font-weight: 800; }
+  #plThumbResetBtn[hidden] { display: none; }
   @media (max-width: 699px) { .home-views { padding: 4px 16px 14px; } .home-format-btn { padding: 6px 10px; font-size: 12px; } }
   @media (prefers-reduced-motion: reduce) { .pl-card { animation: none; } .pl-layer, .pl-front { transition: none; } }
   html, body { margin: 0; padding: 0; }
@@ -3741,6 +3747,7 @@
         <div class="playlist-head-name" id="playlistHeadName"></div>
       </div>
       <div class="playlist-head-count" id="playlistHeadCount"></div>
+      <button type="button" class="icon-btn" id="playlistHeadMenu" aria-label="Playlist options">⋮</button>
     </div>
 
     <div class="chip-row" id="playlistChips"></div>
@@ -4540,6 +4547,30 @@
   </div>
 </div>
 
+<!-- PLAYLIST ACTIONS SHEET -->
+<div class="sheet-backdrop" id="plActionsBackdrop">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3 id="plActionsTitle">Playlist</h3>
+    <div class="sheet-section-label">Name</div>
+    <input type="text" class="onboard-input" id="plRenameInput" maxlength="40" aria-label="Playlist name" autocomplete="off">
+    <div class="sheet-section-label">Thumbnail</div>
+    <div class="pl-thumb-row">
+      <div class="pl-thumb-preview" id="plThumbPreview"></div>
+      <div class="pl-thumb-actions">
+        <button type="button" class="sheet-btn" id="plThumbUploadBtn">Change thumbnail</button>
+        <button type="button" class="sheet-btn" id="plThumbResetBtn">Use the first video's thumbnail</button>
+      </div>
+    </div>
+    <input type="file" id="plThumbInput" accept="image/*" hidden>
+    <button type="button" class="sheet-btn" id="plDuplicateBtn" style="margin-top:6px;">Duplicate playlist</button>
+    <button type="button" class="sheet-btn danger" id="plDeleteBtn">Delete playlist</button>
+    <div class="sheet-actions" style="margin-top:6px;">
+      <button class="btn-cancel" id="plActionsCloseBtn">Done</button>
+    </div>
+  </div>
+</div>
+
 <!-- PROJECT ACTIONS SHEET -->
 <div class="sheet-backdrop" id="actionsSheetBackdrop">
   <div class="sheet">
@@ -5117,12 +5148,14 @@
         const bg = p && p.thumbnail && p.format !== 'short' ? 'background-image:url(' + p.thumbnail + ')' : (p ? 'background:linear-gradient(135deg,' + p.color + '55,' + p.color + '1A)' : '');
         layers.push('<div class="pl-layer" style="--n:' + n + ';' + bg + '"></div>');
       }
-      const frontStyle = cover && cover.thumbnail && cover.format !== 'short'
-        ? 'background-image:url(' + cover.thumbnail + ')'
+      const coverImg = pl.thumbnail || (cover && cover.thumbnail && cover.format !== 'short' ? cover.thumbnail : null);
+      const frontStyle = coverImg
+        ? 'background-image:url(' + coverImg + ')'
         : 'background:linear-gradient(135deg, ' + (cover ? cover.color : '#8358FF') + '55, ' + (cover ? cover.color : '#8358FF') + '1A)';
       card.innerHTML = '<div class="pl-stack" style="--d:' + Math.max(depth, 0) + ';--stack-room:' + (Math.max(depth, 0) * 7) + 'px">' + layers.join('')
         + '<div class="card-thumb pl-front" style="' + frontStyle + '">'
-        + (cover && cover.thumbnail && cover.format !== 'short' ? '' : '<div class="card-thumb-icon" aria-hidden="true">' + playIcon.replace(/13/g, '26') + '</div>')
+        + (coverImg ? '' : '<div class="card-thumb-icon" aria-hidden="true">' + playIcon.replace(/13/g, '26') + '</div>')
+        + '<span class="card-menu-btn" role="button" tabindex="0" aria-label="Playlist options">⋮</span>'
         + '<div class="pl-badge">' + playIcon + 'PLAYLIST</div>'
         + '<div class="pl-count">' + inIt.length + ' video' + (inIt.length === 1 ? '' : 's') + '</div></div></div>'
         + '<div class="card-body"><img class="card-avatar" src="' + avatarSrc + '" alt="" aria-hidden="true"><div class="card-text">'
@@ -5134,6 +5167,10 @@
         : 'Empty. Add videos from a video\'s ⋮ menu.';
       card.setAttribute('aria-label', 'Open playlist ' + pl.name + ', ' + inIt.length + ' videos');
       card.addEventListener('click', () => { openPlaylistId = pl.id; renderHome(); });
+      const menuBtn = card.querySelector('.card-menu-btn');
+      const openMenu = (e) => { e.stopPropagation(); openPlaylistActions(pl.id); };
+      menuBtn.addEventListener('click', openMenu);
+      menuBtn.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openMenu(e); } });
       grid.appendChild(card);
     });
     const add = document.createElement('button');
@@ -5159,6 +5196,112 @@
     renderHome();
   }));
   document.getElementById('playlistHeadBack').addEventListener('click', () => { openPlaylistId = null; renderHome(); });
+  document.getElementById('playlistHeadMenu').addEventListener('click', () => { if (openPlaylistId) openPlaylistActions(openPlaylistId); });
+
+  // ---------- Playlist ⋮ menu: rename, thumbnail, duplicate, delete ----------
+  let plActionsId = null;
+  let plRenameTimer = null;
+  const plActionsBackdrop = document.getElementById('plActionsBackdrop');
+  function plActionsPlaylist() { return state.playlists.find(x => x.id === plActionsId) || null; }
+
+  function renderPlaylistActions() {
+    const pl = plActionsPlaylist();
+    if (!pl) return;
+    document.getElementById('plActionsTitle').textContent = pl.name;
+    const first = state.projects.find(p => (p.playlists || []).includes(pl.id) && p.thumbnail && p.format !== 'short');
+    const img = pl.thumbnail || (first && first.thumbnail);
+    const prev = document.getElementById('plThumbPreview');
+    prev.style.backgroundImage = img ? 'url(' + img + ')' : '';
+    document.getElementById('plThumbResetBtn').hidden = !pl.thumbnail;
+  }
+  function openPlaylistActions(id) {
+    plActionsId = id;
+    const pl = plActionsPlaylist();
+    if (!pl) return;
+    document.getElementById('plRenameInput').value = pl.name;
+    renderPlaylistActions();
+    plActionsBackdrop.classList.add('active');
+  }
+  function closePlaylistActions() {
+    clearTimeout(plRenameTimer);
+    const pl = plActionsPlaylist();
+    const name = document.getElementById('plRenameInput').value.trim();
+    if (pl && name && name !== pl.name) { pl.name = name; save(); }
+    plActionsBackdrop.classList.remove('active');
+    plActionsId = null;
+    renderHome();
+  }
+  document.getElementById('plActionsCloseBtn').addEventListener('click', closePlaylistActions);
+  plActionsBackdrop.addEventListener('click', (e) => { if (e.target === plActionsBackdrop) closePlaylistActions(); });
+  document.getElementById('plRenameInput').addEventListener('input', (e) => {
+    const pl = plActionsPlaylist();
+    const name = e.target.value.trim();
+    if (!pl || !name) return;
+    document.getElementById('plActionsTitle').textContent = name;
+    clearTimeout(plRenameTimer);
+    plRenameTimer = setTimeout(() => { pl.name = name; save(); renderHome(); }, 400);
+  });
+  document.getElementById('plRenameInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') closePlaylistActions(); });
+
+  document.getElementById('plThumbUploadBtn').addEventListener('click', () => document.getElementById('plThumbInput').click());
+  document.getElementById('plThumbInput').addEventListener('change', async (e) => {
+    const f = e.target.files && e.target.files[0];
+    e.target.value = '';
+    const pl = plActionsPlaylist();
+    if (!f || !pl) return;
+    if (!f.type.startsWith('image/')) { showToast("That file isn't an image."); return; }
+    try {
+      pl.thumbnail = await imageFileToThumb(f, 480);
+      save();
+      renderPlaylistActions();
+      renderHome();
+      showToast('Playlist thumbnail updated.');
+    } catch (err) {
+      showToast("That image couldn't be opened. Try a PNG or JPG.");
+    }
+  });
+  document.getElementById('plThumbResetBtn').addEventListener('click', () => {
+    const pl = plActionsPlaylist();
+    if (!pl) return;
+    delete pl.thumbnail;
+    save();
+    renderPlaylistActions();
+    renderHome();
+  });
+
+  document.getElementById('plDuplicateBtn').addEventListener('click', () => {
+    const pl = plActionsPlaylist();
+    if (!pl) return;
+    const copy = { id: uid(), name: (pl.name + ' (copy)').slice(0, 40), createdAt: Date.now() };
+    if (pl.thumbnail) copy.thumbnail = pl.thumbnail;
+    state.playlists.splice(state.playlists.indexOf(pl) + 1, 0, copy);
+    state.projects.forEach(p => { if ((p.playlists || []).includes(pl.id)) p.playlists.push(copy.id); });
+    save();
+    plActionsBackdrop.classList.remove('active');
+    plActionsId = null;
+    renderHome();
+    showToast('Playlist duplicated: "' + copy.name + '".');
+  });
+
+  document.getElementById('plDeleteBtn').addEventListener('click', () => {
+    const pl = plActionsPlaylist();
+    if (!pl) return;
+    plActionsBackdrop.classList.remove('active');
+    showConfirm({
+      title: 'Delete "' + pl.name + '"?',
+      message: 'The videos in it stay in your projects. Only the playlist is removed.',
+      confirmLabel: 'Delete playlist',
+      onConfirm: () => {
+        state.playlists = state.playlists.filter(x => x.id !== pl.id);
+        state.projects.forEach(p => { if (Array.isArray(p.playlists)) p.playlists = p.playlists.filter(id => id !== pl.id); });
+        if (openPlaylistId === pl.id) openPlaylistId = null;
+        plActionsId = null;
+        save();
+        renderHome();
+        showToast('Playlist deleted.');
+      }
+    });
+  });
 
   // ---------- Rendering: Home ----------
   function renderHome() {
