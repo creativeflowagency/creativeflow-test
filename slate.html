@@ -11,6 +11,11 @@
     // iOS zooms in when a small text box is tapped and doesn't zoom back out; an app never needs to zoom.
     document.querySelector('meta[name="viewport"]').setAttribute('content',
       'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
+    // The app fills the whole window: CSS screen-height units can come out short inside the app,
+    // which left a gap under the text boxes at the bottom of the project screen.
+    const fitHeight = () => document.documentElement.style.setProperty('--app-h', window.innerHeight + 'px');
+    fitHeight();
+    window.addEventListener('resize', fitHeight);
   }
   // The Windows/Mac app (preload.js): Google sign-in can't return to the app there either, so its button is hidden too.
   if (window.creativeflowDesktop) document.documentElement.classList.add('desktop-app');
@@ -185,6 +190,15 @@
     z-index: 40;
   }
   .burger-menu.active { display: flex; }
+  .playlist-btn[hidden] { display: none; }
+  .playlist-btn.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .playlist-menu { min-width: 220px; max-height: 60vh; overflow-y: auto; }
+  .playlist-menu-title { font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; padding: 6px 10px 4px; }
+  .playlist-menu .burger-menu-item { justify-content: space-between; }
+  .playlist-menu .burger-menu-item.on { background: rgba(var(--accent-rgb), 0.16); color: var(--text); }
+  .playlist-menu-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .playlist-menu-count { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .playlist-menu-sep { height: 1px; background: var(--border); margin: 4px 6px; }
   .burger-menu-item[hidden] { display: none; }
   .burger-menu-item {
     display: flex;
@@ -256,6 +270,10 @@
   /* Screens that end in a text box bar (ideas, Adonis): the bar already leaves room for the
      phone's home bar, so the screen itself adds none (it used to be counted twice). */
   body:not(.has-tab-bar) #screen-project, body:not(.has-tab-bar) #screen-ai { padding-bottom: 0; }
+  html.ios-app body, html.ios-app #app { min-height: var(--app-h, 100dvh); }
+  /* TEMPORARY (iPhone TestFlight only): screen measurements, to find the gap under the text boxes. */
+  #iosDebug { position: fixed; top: calc(var(--safe-top) + 2px); left: 50%; transform: translateX(-50%); z-index: 9999; pointer-events: none;
+    font: 600 10px/1.35 ui-monospace, Menlo, monospace; color: #0F0; background: rgba(0,0,0,0.8); padding: 4px 8px; border-radius: 6px; white-space: pre; }
 
   /* ---------- Splash ---------- */
   #screen-splash {
@@ -3617,6 +3635,10 @@
         <div class="search-dropdown" id="searchDropdown"></div>
       </div>
       <div style="display:flex; gap:8px; flex-shrink:0; position:relative;">
+        <button class="icon-btn playlist-btn" id="playlistBtn" title="Playlists" aria-label="Playlists" aria-haspopup="menu" aria-expanded="false" hidden>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        </button>
+        <div class="burger-menu playlist-menu" id="playlistMenu" role="menu" aria-label="Playlists"></div>
         <button class="icon-btn" id="burgerBtn" title="Menu" aria-label="Menu" style="position:relative;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
           <span class="topbar-level-badge" id="topbarLevelBadge">1</span>
@@ -5012,15 +5034,66 @@
       row.appendChild(btn);
     });
 
-    state.playlists.forEach(pl => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'chip' + (filterMode.type === 'playlist' && filterMode.id === pl.id ? ' active' : '');
-      btn.textContent = pl.name;
-      btn.addEventListener('click', () => { filterMode = { type: 'playlist', id: pl.id }; renderPlaylistChips(); renderProjectFeed(); });
-      row.appendChild(btn);
-    });
+    renderPlaylistMenu();
   }
+
+  // Playlists live behind the folder button next to ☰ (it only shows once a playlist exists),
+  // so the Active / Published row at the bottom never overflows.
+  function renderPlaylistMenu() {
+    const btn = document.getElementById('playlistBtn');
+    const menu = document.getElementById('playlistMenu');
+    const lists = state.playlists || [];
+    if (filterMode.type === 'playlist' && !lists.some(p => p.id === filterMode.id)) filterMode = { type: 'active' };
+    btn.hidden = !lists.length;
+    const current = filterMode.type === 'playlist' ? lists.find(p => p.id === filterMode.id) : null;
+    btn.classList.toggle('on', !!current);
+    btn.title = current ? 'Playlist: ' + current.name : 'Playlists';
+    menu.innerHTML = '<div class="playlist-menu-title">Playlists</div>';
+    lists.forEach(pl => {
+      const count = state.projects.filter(p => (p.playlists || []).includes(pl.id)).length;
+      const item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'burger-menu-item' + (current && current.id === pl.id ? ' on' : '');
+      item.setAttribute('role', 'menuitem');
+      item.innerHTML = '<span class="playlist-menu-name"></span><span class="playlist-menu-count">' + count + '</span>';
+      item.querySelector('.playlist-menu-name').textContent = pl.name;
+      item.addEventListener('click', () => {
+        filterMode = current && current.id === pl.id ? { type: 'active' } : { type: 'playlist', id: pl.id };
+        setPlaylistMenu(false);
+        renderPlaylistChips();
+        renderProjectFeed();
+      });
+      menu.appendChild(item);
+    });
+    menu.insertAdjacentHTML('beforeend', '<div class="playlist-menu-sep"></div>');
+    if (current) {
+      const all = document.createElement('button');
+      all.type = 'button';
+      all.className = 'burger-menu-item';
+      all.textContent = 'Show all videos';
+      all.addEventListener('click', () => { filterMode = { type: 'active' }; setPlaylistMenu(false); renderPlaylistChips(); renderProjectFeed(); });
+      menu.appendChild(all);
+    }
+    const add = document.createElement('button');
+    add.type = 'button';
+    add.className = 'burger-menu-item';
+    add.textContent = '+ New playlist';
+    add.addEventListener('click', () => { setPlaylistMenu(false); openPlaylistSheet(); });
+    menu.appendChild(add);
+  }
+  function setPlaylistMenu(open) {
+    document.getElementById('playlistMenu').classList.toggle('active', open);
+    document.getElementById('playlistBtn').setAttribute('aria-expanded', String(open));
+    if (open) document.getElementById('burgerMenu').classList.remove('active');
+  }
+  document.getElementById('playlistBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    setPlaylistMenu(!document.getElementById('playlistMenu').classList.contains('active'));
+  });
+  document.addEventListener('click', (e) => {
+    const menu = document.getElementById('playlistMenu');
+    if (menu.classList.contains('active') && !menu.contains(e.target)) setPlaylistMenu(false);
+  });
 
   const searchInputEl = document.getElementById('searchInput');
   const searchDropdown = document.getElementById('searchDropdown');
@@ -8177,6 +8250,29 @@
     document.getElementById('panel-script').classList.toggle('active', name === 'script');
     document.getElementById('panel-thumbnail').classList.toggle('active', name === 'thumbnail');
     document.getElementById('panel-ai').classList.toggle('active', name === 'ai');
+  }
+
+  // TEMPORARY (iPhone TestFlight only): shows screen measurements on the project screen.
+  if (document.documentElement.classList.contains('ios-app')) {
+    const dbg = document.createElement('div');
+    dbg.id = 'iosDebug';
+    const probe = document.createElement('div');
+    probe.style.cssText = 'position:fixed;visibility:hidden;padding-bottom:env(safe-area-inset-bottom)';
+    document.body.appendChild(probe);
+    document.body.appendChild(dbg);
+    const px = (el, prop) => el ? Math.round(parseFloat(getComputedStyle(el)[prop]) || 0) : '-';
+    const bottom = (el) => el ? Math.round(el.getBoundingClientRect().bottom) : '-';
+    setInterval(() => {
+      const proj = document.getElementById('screen-project');
+      if (!proj.classList.contains('active')) { dbg.hidden = true; return; }
+      dbg.hidden = false;
+      const app = document.getElementById('app');
+      const form = document.querySelector('#panel-ideas.active .quick-add, #panel-ai.active .ai-input-row');
+      dbg.textContent = 'scr ' + screen.height + ' inner ' + window.innerHeight + ' vv ' + Math.round(window.visualViewport ? visualViewport.height : 0)
+        + ' doc ' + document.documentElement.clientHeight + '\napp ' + Math.round(app.getBoundingClientRect().height) + ' proj ' + Math.round(proj.getBoundingClientRect().height)
+        + ' projPad ' + px(proj, 'paddingBottom') + '\nbar bottom ' + bottom(form) + ' barPad ' + px(form, 'paddingBottom')
+        + ' safe ' + px(probe, 'paddingBottom') + ' body ' + Math.round(document.body.getBoundingClientRect().height);
+    }, 800);
   }
 
   let plannerUnderlay = null; // the screen shown blurred behind the planner
