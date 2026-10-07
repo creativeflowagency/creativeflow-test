@@ -2060,6 +2060,12 @@
   .score-why { font-size: 12.5px; color: var(--text-muted); margin: -4px 0 10px 44px; line-height: 1.4; }
   .score-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 2px 0 14px; }
   .score-bar .planner-status { margin: 0; }
+  .tt-rate { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  .tt-scores { display: grid; gap: 8px; margin-top: 10px; }
+  .tt-score { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; align-items: center; padding: 10px 12px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); }
+  .tt-score .score-badge { grid-row: span 2; }
+  .tt-score-label { font-weight: 800; font-size: 14px; }
+  .tt-score-why { font-size: 12.5px; color: var(--text-muted); line-height: 1.4; }
   .planner-thumb-slot .score-badge { position: absolute; right: 6px; bottom: 6px; height: 26px; min-width: 32px; font-size: 12.5px; backdrop-filter: blur(6px); background-color: rgba(0, 0, 0, 0.55); }
   .thumb-whys { display: grid; gap: 4px; margin-top: 10px; }
   .thumb-whys .score-why { margin: 0; }
@@ -4053,6 +4059,11 @@
         </div>
         <p class="thumb-hint">This is just for planning how the thumbnail and title work together — export the final image whenever you're ready to upload it.</p>
         </div>
+        <div class="tt-rate">
+          <button type="button" class="planner-action solid planner-ai" id="ttRateBtn">✨ Rate title &amp; thumbnail</button>
+          <span class="planner-status">Scores out of 100 · uses 1 Adonis message</span>
+        </div>
+        <div class="tt-scores" id="ttScores"></div>
         <p class="thumb-hint" id="shortTitleHint" hidden>Short-form videos don't need a custom thumbnail — just a title (or caption) that makes people stop scrolling.</p>
       </div>
     </div>
@@ -7883,6 +7894,68 @@
   const thumbFileInput = document.getElementById('thumbFileInput');
   const thumbRemoveBtn = document.getElementById('thumbRemoveBtn');
 
+  // Rating in the Thumbnail tab: title (and thumbnail for long-form), plus how well they work
+  // together. Shown while the title and image are unchanged since the rating.
+  let ttRating = false;
+  function ttKey(p) { return (p.title || '').trim() + '|' + (p.format === 'short' ? '' : thumbKey(p.thumbnail)); }
+  function renderTtScores(p) {
+    const box = document.getElementById('ttScores');
+    const btn = document.getElementById('ttRateBtn');
+    const short = p.format === 'short';
+    btn.textContent = ttRating ? 'Adonis is rating…' : short ? '✨ Rate my title' : '✨ Rate title & thumbnail';
+    btn.disabled = ttRating;
+    box.innerHTML = '';
+    const r = p.ttScores && p.ttScores.key === ttKey(p) ? p.ttScores : null;
+    if (!r) return;
+    [['Title', r.title], ['Thumbnail', r.thumbnail], ['Together', r.together]].forEach(([label, s]) => {
+      if (!s || typeof s.score !== 'number') return;
+      const row = document.createElement('div');
+      row.className = 'tt-score';
+      row.appendChild(scoreBadge(s));
+      const l = document.createElement('div'); l.className = 'tt-score-label'; l.textContent = label;
+      const w = document.createElement('div'); w.className = 'tt-score-why'; w.textContent = s.why || '';
+      row.append(l, w);
+      box.appendChild(row);
+    });
+  }
+  document.getElementById('ttRateBtn').addEventListener('click', async () => {
+    const p = findProject(currentProjectId);
+    if (!p || ttRating) return;
+    const short = p.format === 'short';
+    const title = (p.title || '').trim();
+    if (!title && (short || !p.thumbnail)) { showToast(short ? 'Write a title first.' : 'Add a title or a thumbnail first.'); return; }
+    if (!sampleApi) { showToast(sampleApi === null ? "Adonis isn't available right now." : 'Adonis is still starting up. Try again in a moment.'); return; }
+    ttRating = true;
+    renderTtScores(p);
+    const key = ttKey(p);
+    try {
+      const hasThumb = !short && !!p.thumbnail;
+      const prompt = buildCreatorProfileContext()
+        + 'You are Adonis, a YouTube growth coach. Score this ' + (short ? 'short-form video title/caption' : 'video\'s title' + (hasThumb ? ' and thumbnail (attached image)' : '')) + ' from 1 to 100, like a pre-upload checker.\n\n'
+        + 'Video: ' + p.name + '\n'
+        + (title ? 'Title: ' + title + '\n' : 'Title: (none yet)\n')
+        + (scriptPlainText(p.script) ? 'Script (start): ' + scriptPlainText(p.script).slice(0, 1500) + '\n' : '')
+        + '\nTitle: curiosity, clarity, emotion, specificity, length, searchable words, honesty.'
+        + (hasThumb ? ' Thumbnail: one clear focal point at phone size, readable text (0-4 words), contrast, emotion/faces, low clutter. Together: do they tell one story without repeating the same words?' : '')
+        + '\nUse the whole range: 90+ exceptional, 70s good, 50s average, under 40 weak.\n\n'
+        + 'Reply with ONLY JSON: {"title":{"score":80,"why":"one short sentence"}' + (hasThumb ? ',"thumbnail":{"score":75,"why":"..."},"together":{"score":78,"why":"..."}' : '') + '}'
+        + (title ? '' : ' (give title score 1 with why "Add a title")');
+      const images = hasThumb ? [await (await fetch(p.thumbnail)).blob()] : undefined;
+      const { text } = await sampleApi([{ role: 'user', content: prompt }], { cache: false, images });
+      const m = String(text || '').match(/\{[\s\S]*\}/);
+      if (!m) throw aiError('empty_completion');
+      const j = JSON.parse(m[0]);
+      const clean = (s) => s && Number.isFinite(+s.score) ? { score: Math.max(1, Math.min(100, Math.round(+s.score))), why: String(s.why || '').slice(0, 160) } : null;
+      p.ttScores = { key, title: clean(j.title), thumbnail: clean(j.thumbnail), together: clean(j.together) };
+      save();
+    } catch (e) {
+      showToast(e && e.code === 'empty_completion' ? "Adonis's answer couldn't be read. Try again." : aiErrorCopy(e && e.code));
+    } finally {
+      ttRating = false;
+      if (currentProjectId === p.id) renderTtScores(p);
+    }
+  });
+
   function renderThumbnailTab(p) {
     // Short-form videos don't use a custom thumbnail, so the tab is just the title.
     const short = p.format === 'short';
@@ -7898,6 +7971,7 @@
       thumbPreview.style.backgroundImage = 'none';
       thumbEmpty.style.display = 'flex';
     }
+    renderTtScores(p);
   }
 
   let titleSaveTimer = null;
@@ -7906,6 +7980,7 @@
     if (!p) return;
     p.title = videoTitleInput.value;
     thumbTitleOverlay.textContent = p.title;
+    renderTtScores(p);
     clearTimeout(titleSaveTimer);
     titleSaveTimer = setTimeout(() => { save(); renderHome(); }, 300);
   });
@@ -8182,7 +8257,6 @@
     });
     name.addEventListener('keydown', (e) => { if (e.key === 'Enter' && plannerStepComplete()) plannerNext(); });
     body.appendChild(name);
-    if (!p && !plannerDraft.name) setTimeout(() => name.focus(), 80);
   }
 
   // Step 2: script or not; the script itself is written in the normal script page.
