@@ -689,6 +689,54 @@
   .lb-score-label { font-size: 11px; color: var(--text-muted); }
   .lb-badge-crown { font-size: 13px; }
   .lb-badge-img { height: 14px; width: auto; display: block; }
+  button.lb-row { width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; transition: border-color 0.15s ease, transform 0.12s ease, background 0.15s ease; }
+  button.lb-row:hover { border-color: color-mix(in srgb, var(--accent) 50%, var(--border)); }
+  button.lb-row:active { transform: scale(0.99); }
+
+  /* Profile card, opened by tapping someone on the leaderboard */
+  .lbp-backdrop {
+    position: fixed; inset: 0; z-index: 90; display: flex; align-items: center; justify-content: center; padding: 16px;
+    background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    animation: cfFadeIn 0.2s ease both;
+  }
+  .lbp-backdrop[hidden] { display: none; }
+  .lbp-card {
+    position: relative; width: min(400px, 100%); max-height: calc(100% - 24px); overflow-y: auto; box-sizing: border-box;
+    border-radius: 20px; background: #18181E; border: 1px solid rgba(255, 255, 255, 0.08); color: #FFFFFF;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55); animation: obCardIn 0.35s cubic-bezier(0.2, 0.9, 0.25, 1) both;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  }
+  .lbp-banner { height: 84px; background: linear-gradient(135deg, var(--lbp-color, #5865F2), color-mix(in srgb, var(--lbp-color, #5865F2) 40%, #2E1A5E)); }
+  .lbp-close { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 50%; border: none; cursor: pointer; background: rgba(0, 0, 0, 0.35); color: #FFFFFF; display: flex; align-items: center; justify-content: center; }
+  .lbp-body { padding: 0 20px 20px; }
+  .lbp-avatar {
+    width: 84px; height: 84px; margin-top: -42px; border-radius: 50%; border: 6px solid #18181E; box-sizing: border-box;
+    background: var(--lbp-color, #5865F2); display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 800;
+  }
+  .lbp-name-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .lbp-name { font-size: 22px; font-weight: 800; letter-spacing: -0.01em; word-break: break-word; }
+  .lbp-you { font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: rgba(88, 101, 242, 0.25); color: #C9CDFF; }
+  .lbp-sub { font-size: 13px; color: #A6A3B3; margin-top: 4px; }
+  .lbp-level { margin-top: 16px; padding: 14px; border-radius: 14px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.07); }
+  .lbp-level-top { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; color: #A6A3B3; }
+  .lbp-level-top b { font-size: 17px; color: #FFFFFF; }
+  .lbp-bar { height: 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.08); margin-top: 10px; overflow: hidden; }
+  .lbp-bar i { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #5865F2, #9B7BFF); transition: width 0.7s cubic-bezier(0.2, 0.9, 0.25, 1); }
+  .lbp-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+  .lbp-stat { padding: 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.07); }
+  .lbp-stat-num { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .lbp-stat-label { font-size: 12px; color: #A6A3B3; margin-top: 2px; }
+  .lbp-section { font-size: 12px; font-weight: 700; color: #A6A3B3; text-transform: uppercase; letter-spacing: 0.06em; margin: 16px 0 8px; }
+  .lbp-badges { display: flex; flex-wrap: wrap; gap: 8px; }
+  .lbp-badge { display: flex; align-items: center; gap: 8px; padding: 8px 12px 8px 8px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); font-size: 13.5px; font-weight: 700; }
+  .lbp-badge img { height: 22px; width: auto; display: block; }
+  .lbp-badge-emoji { font-size: 18px; line-height: 1; }
+  .lbp-link {
+    display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 16px; height: 44px; border-radius: 12px;
+    background: #5865F2; color: #FFFFFF; font-weight: 700; font-size: 14.5px; text-decoration: none; transition: background 0.15s ease;
+  }
+  .lbp-link:hover { background: #4752C4; }
+  @media (prefers-reduced-motion: reduce) { .lbp-backdrop, .lbp-card { animation: none; } .lbp-bar i { transition: none; } }
 
   /* ---------- Customize (Settings) ---------- */
   .brand-name {
@@ -3891,6 +3939,9 @@
       </div>
       <div id="lbYou"></div>
       <div class="lb-list" id="lbList"><div class="empty-tab">Loading…</div></div>
+      <div class="lbp-backdrop" id="lbProfile" hidden>
+        <div class="lbp-card" role="dialog" aria-modal="true" aria-labelledby="lbpName" id="lbProfileCard"></div>
+      </div>
       <div class="onboard-hint" id="lbNote" style="margin-top:14px;"></div>
     </div>
   </section>
@@ -4139,6 +4190,13 @@
           <div class="feature-toggle-desc">Other members see your creator name, level and badges, never your email.</div>
         </div>
         <button type="button" class="feature-switch" id="settingsLeaderboardSwitch" aria-label="Show me on the leaderboard"></button>
+      </div>
+      <div class="feature-toggle-row">
+        <div class="feature-toggle-text">
+          <div class="feature-toggle-name">Show my channel link</div>
+          <div class="feature-toggle-desc">Adds a button to your channel on your leaderboard profile. Uses the channel link from Edit profile.</div>
+        </div>
+        <button type="button" class="feature-switch" id="settingsChannelLinkSwitch" aria-label="Show my channel link on my leaderboard profile"></button>
       </div>
 
       <div class="onboard-field-label" style="margin-top:26px;">Adonis response style</div>
@@ -5683,7 +5741,16 @@
     const shown = !settingsDraft.leaderboardHidden;
     sw.classList.toggle('on', shown);
     sw.setAttribute('aria-pressed', String(shown));
+    const link = document.getElementById('settingsChannelLinkSwitch');
+    link.classList.toggle('on', !!settingsDraft.shareChannelLink);
+    link.setAttribute('aria-pressed', String(!!settingsDraft.shareChannelLink));
   }
+  document.getElementById('settingsChannelLinkSwitch').addEventListener('click', () => {
+    settingsDraft.shareChannelLink = !settingsDraft.shareChannelLink;
+    if (settingsDraft.shareChannelLink && !(state.profile.channelUrl || '').trim()) showToast('Add your channel link in Edit profile first, so it can show.');
+    renderLeaderboardSwitch();
+    markSettingsDirty();
+  });
   document.getElementById('settingsLeaderboardSwitch').addEventListener('click', () => {
     settingsDraft.leaderboardHidden = !settingsDraft.leaderboardHidden;
     renderLeaderboardSwitch();
@@ -5741,16 +5808,71 @@
     if (!rows.length) {
       list.innerHTML = '<div class="empty-tab">' + (week ? 'Nobody has earned XP yet this week. Be the first!' : 'No one on the leaderboard yet.') + '</div>';
     } else {
-      list.innerHTML = rows.map(r => '<div class="lb-row' + (r.you ? ' you' : '') + '">'
+      list.innerHTML = rows.map((r, i) => '<button type="button" class="lb-row' + (r.you ? ' you' : '') + '" data-lb-index="' + i + '" aria-label="View ' + escapeHtml(r.name) + '\'s profile">'
         + '<div class="lb-rank' + (r.rank <= 3 ? ' r' + r.rank : '') + '">' + r.rank + '</div>'
         + '<div class="lb-avatar" aria-hidden="true">' + escapeHtml((r.name || '?').charAt(0).toUpperCase()) + '</div>'
         + '<div class="lb-name"><div class="lb-name-line"><span class="lb-name-text">' + escapeHtml(r.name) + (r.you ? ' (you)' : '') + '</span>' + badgeHtml(r.badges) + '</div>'
         + '<div class="lb-level">Level ' + r.level + '</div></div>'
         + '<div class="lb-score"><div class="lb-score-num">' + (week ? r.weeklyXp : r.xp).toLocaleString() + '</div><div class="lb-score-label">XP</div></div>'
-        + '</div>').join('');
+        + '</button>').join('');
+      list.querySelectorAll('[data-lb-index]').forEach(btn => btn.addEventListener('click', () => openLbProfile(rows[+btn.dataset.lbIndex])));
     }
-    note.textContent = 'Earn XP by capturing ideas, finishing your daily tasks and planning videos. Only your creator name, level and badges are shown. You can hide yourself in Settings.';
+    note.textContent = 'Earn XP by capturing ideas, finishing your daily tasks and planning videos. Tap anyone to see their profile. Only creator names, levels, XP and badges are shown (plus a channel link if someone turns it on). You can hide yourself in Settings.';
   }
+
+  // Profile card for one leaderboard row. The same person is found on the other board by their
+  // public id, so both ranks show (a rank only exists while they're in that board's top 50).
+  const LB_COLORS = ['#5865F2', '#EB459E', '#57F287', '#FEE75C', '#ED4245', '#9B59B6', '#1ABC9C', '#E67E22'];
+  function lbColor(name) { let n = 0; for (const ch of String(name)) n = (n * 31 + ch.charCodeAt(0)) >>> 0; return LB_COLORS[n % LB_COLORS.length]; }
+
+  function openLbProfile(row) {
+    if (!row || !lbData) return;
+    const all = (lbData.allTime || []).find(r => r.pid && r.pid === row.pid);
+    const wk = (lbData.week || []).find(r => r.pid && r.pid === row.pid);
+    const rankAll = all ? all.rank : (row.you && lbData.you ? lbData.you.rankAllTime : null);
+    const rankWeek = wk ? wk.rank : (row.you && lbData.you ? lbData.you.rankWeek : null);
+    const level = row.level;
+    const floor = xpForLevel(level), next = xpForLevel(level + 1);
+    const pct = Math.max(3, Math.min(100, Math.round((row.xp - floor) / (next - floor) * 100)));
+    const joined = row.joinedAt ? new Date(row.joinedAt).toLocaleDateString(undefined, { month: 'long', year: 'numeric' }) : null;
+    const color = lbColor(row.name);
+    const card = document.getElementById('lbProfileCard');
+    card.style.setProperty('--lbp-color', color);
+    const badgeCards = (row.badges || []).map(k => {
+      const b = BADGES.find(x => x.key === k);
+      if (!b) return '';
+      const icon = k === 'founder' ? '<span class="lbp-badge-emoji">👑</span>' : b.image ? '<img src="' + b.image + '" alt="">' : '';
+      return '<div class="lbp-badge">' + icon + escapeHtml(b.label) + '</div>';
+    }).join('');
+    const stat = (num, label) => '<div class="lbp-stat"><div class="lbp-stat-num">' + num + '</div><div class="lbp-stat-label">' + label + '</div></div>';
+    card.innerHTML = '<div class="lbp-banner"></div>'
+      + '<button type="button" class="lbp-close" id="lbpClose" aria-label="Close"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>'
+      + '<div class="lbp-body">'
+      + '<div class="lbp-avatar" aria-hidden="true">' + escapeHtml((row.name || '?').charAt(0).toUpperCase()) + '</div>'
+      + '<div class="lbp-name-row"><span class="lbp-name" id="lbpName">' + escapeHtml(row.name) + '</span>' + (row.you ? '<span class="lbp-you">You</span>' : '') + '</div>'
+      + '<div class="lbp-sub">' + (joined ? 'Joined ' + escapeHtml(joined) : 'CreativeFlow member') + '</div>'
+      + '<div class="lbp-level"><div class="lbp-level-top"><b>Level ' + level + '</b><span>' + (row.xp - floor).toLocaleString() + ' / ' + (next - floor).toLocaleString() + ' XP to level ' + (level + 1) + '</span></div>'
+      + '<div class="lbp-bar"><i id="lbpBar"></i></div></div>'
+      + '<div class="lbp-stats">'
+      + stat(row.xp.toLocaleString(), 'Total XP')
+      + stat(row.weeklyXp.toLocaleString(), 'XP this week')
+      + stat(rankAll ? '#' + rankAll : '–', 'All-time rank')
+      + stat(rankWeek ? '#' + rankWeek : '–', "This week's rank")
+      + '</div>'
+      + (badgeCards ? '<div class="lbp-section">Badges</div><div class="lbp-badges">' + badgeCards + '</div>' : '')
+      + (row.channelUrl && /^https?:\/\//i.test(row.channelUrl)
+        ? '<a class="lbp-link" href="' + escapeHtml(row.channelUrl) + '" target="_blank" rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>Visit channel</a>'
+        : '')
+      + '</div>';
+    const backdrop = document.getElementById('lbProfile');
+    backdrop.hidden = false;
+    document.getElementById('lbpClose').addEventListener('click', closeLbProfile);
+    requestAnimationFrame(() => requestAnimationFrame(() => { document.getElementById('lbpBar').style.width = pct + '%'; }));
+    document.getElementById('lbpClose').focus();
+  }
+  function closeLbProfile() { document.getElementById('lbProfile').hidden = true; }
+  document.getElementById('lbProfile').addEventListener('click', (e) => { if (e.target.id === 'lbProfile') closeLbProfile(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !document.getElementById('lbProfile').hidden) closeLbProfile(); });
 
   async function loadLeaderboard() {
     lbData = null;
@@ -5788,6 +5910,7 @@
       aiResponseStyle: state.profile.aiResponseStyle,
       enabledFeatures: state.profile.enabledFeatures.slice(),
       leaderboardHidden: state.profile.leaderboardHidden === true,
+      shareChannelLink: state.profile.shareChannelLink === true,
       customization: JSON.parse(JSON.stringify(normalizeCustomization(state.profile.customization)))
     };
     renderSettingsAiStyle();
@@ -5824,6 +5947,7 @@
     state.profile.enabledFeatures = settingsDraft.enabledFeatures;
     state.profile.customization = settingsDraft.customization;
     state.profile.leaderboardHidden = settingsDraft.leaderboardHidden;
+    state.profile.shareChannelLink = settingsDraft.shareChannelLink === true;
     save();
     applyCustomization();
     settingsDraft = null;
