@@ -766,6 +766,13 @@
   .lb-row.you { border-color: var(--accent); }
   .lb-rank { width: 30px; text-align: center; font-weight: 800; font-size: 15px; color: var(--text-muted); font-variant-numeric: tabular-nums; flex-shrink: 0; }
   .lb-rank.r1 { color: #F5C542; } .lb-rank.r2 { color: #C9CED6; } .lb-rank.r3 { color: #D9955B; }
+  .lb-avatar img, .lbp-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
+  .lb-avatar { overflow: hidden; }
+  .lbp-bio { margin-top: 12px; font-size: 14.5px; line-height: 1.5; color: #E6E3EF; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .lb-you.clickable { cursor: pointer; transition: transform 0.12s ease, background 0.15s ease; }
+  .lb-you.clickable:active { transform: scale(0.99); }
+  .lb-you-view { font-size: 12.5px; font-weight: 700; color: var(--accent); flex: none; }
+  .ep-view-profile { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin: 4px 0 18px; }
   .lb-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--surface-2); color: var(--text); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0; }
   .lb-name { flex: 1; min-width: 0; }
   .lb-name-line { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 14.5px; min-width: 0; }
@@ -3558,15 +3565,15 @@
     .tab-bar-add { flex: 0 0 68px; }
     .tab-bar-add:active { background: none; }
     .tab-bar-add-circle {
-      width: 50px; height: 50px;
-      margin-top: -20px;
+      width: 46px; height: 46px;
+      margin-top: 0;
       border-radius: 50%;
       background: var(--accent);
       color: var(--accent-ink);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 45%, transparent), 0 0 0 4px var(--bg);
+      box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 40%, transparent);
       transition: transform 0.18s ease;
     }
     .tab-bar-add:active .tab-bar-add-circle { transform: scale(0.93); }
@@ -4061,9 +4068,6 @@
       </div>
       <div id="lbYou"></div>
       <div class="lb-list" id="lbList"><div class="empty-tab">Loading…</div></div>
-      <div class="lbp-backdrop" id="lbProfile" hidden>
-        <div class="lbp-card" role="dialog" aria-modal="true" aria-labelledby="lbpName" id="lbProfileCard"></div>
-      </div>
       <div class="onboard-hint" id="lbNote" style="margin-top:14px;"></div>
     </div>
   </section>
@@ -4373,6 +4377,7 @@
       </div>
     </div>
     <div class="settings-body">
+      <button type="button" class="sheet-btn ep-view-profile" id="editProfileViewBtn">View my profile</button>
 
       <div class="account-avatar-row">
         <button type="button" class="account-avatar-btn" id="settingsAvatarBtn" aria-label="Change profile picture">
@@ -4603,6 +4608,10 @@
       <button class="btn-create" id="playlistCreateBtn" disabled>Create</button>
     </div>
   </div>
+</div>
+
+<div class="lbp-backdrop" id="lbProfile" hidden>
+  <div class="lbp-card" role="dialog" aria-modal="true" aria-labelledby="lbpName" id="lbProfileCard"></div>
 </div>
 
 <!-- SAVE TO PLAYLIST SHEET (YouTube-style) -->
@@ -4978,11 +4987,36 @@
       state = normalizeState(raw ? JSON.parse(raw) : {});
     } catch (e) { console.error('CreativeFlow: failed to load', e); state = normalizeState({}); }
   }
+  // A ~72px copy of the profile picture goes to the leaderboard (the full one is too big to send
+  // with every row). Remade whenever the picture changes.
+  var smallAvatarBusy = false;
+  function ensureSmallAvatar() {
+    const pic = state.profile && state.profile.profilePicture;
+    const key = pic ? pic.length + ':' + pic.slice(-40) : '';
+    if ((state.profile.avatarSmallKey || '') === key || smallAvatarBusy) return;
+    if (!pic) { state.profile.avatarSmall = ''; state.profile.avatarSmallKey = ''; save(); return; }
+    smallAvatarBusy = true;
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = c.height = 72;
+      const s = Math.min(img.width, img.height);
+      c.getContext('2d').drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, 72, 72);
+      state.profile.avatarSmall = c.toDataURL('image/jpeg', 0.8);
+      state.profile.avatarSmallKey = key;
+      smallAvatarBusy = false;
+      save();
+    };
+    img.onerror = () => { smallAvatarBusy = false; };
+    img.src = pic;
+  }
+
   function save() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
     catch (e) { console.error('CreativeFlow: failed to save', e); }
     if (syncUserId && !syncApplying) scheduleSync();
     if (typeof scheduleRemindersSoon === 'function') scheduleRemindersSoon();
+    if (state.profile && (state.profile.avatarSmallKey || '') !== (state.profile.profilePicture ? state.profile.profilePicture.length + ':' + state.profile.profilePicture.slice(-40) : '')) setTimeout(ensureSmallAvatar, 0);
   }
 
   function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
@@ -6270,7 +6304,13 @@
       const score = week ? you.weeklyXp : you.xp;
       youBox.innerHTML = '<div class="lb-you"><div class="lb-you-rank">' + (you.hidden ? '–' : rank ? '#' + rank : '–') + '</div>'
         + '<div class="lb-you-text"><div class="lb-you-title">' + (you.hidden ? 'You\'re hidden from the leaderboard' : week && !score ? 'Earn XP this week to get on the board' : 'Your rank') + '</div>'
-        + '<div class="lb-you-sub">' + (you.hidden ? 'Turn it on in Settings to appear. ' : '') + 'Level ' + you.level + ' · ' + score.toLocaleString() + ' XP' + (week ? ' this week' : '') + '</div></div></div>';
+        + '<div class="lb-you-sub">' + (you.hidden ? 'Turn it on in Settings to appear. ' : '') + 'Level ' + you.level + ' · ' + score.toLocaleString() + ' XP' + (week ? ' this week' : '') + '</div></div>'
+        + '<div class="lb-you-view">View profile ›</div></div>';
+      const box = youBox.querySelector('.lb-you');
+      box.classList.add('clickable');
+      box.setAttribute('role', 'button');
+      box.tabIndex = 0;
+      box.addEventListener('click', () => openLbProfile(ownProfileRow()));
     } else {
       youBox.innerHTML = '';
     }
@@ -6280,7 +6320,7 @@
     } else {
       list.innerHTML = rows.map((r, i) => '<button type="button" class="lb-row' + (r.you ? ' you' : '') + '" data-lb-index="' + i + '" aria-label="View ' + escapeHtml(r.name) + '\'s profile">'
         + '<div class="lb-rank' + (r.rank <= 3 ? ' r' + r.rank : '') + '">' + r.rank + '</div>'
-        + '<div class="lb-avatar" aria-hidden="true">' + escapeHtml((r.name || '?').charAt(0).toUpperCase()) + '</div>'
+        + '<div class="lb-avatar" aria-hidden="true">' + (lbAvatarOk(r.avatar) ? '<img src="' + r.avatar + '" alt="">' : escapeHtml((r.name || '?').charAt(0).toUpperCase())) + '</div>'
         + '<div class="lb-name"><div class="lb-name-line"><span class="lb-name-text">' + escapeHtml(r.name) + (r.you ? ' (you)' : '') + '</span>' + badgeHtml(r.badges) + '</div>'
         + '<div class="lb-level">Level ' + r.level + '</div></div>'
         + '<div class="lb-score"><div class="lb-score-num">' + (week ? r.weeklyXp : r.xp).toLocaleString() + '</div><div class="lb-score-label">XP</div></div>'
@@ -6295,12 +6335,36 @@
   const LB_COLORS = ['#5865F2', '#EB459E', '#57F287', '#FEE75C', '#ED4245', '#9B59B6', '#1ABC9C', '#E67E22'];
   function lbColor(name) { let n = 0; for (const ch of String(name)) n = (n * 31 + ch.charCodeAt(0)) >>> 0; return LB_COLORS[n % LB_COLORS.length]; }
 
+  function lbAvatarOk(src) { return typeof src === 'string' && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(src); }
+
+  // Your own card, from your Edit-profile details (plus your ranks if the leaderboard has loaded).
+  function ownProfileRow() {
+    const d = lbData && !lbData.error ? lbData : null;
+    const you = d && d.you ? d.you : null;
+    const xp = Math.max(0, state.profile.xp || 0);
+    return {
+      you: true, pid: you ? you.pid : null,
+      name: (state.profile.channelName || '').trim() || (you && you.name) || 'You',
+      level: levelFromXp(xp), xp, weeklyXp: you ? you.weeklyXp : 0,
+      badges: memberBadges().map(b => b.key),
+      bio: (state.profile.bio || '').trim(),
+      avatar: state.profile.avatarSmall || state.profile.profilePicture || '',
+      joinedAt: you ? you.joinedAt : null,
+      channelUrl: (() => {
+        const u = (state.profile.channelUrl || '').trim();
+        if (!state.profile.shareChannelLink || !u) return '';
+        return /^https?:///i.test(u) ? u : 'https://' + u;
+      })()
+    };
+  }
+
   function openLbProfile(row) {
-    if (!row || !lbData) return;
-    const all = (lbData.allTime || []).find(r => r.pid && r.pid === row.pid);
-    const wk = (lbData.week || []).find(r => r.pid && r.pid === row.pid);
-    const rankAll = all ? all.rank : (row.you && lbData.you ? lbData.you.rankAllTime : null);
-    const rankWeek = wk ? wk.rank : (row.you && lbData.you ? lbData.you.rankWeek : null);
+    if (!row) return;
+    const data = lbData && !lbData.error ? lbData : { allTime: [], week: [], you: null };
+    const all = (data.allTime || []).find(r => r.pid && r.pid === row.pid);
+    const wk = (data.week || []).find(r => r.pid && r.pid === row.pid);
+    const rankAll = all ? all.rank : (row.you && data.you ? data.you.rankAllTime : null);
+    const rankWeek = wk ? wk.rank : (row.you && data.you ? data.you.rankWeek : null);
     const level = row.level;
     const floor = xpForLevel(level), next = xpForLevel(level + 1);
     const pct = Math.max(3, Math.min(100, Math.round((row.xp - floor) / (next - floor) * 100)));
@@ -6318,9 +6382,10 @@
     card.innerHTML = '<div class="lbp-banner"></div>'
       + '<button type="button" class="lbp-close" id="lbpClose" aria-label="Close"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>'
       + '<div class="lbp-body">'
-      + '<div class="lbp-avatar" aria-hidden="true">' + escapeHtml((row.name || '?').charAt(0).toUpperCase()) + '</div>'
+      + '<div class="lbp-avatar" aria-hidden="true">' + (lbAvatarOk(row.avatar) ? '<img src="' + row.avatar + '" alt="">' : escapeHtml((row.name || '?').charAt(0).toUpperCase())) + '</div>'
       + '<div class="lbp-name-row"><span class="lbp-name" id="lbpName">' + escapeHtml(row.name) + '</span>' + (row.you ? '<span class="lbp-you">You</span>' : '') + '</div>'
       + '<div class="lbp-sub">' + (joined ? 'Joined ' + escapeHtml(joined) : 'CreativeFlow member') + '</div>'
+      + (row.bio ? '<div class="lbp-bio">' + escapeHtml(row.bio) + '</div>' : (row.you ? '<div class="lbp-bio" style="color:#A6A3B3">Add a bio in Edit profile.</div>' : ''))
       + '<div class="lbp-level"><div class="lbp-level-top"><b>Level ' + level + '</b><span>' + (row.xp - floor).toLocaleString() + ' / ' + (next - floor).toLocaleString() + ' XP to level ' + (level + 1) + '</span></div>'
       + '<div class="lbp-bar"><i id="lbpBar"></i></div></div>'
       + '<div class="lbp-stats">'
@@ -6343,6 +6408,8 @@
   function closeLbProfile() { document.getElementById('lbProfile').hidden = true; }
   document.getElementById('lbProfile').addEventListener('click', (e) => { if (e.target.id === 'lbProfile') closeLbProfile(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !document.getElementById('lbProfile').hidden) closeLbProfile(); });
+
+  document.getElementById('editProfileViewBtn').addEventListener('click', () => openLbProfile(ownProfileRow()));
 
   async function loadLeaderboard() {
     lbData = null;
