@@ -3661,8 +3661,6 @@
     body.has-tab-bar #dailyQuestsBackBtn,
     body.has-tab-bar #calendarBackBtn,
     body.has-tab-bar #aiBackBtn,
-    body.has-tab-bar #fabDailyQuestsBtn,
-    body.has-tab-bar #fabCalendarBtn,
     body.has-tab-bar #aiHomeBtn { display: none; }
   }
 
@@ -3784,6 +3782,9 @@
         <div class="search-dropdown" id="searchDropdown"></div>
       </div>
       <div style="display:flex; gap:8px; flex-shrink:0; position:relative;">
+        <button class="icon-btn" id="topbarCalendarBtn" title="Content Calendar" aria-label="Content Calendar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </button>
         <button class="icon-btn" id="burgerBtn" title="Menu" aria-label="Menu" style="position:relative;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
           <span class="topbar-level-badge" id="topbarLevelBadge">1</span>
@@ -3792,6 +3793,14 @@
           <button type="button" class="burger-menu-item" id="aiHomeBtn">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             <span>Ask Adonis</span>
+          </button>
+          <button type="button" class="burger-menu-item" id="burgerDailyQuestsBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12"/><circle cx="12" cy="8" r="7"/></svg>
+            <span>Daily Tasks</span>
+          </button>
+          <button type="button" class="burger-menu-item" id="burgerAnalyticsBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span>Analytics</span>
           </button>
           <button type="button" class="burger-menu-item" id="burgerLeaderboardBtn">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>
@@ -3865,13 +3874,9 @@
 
     <div class="fab-menu" id="fabMenu">
       <button type="button" class="fab-menu-item" id="fabPlanVideoBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/><rect x="9" y="2" width="6" height="4" rx="1"/><path d="m9 14 2 2 4-4"/></svg> Plan a Video</button>
-      <button type="button" class="fab-menu-item" id="fabNewPlaylistBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> New Playlist</button>
       <button type="button" class="fab-menu-item" id="fabNewProjectBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="7" y1="6" x2="7" y2="18"/><line x1="17" y1="6" x2="17" y2="18"/><line x1="2" y1="10" x2="7" y2="10"/><line x1="2" y1="14" x2="7" y2="14"/><line x1="17" y1="10" x2="22" y2="10"/><line x1="17" y1="14" x2="22" y2="14"/></svg> New Project</button>
       <button type="button" class="fab-menu-item" id="fabScriptsBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg> Scripts</button>
       <button type="button" class="fab-menu-item" id="fabIdeaBankBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2Z"/></svg> Idea Bank</button>
-      <button type="button" class="fab-menu-item" id="fabCalendarBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Content Calendar</button>
-      <button type="button" class="fab-menu-item" id="fabAnalyticsBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Analytics</button>
-      <button type="button" class="fab-menu-item" id="fabDailyQuestsBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12"/><circle cx="12" cy="8" r="7"/></svg> Daily Tasks</button>
     </div>
     <button type="button" class="fab-btn" id="fabBtn" aria-label="Add">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -6075,16 +6080,15 @@
   const HIDEABLE_FEATURES = [
     { key: 'newProject', name: 'New Project', desc: 'In the + menu', selectors: ['#fabNewProjectBtn'] },
     { key: 'planVideo', name: 'Plan a Video', desc: 'In the + menu', selectors: ['#fabPlanVideoBtn'] },
-    { key: 'playlists', name: 'New Playlist', desc: 'In the + menu', selectors: ['#fabNewPlaylistBtn'] },
     { key: 'scripts', name: 'Scripts', desc: 'In the + menu', selectors: ['#fabScriptsBtn'] },
     { key: 'ideaBank', name: 'Idea Bank', desc: 'In the + menu', selectors: ['#fabIdeaBankBtn'] },
-    { key: 'calendar', name: 'Content Calendar', desc: '+ menu and bottom bar', selectors: ['#fabCalendarBtn', '#tabBar [data-screen="calendar"]'] },
-    { key: 'analytics', name: 'Analytics', desc: 'In the + menu', selectors: ['#fabAnalyticsBtn'] },
-    { key: 'tasks', name: 'Daily Tasks', desc: '+ menu and bottom bar', selectors: ['#fabDailyQuestsBtn', '#tabBar [data-screen="dailyquests"]'] },
+    { key: 'calendar', name: 'Content Calendar', desc: 'Top bar and bottom bar', selectors: ['#topbarCalendarBtn', '#tabBar [data-screen="calendar"]'] },
+    { key: 'analytics', name: 'Analytics', desc: 'In the ☰ menu', selectors: ['#burgerAnalyticsBtn'] },
+    { key: 'tasks', name: 'Daily Tasks', desc: '☰ menu and bottom bar', selectors: ['#burgerDailyQuestsBtn', '#tabBar [data-screen="dailyquests"]'] },
     { key: 'leaderboard', name: 'Leaderboard', desc: 'In the ☰ menu', selectors: ['#burgerLeaderboardBtn'] },
     { key: 'adonis', name: 'Adonis (AI)', desc: 'Menu, bottom bar, project tab and planner buttons', selectors: ['#aiHomeBtn', '#tabBar [data-screen="ai"]', '.tab[data-tab="ai"]', '.planner-ai'] }
   ];
-  const FAB_FEATURE_KEYS = ['newProject', 'planVideo', 'playlists', 'scripts', 'ideaBank', 'calendar', 'analytics', 'tasks'];
+  const FAB_FEATURE_KEYS = ['newProject', 'planVideo', 'scripts', 'ideaBank'];
 
   (function addHideRules() {
     const style = document.createElement('style');
@@ -10614,10 +10618,7 @@ Give concise, specific, practical feedback grounded in the material above when a
     setTimeout(() => list.classList.remove('animate-in'), 700);
   }
 
-  document.getElementById('fabDailyQuestsBtn').addEventListener('click', () => {
-    fabMenu.classList.remove('active');
-    openDailyQuests();
-  });
+  document.getElementById('burgerDailyQuestsBtn').addEventListener('click', () => openDailyQuests());
   document.getElementById('dailyQuestsBackBtn').addEventListener('click', () => switchScreen('home'));
 
   document.getElementById('dayPlannerBackBtn').addEventListener('click', () => {
@@ -11312,22 +11313,12 @@ Give concise, specific, practical feedback grounded in the material above when a
     fabMenu.classList.remove('active');
     openPlanner(null);
   });
-  document.getElementById('fabNewPlaylistBtn').addEventListener('click', () => {
-    fabMenu.classList.remove('active');
-    openPlaylistSheet();
-  });
   document.getElementById('fabIdeaBankBtn').addEventListener('click', () => {
     fabMenu.classList.remove('active');
     openIdeaBank();
   });
-  document.getElementById('fabCalendarBtn').addEventListener('click', () => {
-    fabMenu.classList.remove('active');
-    openCalendarScreen();
-  });
-  document.getElementById('fabAnalyticsBtn').addEventListener('click', () => {
-    fabMenu.classList.remove('active');
-    openAnalyticsScreen();
-  });
+  document.getElementById('topbarCalendarBtn').addEventListener('click', () => openCalendarScreen());
+  document.getElementById('burgerAnalyticsBtn').addEventListener('click', () => openAnalyticsScreen());
   document.addEventListener('click', (e) => {
     if (fabMenu.classList.contains('active') && !fabMenu.contains(e.target) && e.target.id !== 'fabBtn') {
       fabMenu.classList.remove('active');
