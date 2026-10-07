@@ -118,6 +118,30 @@
   .pl-card.new .pl-front { background: transparent; border: 1.5px dashed var(--border); box-shadow: none; color: var(--text-muted); flex-direction: column; gap: 4px; }
   .pl-plus { font-size: 30px; line-height: 1; font-weight: 300; }
   .folder-grid .empty-home { grid-column: 1 / -1; }
+  .actions-pl-summary { font-size: 13.5px; color: var(--text-muted); margin: 0 0 8px; line-height: 1.4; }
+  .actions-pl-summary b { color: var(--text); font-weight: 700; }
+  .save-pl-video { margin: -4px 0 12px; font-size: 13px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .save-pl-list { display: flex; flex-direction: column; gap: 4px; max-height: 46vh; overflow-y: auto; }
+  .save-pl-row {
+    display: flex; align-items: center; gap: 12px; width: 100%; padding: 8px; border-radius: 12px; border: none; background: transparent;
+    color: var(--text); font: inherit; text-align: left; cursor: pointer; transition: background 0.15s ease;
+  }
+  .save-pl-row:hover, .save-pl-row:focus-visible { background: var(--surface-2); outline: none; }
+  .save-pl-cover { width: 64px; flex: none; aspect-ratio: 16 / 9; border-radius: 7px; background: var(--surface-2) center / cover no-repeat; border: 1px solid var(--border); }
+  .save-pl-text { flex: 1; min-width: 0; }
+  .save-pl-name { font-weight: 700; font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .save-pl-count { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+  .save-pl-mark { flex: none; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); transition: color 0.15s ease, transform 0.2s var(--ease-pop, ease); }
+  .save-pl-row.saved .save-pl-mark { color: var(--accent); }
+  .save-pl-row.pop .save-pl-mark { animation: cfPop 0.35s var(--ease-pop, ease); }
+  .save-pl-new { display: flex; align-items: center; gap: 12px; width: 100%; margin-top: 6px; padding: 10px 8px; border: none; border-top: 1px solid var(--border); background: none; color: var(--text); font: 700 14.5px var(--font-body); cursor: pointer; text-align: left; }
+  .save-pl-plus { width: 64px; flex: none; text-align: center; font-size: 22px; font-weight: 400; color: var(--accent); }
+  .save-pl-create { display: flex; gap: 8px; margin-top: 4px; }
+  .save-pl-create[hidden] { display: none; }
+  .save-pl-create .onboard-input { flex: 1; min-width: 0; }
+  .pl-new-video .card-thumb { background: transparent; border: 1.5px dashed var(--border); color: var(--text-muted); flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px; }
+  .pl-new-video .card-thumb .pl-plus { color: var(--accent); }
+  .pl-new-video:hover .card-thumb { border-color: var(--accent); color: var(--text); }
   .pl-thumb-row { display: flex; gap: 12px; align-items: center; margin-bottom: 4px; }
   .pl-thumb-preview { width: 128px; flex: none; aspect-ratio: 16 / 9; border-radius: 10px; background: var(--surface-2) center / cover no-repeat; border: 1px solid var(--border); }
   .pl-thumb-actions { flex: 1; min-width: 0; display: flex; flex-direction: column; }
@@ -4547,6 +4571,24 @@
   </div>
 </div>
 
+<!-- SAVE TO PLAYLIST SHEET (YouTube-style) -->
+<div class="sheet-backdrop" id="saveToPlBackdrop">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3>Save to playlist</h3>
+    <p class="save-pl-video" id="saveToPlVideo"></p>
+    <div class="save-pl-list" id="saveToPlList"></div>
+    <button type="button" class="save-pl-new" id="saveToPlNewBtn"><span class="save-pl-plus">+</span>New playlist</button>
+    <div class="save-pl-create" id="saveToPlCreate" hidden>
+      <input type="text" class="onboard-input" id="saveToPlNewName" placeholder="Playlist name" maxlength="40" aria-label="New playlist name" autocomplete="off">
+      <button type="button" class="planner-action solid" id="saveToPlCreateBtn" disabled>Create</button>
+    </div>
+    <div class="sheet-actions" style="margin-top:10px;">
+      <button class="btn-create" id="saveToPlDoneBtn">Done</button>
+    </div>
+  </div>
+</div>
+
 <!-- PLAYLIST ACTIONS SHEET -->
 <div class="sheet-backdrop" id="plActionsBackdrop">
   <div class="sheet">
@@ -4581,7 +4623,8 @@
     <div class="sheet-section-label">Scheduled upload date</div>
     <input type="date" class="onboard-input" id="actionsScheduledDate" aria-label="Scheduled upload date">
     <div class="sheet-section-label">Playlists</div>
-    <div id="actionsPlaylistList"></div>
+    <div class="actions-pl-summary" id="actionsPlaylistList"></div>
+    <button type="button" class="sheet-btn" id="actionsSaveToPlBtn">Add to playlist</button>
     <button type="button" class="sheet-btn danger" id="actionsDeleteBtn" style="margin-top:6px;">Delete project</button>
     <div class="sheet-actions" style="margin-top:6px;">
       <button class="btn-cancel" id="actionsCloseBtn">Close</button>
@@ -5390,6 +5433,17 @@
     const avatarSrc = document.querySelector('.brand-mark-img') ? document.querySelector('.brand-mark-img').src : '';
     const list = getFilteredProjects();
 
+    // Inside a playlist, "+ New video" is always first, so new videos are made without scrolling.
+    if (homeView === 'playlists' && openPlaylistId) {
+      const pl = state.playlists.find(x => x.id === openPlaylistId);
+      const add = document.createElement('button');
+      add.type = 'button';
+      add.className = 'card pl-new-video';
+      add.innerHTML = '<div class="card-thumb"><div class="pl-plus">+</div><div>New video in this playlist</div></div>';
+      add.addEventListener('click', () => openSheet(pl ? pl.id : null));
+      grid.appendChild(add);
+    }
+
     list.forEach(p => {
       const card = document.createElement('button');
       card.type = 'button';
@@ -5430,7 +5484,7 @@
       grid.appendChild(card);
     });
 
-    if (list.length === 0 && state.projects.length > 0 && (filterMode.type !== 'published' || openPlaylistId)) {
+    if (list.length === 0 && state.projects.length > 0 && filterMode.type !== 'published' && !openPlaylistId) {
       const empty = document.createElement('div');
       empty.className = 'empty-home';
       empty.textContent = homeView === 'playlists' && openPlaylistId
@@ -5571,24 +5625,93 @@
     document.getElementById('actionsScheduledDate').value = p.scheduledDate || '';
 
     const container = document.getElementById('actionsPlaylistList');
-    container.innerHTML = '';
-    if (state.playlists.length === 0) {
-      container.innerHTML = '<div class="empty-tab" style="margin:4px 0 8px; padding:0;">No playlists yet. Make one from the home screen.</div>';
-    } else {
-      state.playlists.forEach(pl => {
-        const row = document.createElement('button');
-        row.type = 'button';
-        row.className = 'playlist-check-row';
-        const checked = p.playlists.includes(pl.id);
-        row.innerHTML = `<span class="playlist-check-box${checked ? ' checked' : ''}">${checked ? '✓' : ''}</span><span>${escapeHtml(pl.name)}</span>`;
-        row.addEventListener('click', () => {
-          toggleProjectPlaylist(p.id, pl.id);
-          renderActionsSheetContent();
-        });
-        container.appendChild(row);
-      });
-    }
+    const inLists = state.playlists.filter(pl => p.playlists.includes(pl.id));
+    container.innerHTML = inLists.length
+      ? 'In ' + inLists.map(pl => '<b>' + escapeHtml(pl.name) + '</b>').join(', ')
+      : 'Not in a playlist yet.';
+    document.getElementById('actionsSaveToPlBtn').textContent = inLists.length ? 'Change playlists' : 'Add to playlist';
   }
+
+  // ---------- "Save to playlist" (like YouTube): tap a playlist to add or remove this video ----------
+  let saveToPlProjectId = null;
+  const saveToPlBackdrop = document.getElementById('saveToPlBackdrop');
+  const BOOKMARK_ON = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>';
+  const BOOKMARK_OFF = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>';
+
+  function playlistCover(pl) {
+    if (pl.thumbnail) return pl.thumbnail;
+    const first = state.projects.find(p => (p.playlists || []).includes(pl.id) && p.thumbnail && p.format !== 'short');
+    return first ? first.thumbnail : null;
+  }
+  function renderSaveToPl(popId) {
+    const p = findProject(saveToPlProjectId);
+    if (!p) return;
+    document.getElementById('saveToPlVideo').textContent = (p.title && p.title.trim()) ? p.title : p.name;
+    const list = document.getElementById('saveToPlList');
+    list.innerHTML = state.playlists.length ? '' : '<div class="empty-tab" style="margin:0 0 6px; padding:0;">No playlists yet. Make your first one below.</div>';
+    state.playlists.forEach(pl => {
+      const saved = p.playlists.includes(pl.id);
+      const n = state.projects.filter(x => (x.playlists || []).includes(pl.id)).length;
+      const row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'save-pl-row' + (saved ? ' saved' : '') + (popId === pl.id ? ' pop' : '');
+      row.setAttribute('aria-pressed', String(saved));
+      const cover = playlistCover(pl);
+      row.innerHTML = '<span class="save-pl-cover"' + (cover ? ' style="background-image:url(' + cover + ')"' : '') + '></span>'
+        + '<span class="save-pl-text"><span class="save-pl-name"></span><span class="save-pl-count" style="display:block">' + n + ' video' + (n === 1 ? '' : 's') + '</span></span>'
+        + '<span class="save-pl-mark" aria-hidden="true">' + (saved ? BOOKMARK_ON : BOOKMARK_OFF) + '</span>';
+      row.querySelector('.save-pl-name').textContent = pl.name;
+      row.addEventListener('click', () => {
+        toggleProjectPlaylist(p.id, pl.id);
+        const nowSaved = p.playlists.includes(pl.id);
+        showToast((nowSaved ? 'Saved to ' : 'Removed from ') + pl.name);
+        renderSaveToPl(pl.id);
+      });
+      list.appendChild(row);
+    });
+  }
+  function openSaveToPlaylist(projectId) {
+    saveToPlProjectId = projectId;
+    document.getElementById('saveToPlCreate').hidden = true;
+    document.getElementById('saveToPlNewBtn').hidden = false;
+    renderSaveToPl();
+    saveToPlBackdrop.classList.add('active');
+  }
+  function closeSaveToPlaylist() { saveToPlBackdrop.classList.remove('active'); saveToPlProjectId = null; renderHome(); }
+  document.getElementById('saveToPlDoneBtn').addEventListener('click', closeSaveToPlaylist);
+  saveToPlBackdrop.addEventListener('click', (e) => { if (e.target === saveToPlBackdrop) closeSaveToPlaylist(); });
+  document.getElementById('saveToPlNewBtn').addEventListener('click', () => {
+    document.getElementById('saveToPlNewBtn').hidden = true;
+    document.getElementById('saveToPlCreate').hidden = false;
+    const input = document.getElementById('saveToPlNewName');
+    input.value = '';
+    document.getElementById('saveToPlCreateBtn').disabled = true;
+    setTimeout(() => input.focus(), 50);
+  });
+  document.getElementById('saveToPlNewName').addEventListener('input', (e) => {
+    document.getElementById('saveToPlCreateBtn').disabled = !e.target.value.trim();
+  });
+  const createAndSave = () => {
+    const name = document.getElementById('saveToPlNewName').value.trim();
+    const p = findProject(saveToPlProjectId);
+    if (!name || !p) return;
+    const pl = { id: uid(), name, createdAt: Date.now() };
+    state.playlists.push(pl);
+    p.playlists.push(pl.id);
+    save();
+    document.getElementById('saveToPlCreate').hidden = true;
+    document.getElementById('saveToPlNewBtn').hidden = false;
+    showToast('Saved to ' + name);
+    renderSaveToPl(pl.id);
+  };
+  document.getElementById('saveToPlCreateBtn').addEventListener('click', createAndSave);
+  document.getElementById('saveToPlNewName').addEventListener('keydown', (e) => { if (e.key === 'Enter') createAndSave(); });
+  document.getElementById('actionsSaveToPlBtn').addEventListener('click', () => {
+    const id = actionsProjectId;
+    if (!id) return;
+    closeActionsSheet();
+    openSaveToPlaylist(id);
+  });
 
   document.getElementById('actionsDuplicateBtn').addEventListener('click', () => {
     if (!actionsProjectId) return;
@@ -6671,7 +6794,9 @@
     b.addEventListener('click', () => { selectedFormat = b.dataset.format; renderFormatToggle(); });
   });
 
-  function openSheet() {
+  let newProjectPlaylistId = null; // set when "+ New video" is used inside a playlist
+  function openSheet(playlistId) {
+    newProjectPlaylistId = typeof playlistId === 'string' ? playlistId : null;
     newProjName.value = '';
     selectedColor = COLORS[state.projects.length % COLORS.length];
     selectedFormat = 'long';
@@ -6692,12 +6817,15 @@
   sheetCreate.addEventListener('click', () => {
     const name = newProjName.value.trim();
     if (!name) return;
-    const p = { id: uid(), name, color: selectedColor, format: selectedFormat, ideas: [], script: '', title: '', thumbnail: null, published: false, playlists: [], scheduledDate: '', createdAt: Date.now() };
+    const inPlaylist = newProjectPlaylistId && state.playlists.find(x => x.id === newProjectPlaylistId);
+    const p = { id: uid(), name, color: selectedColor, format: selectedFormat, ideas: [], script: '', title: '', thumbnail: null, published: false, playlists: inPlaylist ? [inPlaylist.id] : [], scheduledDate: '', createdAt: Date.now() };
     state.projects.unshift(p);
     save();
     recordUsage('projectsCreated');
     closeSheet();
+    newProjectPlaylistId = null;
     renderHome();
+    if (inPlaylist) showToast('Added to ' + inPlaylist.name + ' (and your projects).');
   });
 
   // ---------- Project detail ----------
