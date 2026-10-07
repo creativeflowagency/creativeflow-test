@@ -340,9 +340,7 @@
      phone's home bar, so the screen itself adds none (it used to be counted twice). */
   body:not(.has-tab-bar) #screen-project, body:not(.has-tab-bar) #screen-ai { padding-bottom: 0; }
   html.ios-app body, html.ios-app #app { min-height: var(--app-h, 100dvh); }
-  /* TEMPORARY (iPhone TestFlight only): screen measurements, to find the gap under the text boxes. */
-  #iosDebug { position: fixed; top: calc(var(--safe-top) + 2px); left: 50%; transform: translateX(-50%); z-index: 9999; pointer-events: none;
-    font: 600 10px/1.35 ui-monospace, Menlo, monospace; color: #0F0; background: rgba(0,0,0,0.8); padding: 4px 8px; border-radius: 6px; white-space: pre; }
+
 
   /* ---------- Splash ---------- */
   #screen-splash {
@@ -2622,8 +2620,10 @@
   #screen-ai.active,
   #screen-project.active:has(#panel-ai.active),
   #screen-project.active:has(#panel-ideas.active) {
-    height: var(--app-h, 100dvh); max-height: var(--app-h, 100dvh); box-sizing: border-box; overflow: hidden; flex: none;
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; overflow: hidden; padding-bottom: 0;
   }
+  /* With the bottom bar showing, the chat ends exactly where the bar starts (its height is measured). */
+  body.has-tab-bar #screen-ai.active { bottom: var(--tabbar-h, calc(68px + var(--safe-bottom))); padding-bottom: 0; }
   .ai-chat-list { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
   .ai-bubble.user {
     align-self: flex-end;
@@ -8930,28 +8930,13 @@
     document.getElementById('panel-ai').classList.toggle('active', name === 'ai');
   }
 
-  // TEMPORARY (iPhone TestFlight only): shows screen measurements on the project screen.
-  if (document.documentElement.classList.contains('ios-app')) {
-    const dbg = document.createElement('div');
-    dbg.id = 'iosDebug';
-    const probe = document.createElement('div');
-    probe.style.cssText = 'position:fixed;visibility:hidden;padding-bottom:env(safe-area-inset-bottom)';
-    document.body.appendChild(probe);
-    document.body.appendChild(dbg);
-    const px = (el, prop) => el ? Math.round(parseFloat(getComputedStyle(el)[prop]) || 0) : '-';
-    const bottom = (el) => el ? Math.round(el.getBoundingClientRect().bottom) : '-';
-    setInterval(() => {
-      const proj = document.getElementById('screen-project');
-      if (!proj.classList.contains('active')) { dbg.hidden = true; return; }
-      dbg.hidden = false;
-      const app = document.getElementById('app');
-      const form = document.querySelector('#panel-ideas.active .quick-add, #panel-ai.active .ai-input-row');
-      dbg.textContent = 'scr ' + screen.height + ' inner ' + window.innerHeight + ' vv ' + Math.round(window.visualViewport ? visualViewport.height : 0)
-        + ' doc ' + document.documentElement.clientHeight + '\napp ' + Math.round(app.getBoundingClientRect().height) + ' proj ' + Math.round(proj.getBoundingClientRect().height)
-        + ' projPad ' + px(proj, 'paddingBottom') + '\nbar bottom ' + bottom(form) + ' barPad ' + px(form, 'paddingBottom')
-        + ' safe ' + px(probe, 'paddingBottom') + ' body ' + Math.round(document.body.getBoundingClientRect().height);
-    }, 800);
-  }
+  (function measureTabBar() {
+    const bar = document.getElementById('tabBar');
+    if (!bar || !window.ResizeObserver) return;
+    const set = () => { if (bar.offsetHeight) document.documentElement.style.setProperty('--tabbar-h', bar.offsetHeight + 'px'); };
+    new ResizeObserver(set).observe(bar);
+    set();
+  })();
 
   let plannerUnderlay = null; // the screen shown blurred behind the planner
   function switchScreen(name) {
