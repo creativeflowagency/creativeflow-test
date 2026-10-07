@@ -2051,6 +2051,23 @@
     border-radius: 2px;
     min-height: 3px;
   }
+  /* Scores (1-100) for hooks, titles and thumbnails */
+  .score-badge { flex: none; min-width: 36px; height: 30px; padding: 0 6px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center;
+    font: 800 13.5px var(--font-body); font-variant-numeric: tabular-nums; }
+  .score-badge.g { background: rgba(111, 211, 160, 0.18); color: #6FD3A0; }
+  .score-badge.y { background: rgba(242, 201, 76, 0.18); color: #F2C94C; }
+  .score-badge.r { background: rgba(255, 107, 125, 0.16); color: #FF9AA8; }
+  .score-why { font-size: 12.5px; color: var(--text-muted); margin: -4px 0 10px 44px; line-height: 1.4; }
+  .score-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 2px 0 14px; }
+  .score-bar .planner-status { margin: 0; }
+  .planner-thumb-slot .score-badge { position: absolute; right: 6px; bottom: 6px; height: 26px; min-width: 32px; font-size: 12.5px; backdrop-filter: blur(6px); background-color: rgba(0, 0, 0, 0.55); }
+  .thumb-whys { display: grid; gap: 4px; margin-top: 10px; }
+  .thumb-whys .score-why { margin: 0; }
+  /* Analytics: best videos */
+  .an-best { display: grid; gap: 8px; }
+  .an-best .an-video { grid-template-columns: 26px 120px minmax(0, 1fr); }
+  .an-rank { font-size: 18px; text-align: center; }
+
   /* Analytics, simple layout */
   .an-channel { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
   .an-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; background: var(--surface-2); flex: none; }
@@ -8412,6 +8429,7 @@
     plannerHeader(body, 'Hooks', 'Write your hooks', p.format === 'short'
       ? 'In short-form the first second or two decide whether people keep scrolling. Write 5 or more ways to open the video, then star the strongest one. They also show above your script.'
       : 'The first few seconds decide whether people keep watching. Write 5 or more ways to open the video, then star the strongest one. They also show above your script.');
+    body.appendChild(rateButton('hooks', 'Rate my hooks'));
     const box = document.createElement('div');
     body.appendChild(box);
     renderHookEditor(box, p);
@@ -8448,7 +8466,10 @@
         del.setAttribute('aria-label', 'Remove hook');
         row.appendChild(del);
       }
+      const hs = scoreFor(plan.hookScores, h.id, h.text.trim());
+      if (hs) row.appendChild(scoreBadge(hs));
       container.appendChild(row);
+      if (hs && hs.why) container.appendChild(scoreWhy(hs));
     });
     container.appendChild(plannerButton('+ Add another hook', 'planner-add-row', () => {
       plan.hooks.push({ id: uid(), text: '' });
@@ -8527,9 +8548,13 @@
     actions.className = 'planner-actions';
     const gen = plannerButton(plannerBusy ? 'Adonis is thinking…' : '✨ Generate with Adonis', 'planner-action solid', plannerGenerateTitles);
     gen.classList.add('planner-ai');
-    gen.disabled = plannerBusy;
+    gen.disabled = plannerBusy || !!plannerScoring;
     actions.appendChild(gen);
+    const rate = plannerButton(plannerScoring === 'titles' ? 'Adonis is rating…' : '✨ Rate my titles', 'planner-action planner-ai', () => plannerRate('titles'));
+    rate.disabled = plannerBusy || !!plannerScoring;
+    actions.appendChild(rate);
     body.appendChild(actions);
+    body.insertAdjacentHTML('beforeend', '<div class="planner-status" style="margin:-8px 0 12px">Scores out of 100 · rating uses 1 Adonis message</div>');
     p.plan.titles.forEach((t, i) => {
       const row = document.createElement('div');
       row.className = 'planner-list-row';
@@ -8546,8 +8571,96 @@
         row.insertAdjacentHTML('beforeend', `<span class="planner-num">${i + 1}</span>`);
       }
       row.appendChild(plannerInput(`Title ${i + 1}`, t.text, 100, v => { t.text = v; plannerSaveSoon(); }));
+      const ts = scoreFor(p.plan.titleScores, t.id, t.text.trim());
+      if (ts) row.appendChild(scoreBadge(ts));
       body.appendChild(row);
+      if (ts && ts.why) body.appendChild(scoreWhy(ts));
     });
+  }
+
+  // ---------- Scores (1-100) for hooks, titles and thumbnails ----------
+  // Adonis rates every filled-in item in one go (one Adonis message), like a pre-upload title
+  // check: curiosity, clarity, length, emotion and fit with the video. A score is shown only while
+  // the item is unchanged (edit a title and its old score disappears).
+  let plannerScoring = null; // 'hooks' | 'titles' | 'thumbs' while a rating runs
+  const scoreClass = (n) => n >= 75 ? 'g' : n >= 55 ? 'y' : 'r';
+  const thumbKey = (src) => src ? src.length + ':' + src.slice(-24) : '';
+  function scoreFor(map, id, key) {
+    const s = map && map[id];
+    return s && s.key === key && typeof s.score === 'number' ? s : null;
+  }
+  function scoreBadge(s) {
+    const b = document.createElement('span');
+    b.className = 'score-badge ' + scoreClass(s.score);
+    b.textContent = String(s.score);
+    b.title = s.why || '';
+    b.setAttribute('aria-label', 'Score ' + s.score + ' out of 100' + (s.why ? ': ' + s.why : ''));
+    return b;
+  }
+  function scoreWhy(s) {
+    const d = document.createElement('div');
+    d.className = 'score-why';
+    d.textContent = s.why || '';
+    return d;
+  }
+  function parseScores(text) {
+    const m = String(text || '').match(/\[[\s\S]*\]/);
+    if (!m) throw aiError('empty_completion');
+    const arr = JSON.parse(m[0]);
+    return arr.filter(x => x && Number.isFinite(+x.n) && Number.isFinite(+x.score))
+      .map(x => ({ n: +x.n, score: Math.max(1, Math.min(100, Math.round(+x.score))), why: String(x.why || '').slice(0, 160) }));
+  }
+  async function plannerRate(kind) {
+    const p = plannerProject();
+    if (!p || plannerScoring || plannerBusy || !plannerAiReady()) return;
+    const plan = p.plan;
+    const holder = hookHolder(p);
+    const items = kind === 'hooks' ? holder.hooks.filter(x => x.text.trim()).map(x => ({ id: x.id, key: x.text.trim(), text: x.text.trim() }))
+      : kind === 'titles' ? plan.titles.filter(x => x.text.trim()).map(x => ({ id: x.id, key: x.text.trim(), text: x.text.trim() }))
+      : plan.thumbs.filter(x => x.src).map(x => ({ id: x.id, key: thumbKey(x.src), src: x.src }));
+    if (!items.length) { showToast(kind === 'thumbs' ? 'Add a thumbnail first.' : 'Write at least one first.'); return; }
+    plannerScoring = kind;
+    renderPlanner();
+    try {
+      const format = p.format === 'short' ? 'a short-form vertical video (Shorts/TikTok/Reels)' : 'a long-form YouTube video';
+      const what = kind === 'hooks' ? 'opening hooks (the first lines viewers hear)' : kind === 'titles' ? 'titles' : 'thumbnails (attached as images, in order)';
+      const rubric = kind === 'hooks'
+        ? 'Judge each hook on: does it grab attention in the first second, create curiosity or tension, promise a clear payoff, feel specific (not generic), and sound natural when spoken.'
+        : kind === 'titles'
+          ? 'Judge each title like a pre-upload title checker: curiosity and click appeal, clarity, emotional pull, specificity, length (best under ~60 characters' + (p.format === 'short' ? ', shorter for short-form' : '') + '), searchable keywords for the topic, and honesty (no misleading clickbait).'
+          : 'Judge each thumbnail at small size on a phone: one clear focal point, readable text (ideally 0-4 big words), strong contrast and colour, faces or emotion if present, low clutter, and how well it fits the video and its titles.';
+      const list = kind === 'thumbs' ? items.map((x, i) => 'Thumbnail ' + (i + 1) + ' = image ' + (i + 1)).join('\n') : items.map((x, i) => (i + 1) + '. ' + x.text).join('\n');
+      const prompt = buildCreatorProfileContext()
+        + 'You are Adonis, a YouTube growth coach. Score these ' + what + ' for ' + format + ' from 1 to 100.\n\n'
+        + plannerVideoContext(p) + '\n' + rubric + '\n'
+        + 'Use the whole range: 90+ is exceptional, 70s good, 50s average, under 40 weak. Be honest and consistent.\n\n'
+        + list + '\n\n'
+        + 'Reply with ONLY a JSON array, one object per item, in the same order: [{"n":1,"score":82,"why":"one short sentence: the main strength or the one fix that would raise it"}]';
+      let images;
+      if (kind === 'thumbs') images = await Promise.all(items.map(async x => (await fetch(x.src)).blob()));
+      const { text } = await sampleApi([{ role: 'user', content: prompt }], { cache: false, images });
+      const scores = parseScores(text);
+      const target = kind === 'hooks' ? (holder.hookScores = holder.hookScores || {}) : kind === 'titles' ? (plan.titleScores = plan.titleScores || {}) : (plan.thumbScores = plan.thumbScores || {});
+      scores.forEach(s => { const it = items[s.n - 1]; if (it) target[it.id] = { score: s.score, why: s.why, key: it.key }; });
+      save();
+      const best = scores.slice().sort((a, b) => b.score - a.score)[0];
+      if (best) showToast('Rated! Best one scored ' + best.score + '.');
+    } catch (e) {
+      showToast(e && e.code === 'empty_completion' ? "Adonis's answer couldn't be read. Try again." : aiErrorCopy(e && e.code));
+    } finally {
+      plannerScoring = null;
+      if (plannerProjectId === p.id) renderPlanner();
+    }
+  }
+  function rateButton(kind, label) {
+    const bar = document.createElement('div');
+    bar.className = 'score-bar';
+    const busy = plannerScoring === kind;
+    const b = plannerButton(busy ? 'Adonis is rating…' : '✨ ' + label, 'planner-action solid planner-ai', () => plannerRate(kind));
+    b.disabled = !!plannerScoring || plannerBusy;
+    bar.appendChild(b);
+    bar.insertAdjacentHTML('beforeend', '<div class="planner-status">Scores out of 100 · uses 1 Adonis message</div>');
+    return bar;
   }
 
   function plannerAiReady() {
@@ -8616,6 +8729,8 @@
       if (t.src) slot.style.backgroundImage = `url(${t.src})`;
       else slot.textContent = '+ Add image';
       slot.insertAdjacentHTML('afterbegin', `<span class="planner-thumb-num">${i + 1}</span>`);
+      const ths = t.src ? scoreFor(p.plan.thumbScores, t.id, thumbKey(t.src)) : null;
+      if (ths) slot.appendChild(scoreBadge(ths));
       if (t.src) {
         const rm = plannerButton('✕', 'planner-thumb-remove', (e) => {
           e.stopPropagation();
@@ -8641,6 +8756,14 @@
     body.appendChild(grid);
     const filled = p.plan.thumbs.filter(t => t.src).length;
     body.insertAdjacentHTML('beforeend', `<div class="planner-status">${filled} of ${PLANNER_SLOTS} added</div>`);
+    if (filled) body.appendChild(rateButton('thumbs', 'Rate my thumbnails'));
+    const whys = document.createElement('div');
+    whys.className = 'thumb-whys';
+    p.plan.thumbs.forEach((t, i) => {
+      const s = t.src ? scoreFor(p.plan.thumbScores, t.id, thumbKey(t.src)) : null;
+      if (s && s.why) { const d = scoreWhy(s); d.textContent = (i + 1) + '. ' + s.score + '/100: ' + s.why; whys.appendChild(d); }
+    });
+    if (whys.children.length) body.appendChild(whys);
   }
 
   document.getElementById('plannerThumbInput').addEventListener('change', (e) => {
@@ -10914,6 +11037,18 @@ Give concise, specific, practical feedback grounded in the material above when a
       + '<div class="an-small"><div class="an-small-label">Videos</div><div class="an-small-value">' + formatCount(ch.videos) + '</div></div>'
       + '</div>'
       + (highlight ? '<div class="an-highlight">' + escapeHtml(highlight) + '</div>' : '')
+      + (() => {
+          const monthAgo = Date.now() - 30 * 86400000;
+          const top = r.recent.filter(v => typeof v.views === 'number' && new Date(v.publishedAt).getTime() >= monthAgo).sort((a, b) => b.views - a.views).slice(0, 3);
+          if (!top.length) return '<div class="an-section">Best videos, past 30 days</div><div class="an-highlight">No uploads in the last 30 days.</div>';
+          const medals = ['🥇', '🥈', '🥉'];
+          return '<div class="an-section">Best videos, past 30 days</div><div class="an-best">' + top.map((v, i) =>
+            '<a class="an-video" href="https://www.youtube.com/watch?v=' + encodeURIComponent(v.id) + '" target="_blank" rel="noopener">'
+            + '<span class="an-rank">' + medals[i] + '</span>'
+            + (v.thumbnail ? '<img src="' + escapeHtml(v.thumbnail) + '" alt="" loading="lazy">' : '<span class="an-thumb-blank"></span>')
+            + '<div class="an-video-text"><div class="an-video-title">' + escapeHtml(v.title) + '</div>'
+            + '<div class="an-video-meta"><b>' + formatCount(v.views) + ' views</b> · ' + ago(v.publishedAt) + '</div></div></a>').join('') + '</div>';
+        })()
       + (r.recent.length
         ? '<div class="an-section">Recent videos</div><div class="an-videos">' + r.recent.map(v => {
             const rt = rating(v.views);
