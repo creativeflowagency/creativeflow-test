@@ -1237,6 +1237,8 @@
 
   /* ---------- Reminders (iPhone app only) ---------- */
   .reminders-section { display: none; }
+  .ios-only { display: none !important; }
+  html.ios-app .ios-only { display: block !important; }
   html.ios-app .reminders-section { display: block; }
   .reminder-options[hidden] { display: none; }
   .reminder-chips { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -4652,6 +4654,7 @@
     <h3 id="actionsProjectName">Project</h3>
     <button type="button" class="sheet-btn" id="actionsDuplicateBtn">Duplicate project</button>
     <button type="button" class="sheet-btn" id="actionsPublishBtn">Mark as Published</button>
+    <button type="button" class="sheet-btn ios-only" id="actionsAddReminderBtn">Add to Reminders</button>
     <div class="sheet-section-label">Scheduled upload date</div>
     <input type="date" class="onboard-input" id="actionsScheduledDate" aria-label="Scheduled upload date">
     <div class="sheet-section-label">Playlists</div>
@@ -5655,6 +5658,7 @@
     if (!p) return;
     document.getElementById('actionsProjectName').textContent = (p.title && p.title.trim()) ? p.title : p.name;
     document.getElementById('actionsPublishBtn').textContent = p.published ? 'Move back to Active' : 'Mark as Published';
+    document.getElementById('actionsAddReminderBtn').textContent = p.appleReminderId ? 'Update in Reminders' : 'Add to Reminders';
     document.getElementById('actionsScheduledDate').value = p.scheduledDate || '';
 
     const container = document.getElementById('actionsPlaylistList');
@@ -5746,6 +5750,10 @@
     openSaveToPlaylist(id);
   });
 
+  document.getElementById('actionsAddReminderBtn').addEventListener('click', () => {
+    const p = findProject(actionsProjectId);
+    if (p) addToAppleReminders(p);
+  });
   document.getElementById('actionsDuplicateBtn').addEventListener('click', () => {
     if (!actionsProjectId) return;
     duplicateProject(actionsProjectId);
@@ -7531,6 +7539,20 @@
   (function listenForReminderTaps() {
     const api = notificationsApi();
     if (!api) return;
+    // The first time the app opens, iPhone's own "Allow notifications?" box appears. Saying Allow
+    // also switches on reminders (3 days before, 1 day before and on the day, at 9:00).
+    setTimeout(async () => {
+      try {
+        const perm = await api.checkPermissions();
+        if (!perm || !/^prompt/.test(perm.display)) return;
+        const res = await api.requestPermissions();
+        if (res && res.display === 'granted' && !(state.profile.reminders && state.profile.reminders.on)) {
+          state.profile.reminders = normalizeReminders({ on: true, offsets: [3, 1, 0], time: '09:00' });
+          save();
+          showToast('Reminders are on. Change them in Settings → Reminders.');
+        }
+      } catch (e) { console.error('CreativeFlow: notification permission failed', e); }
+    }, 1800);
     api.addListener('localNotificationActionPerformed', (ev) => {
       const id = ev && ev.notification && ev.notification.extra && ev.notification.extra.projectId;
       if (id && findProject(id)) setTimeout(() => openProject(id), 300);
@@ -7538,6 +7560,50 @@
     document.addEventListener('visibilitychange', () => { if (!document.hidden) scheduleRemindersSoon(); });
     scheduleRemindersSoon();
   })();
+
+  // ---------- "Add to Reminders": puts a video into Apple's Reminders app (iPhone app) ----------
+  // The reminder goes in a "CreativeFlow" list, due on the video's scheduled date (at the reminder
+  // time from Settings). Adding again replaces the old one instead of making a copy.
+  function appleRemindersApi() {
+    return document.documentElement.classList.contains('ios-app') && window.Capacitor && window.Capacitor.Plugins
+      ? window.Capacitor.Plugins.CapacitorCalendar || null : null;
+  }
+  async function addToAppleReminders(p) {
+    const cal = appleRemindersApi();
+    if (!cal) { showToast('Add to Reminders works in the iPhone app.'); return; }
+    try {
+      const access = await cal.requestFullRemindersAccess();
+      if (!access || access.result !== 'granted') {
+        showToast('CreativeFlow can\'t use Reminders. Turn it on in iPhone Settings → CreativeFlow → Reminders.');
+        return;
+      }
+      const lists = ((await cal.getRemindersLists()) || {}).result || [];
+      let list = lists.find(l => l && l.title === 'CreativeFlow');
+      if (!list) {
+        const made = await cal.createRemindersList({ title: 'CreativeFlow', color: '#8358FF' });
+        list = { id: made.id };
+      }
+      if (p.appleReminderId) {
+        try { await cal.deleteRemindersById({ ids: [p.appleReminderId] }); } catch (e) {}
+      }
+      const name = (p.title && p.title.trim()) || p.name;
+      const r = normalizeReminders(state.profile.reminders);
+      const [hh, mm] = r.time.split(':').map(Number);
+      const opts = { title: name, listId: list.id, notes: 'From CreativeFlow' + (p.format === 'short' ? ' · Short' : '') };
+      if (/^\d{4}-\d{2}-\d{2}$/.test(p.scheduledDate || '')) {
+        const [y, mo, d] = p.scheduledDate.split('-').map(Number);
+        opts.dueDate = new Date(y, mo - 1, d, hh, mm).getTime();
+        opts.alerts = [0];
+      }
+      const made = await cal.createReminder(opts);
+      p.appleReminderId = made && made.id ? made.id : null;
+      save();
+      showToast(opts.dueDate ? 'Added to Reminders, due ' + new Date(opts.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + '.' : 'Added to Reminders. Give it a scheduled date to add a due date.');
+    } catch (e) {
+      console.error('CreativeFlow: Add to Reminders failed', e);
+      showToast("Couldn't add it to Reminders.");
+    }
+  }
 
   function renderReminderSettings() {
     if (!settingsDraft) return;
