@@ -9657,7 +9657,11 @@
     }
     const last = turns[turns.length - 1];
     const justSent = last && (last.role === 'user' || (last.role === 'assistant' && last.content === ''));
-    aiChatList.scrollTop = (wasEmpty || nearBottom || justSent) ? aiChatList.scrollHeight : keepScroll;
+    // Opening the chat (the list is still hidden while it's drawn) always lands on the newest messages.
+    const hidden = aiChatList.clientHeight === 0;
+    const toBottom = wasEmpty || nearBottom || justSent || hidden;
+    aiChatList.scrollTop = toBottom ? aiChatList.scrollHeight : keepScroll;
+    if (toBottom) requestAnimationFrame(() => requestAnimationFrame(() => { aiChatList.scrollTop = aiChatList.scrollHeight; }));
   }
 
   function buildCreatorProfileContext() {
