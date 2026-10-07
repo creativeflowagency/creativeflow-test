@@ -4,6 +4,42 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <script>
+  // Errors are reported to CreativeFlow automatically (they show in HQ → Bugs), so problems get
+  // fixed even when nobody presses "Report a bug". Only the error text, where in the app it
+  // happened, the version and the kind of device: never anyone's content or email.
+  (function () {
+    var sent = 0, seen = {};
+    function send(message, source, stack) {
+      message = String(message || '');
+      if (!message || sent >= 10 || /^Script error.?$|ResizeObserver loop/.test(message)) return;
+      var key = message + '|' + source;
+      if (seen[key]) return;
+      seen[key] = 1; sent++;
+      var html = document.documentElement;
+      var platform = /^test./.test(location.hostname) ? 'test zone'
+        : html.classList.contains('ios-app') ? 'iPhone app'
+        : window.creativeflowDesktop ? 'desktop app'
+        : (window.matchMedia && matchMedia('(max-width: 699px)').matches ? 'web (phone)' : 'web (computer)');
+      var active = document.querySelector('.screen.active');
+      try {
+        fetch('https://creativeflow-ai.netlify.app/api/error-log', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
+          body: JSON.stringify({ message: message.slice(0, 300), source: String(source || '').slice(0, 200), stack: String(stack || '').slice(0, 1500),
+            version: window.CF_APP_VERSION || '', platform: platform, screen: active ? active.id.replace('screen-', '') : '' })
+        }).catch(function () {});
+      } catch (e) {}
+    }
+    window.addEventListener('error', function (e) {
+      if (e.target && e.target !== window) return; // a picture or file that failed to load, not a crash
+      send(e.message, (e.filename || '') + ':' + (e.lineno || 0) + ':' + (e.colno || 0), e.error && e.error.stack);
+    });
+    window.addEventListener('unhandledrejection', function (e) {
+      var r = e.reason;
+      send(r && r.message ? r.message : String(r), 'promise', r && r.stack);
+    });
+  })();
+</script>
+<script>
   // Inside the iPhone app (Capacitor) the page gets an "ios-app" class: it hides what Apple's rules don't allow there
   // (links to buy a membership elsewhere) and what can't work there (Google sign-in inside an app, offline caching).
   if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
@@ -4776,6 +4812,7 @@
   // Keep APP_VERSION in step with "version" in package.json. The desktop app reports its real
   // version itself; this is what the web/phone version shows.
   const APP_VERSION = '1.0.13';
+  window.CF_APP_VERSION = APP_VERSION;
   const REPORT_URL = 'https://creativeflow-ai.netlify.app/api/report';
   // Newest first. Add an entry for every release; only the newest is shown on the Updates & help page.
   const CHANGELOG = [
@@ -12052,6 +12089,7 @@ Give concise, specific, practical feedback grounded in the material above when a
     const data = {};
     SYNCED_FIELDS.forEach(k => { data[k] = state[k]; });
     data.licenseKey = state.license.key || null;
+    data.appVersion = APP_VERSION; // shown in HQ (which versions members are on)
     return JSON.parse(JSON.stringify(data));
   }
   function defaultSnapshot() {
