@@ -3785,11 +3785,25 @@
         <button class="icon-btn" id="topbarCalendarBtn" title="Content Calendar" aria-label="Content Calendar">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         </button>
+        <button class="icon-btn" id="topbarLeaderboardBtn" title="Leaderboard" aria-label="Leaderboard">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>
+        </button>
         <button class="icon-btn" id="burgerBtn" title="Menu" aria-label="Menu" style="position:relative;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
           <span class="topbar-level-badge" id="topbarLevelBadge">1</span>
         </button>
         <div class="burger-menu" id="burgerMenu">
+          <button type="button" class="burger-menu-item" id="accountBtn">
+            <span class="burger-menu-avatar">
+              <img id="accountBtnAvatar" src="" alt="" style="display:none;">
+              <svg id="accountBtnIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"/></svg>
+            </span>
+            <span>Account</span>
+          </button>
+          <button type="button" class="burger-menu-item" id="burgerSettingsBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+            <span>Settings</span>
+          </button>
           <button type="button" class="burger-menu-item" id="aiHomeBtn">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             <span>Ask Adonis</span>
@@ -3801,21 +3815,6 @@
           <button type="button" class="burger-menu-item" id="burgerAnalyticsBtn">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
             <span>Analytics</span>
-          </button>
-          <button type="button" class="burger-menu-item" id="burgerLeaderboardBtn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>
-            <span>Leaderboard</span>
-          </button>
-          <button type="button" class="burger-menu-item" id="accountBtn">
-            <span class="burger-menu-avatar">
-              <img id="accountBtnAvatar" src="" alt="" style="display:none;">
-              <svg id="accountBtnIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"/></svg>
-            </span>
-            <span>Account</span>
-          </button>
-          <button type="button" class="burger-menu-item" id="burgerSettingsBtn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
-            <span>Settings</span>
           </button>
           <button type="button" class="burger-menu-item" id="burgerUpdatesBtn">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
@@ -6085,7 +6084,7 @@
     { key: 'calendar', name: 'Content Calendar', desc: 'Top bar and bottom bar', selectors: ['#topbarCalendarBtn', '#tabBar [data-screen="calendar"]'] },
     { key: 'analytics', name: 'Analytics', desc: 'In the ☰ menu', selectors: ['#burgerAnalyticsBtn'] },
     { key: 'tasks', name: 'Daily Tasks', desc: '☰ menu and bottom bar', selectors: ['#burgerDailyQuestsBtn', '#tabBar [data-screen="dailyquests"]'] },
-    { key: 'leaderboard', name: 'Leaderboard', desc: 'In the ☰ menu', selectors: ['#burgerLeaderboardBtn'] },
+    { key: 'leaderboard', name: 'Leaderboard', desc: 'Top bar, next to the calendar', selectors: ['#topbarLeaderboardBtn'] },
     { key: 'adonis', name: 'Adonis (AI)', desc: 'Menu, bottom bar, project tab and planner buttons', selectors: ['#aiHomeBtn', '#tabBar [data-screen="ai"]', '.tab[data-tab="ai"]', '.planner-ai'] }
   ];
   const FAB_FEATURE_KEYS = ['newProject', 'planVideo', 'scripts', 'ideaBank'];
@@ -6515,7 +6514,7 @@
     switchScreen('leaderboard');
     loadLeaderboard();
   }
-  document.getElementById('burgerLeaderboardBtn').addEventListener('click', openLeaderboard);
+  document.getElementById('topbarLeaderboardBtn').addEventListener('click', openLeaderboard);
   document.getElementById('leaderboardBackBtn').addEventListener('click', () => { renderHome(); switchScreen('home'); });
   document.querySelectorAll('.lb-tab').forEach(t => t.addEventListener('click', () => { lbPeriod = t.dataset.lb; renderLeaderboard(); }));
 
