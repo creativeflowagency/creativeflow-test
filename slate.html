@@ -2051,6 +2051,41 @@
     border-radius: 2px;
     min-height: 3px;
   }
+  /* Analytics, simple layout */
+  .an-channel { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .an-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; background: var(--surface-2); flex: none; }
+  .an-channel-text { flex: 1; min-width: 0; }
+  .an-channel-name { font-size: 18px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .an-channel-handle { font-size: 13px; color: var(--text-muted); }
+  .an-link { background: none; border: none; color: var(--accent); font: 700 13px var(--font-body); cursor: pointer; padding: 6px; }
+  .an-hero { background: linear-gradient(160deg, rgba(var(--accent-rgb), 0.22), rgba(var(--accent-rgb), 0.05)); border: 1px solid rgba(var(--accent-rgb), 0.35); border-radius: 18px; padding: 18px 18px 14px; margin-bottom: 10px; }
+  .an-hero-label { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .an-hero-value { font-size: 44px; font-weight: 800; line-height: 1.1; margin: 4px 0 6px; font-variant-numeric: tabular-nums; }
+  .an-change { font-size: 15px; font-weight: 800; }
+  .an-change span { font-weight: 600; color: var(--text-muted); }
+  .an-change.up { color: #6FD3A0; } .an-change.down { color: var(--danger); } .an-change.muted { color: var(--text-muted); font-weight: 600; font-size: 13.5px; }
+  .an-spark { margin-top: 12px; }
+  .an-spark svg { width: 100%; height: auto; display: block; }
+  .an-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .an-small { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
+  .an-small-label { font-size: 12.5px; color: var(--text-muted); font-weight: 600; }
+  .an-small-value { font-size: 24px; font-weight: 800; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .an-small-change { font-size: 12.5px; font-weight: 700; margin-top: 2px; }
+  .an-small-change.up { color: #6FD3A0; } .an-small-change.down { color: var(--danger); }
+  .an-highlight { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 13px 14px; font-size: 14.5px; line-height: 1.45; margin-bottom: 6px; }
+  .an-section { font-size: 15px; font-weight: 800; margin: 18px 0 10px; }
+  .an-videos { display: grid; gap: 10px; }
+  .an-video { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 12px; align-items: center; color: inherit; text-decoration: none; padding: 6px; border-radius: 12px; transition: background 0.15s ease; }
+  .an-video:hover { background: var(--surface); }
+  .an-video img, .an-thumb-blank { width: 120px; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 9px; display: block; background: var(--surface-2); }
+  .an-video-text { min-width: 0; display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+  .an-video-title { font-size: 14.5px; font-weight: 700; line-height: 1.3; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .an-video-meta { font-size: 12.5px; color: var(--text-muted); }
+  .an-video-meta b { color: var(--text); font-weight: 700; }
+  .an-tag { font-size: 11.5px; font-weight: 800; padding: 3px 9px; border-radius: 999px; }
+  .an-tag.great { background: rgba(111, 211, 160, 0.16); color: #6FD3A0; }
+  .an-tag.ok { background: rgba(255, 255, 255, 0.07); color: var(--text-muted); }
+  .an-tag.low { background: rgba(255, 107, 125, 0.14); color: #FF9AA8; }
   .analytics-connect { display: grid; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
   .analytics-connect h3 { margin: 0; font-size: 16px; }
   .analytics-connect p { margin: 0; color: var(--text-muted); font-size: 13.5px; line-height: 1.5; }
@@ -10817,7 +10852,7 @@ Give concise, specific, practical feedback grounded in the material above when a
 
   function subscriberSparkline(ch) {
     const pts = state.profile.analyticsHistory.filter(s => s.channelId === ch.id && typeof s.subs === 'number').slice(-90);
-    if (pts.length < 2) return '';
+    if (pts.length < 7) return '';
     const W = 320, H = 70, pad = 6;
     const vals = pts.map(p => p.subs);
     const min = Math.min(...vals), max = Math.max(...vals), range = (max - min) || 1;
@@ -10825,57 +10860,72 @@ Give concise, specific, practical feedback grounded in the material above when a
     const y = (v) => H - pad - (v - min) / range * (H - 2 * pad);
     const line = pts.map((p, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ',' + y(p.subs).toFixed(1)).join(' ');
     const area = line + ' L' + x(pts.length - 1).toFixed(1) + ',' + (H - pad) + ' L' + x(0).toFixed(1) + ',' + (H - pad) + ' Z';
-    return '<div class="analytics-section-label">Subscribers over time</div><div class="analytics-spark">'
+    return '<div class="an-spark">'
       + '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Subscribers from ' + formatCount(vals[0]) + ' to ' + formatCount(vals[vals.length - 1]) + '">'
       + '<path d="' + area + '" fill="var(--accent)" opacity="0.15"/><path d="' + line + '" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
       + '<circle cx="' + x(pts.length - 1).toFixed(1) + '" cy="' + y(vals[vals.length - 1]).toFixed(1) + '" r="3.5" fill="var(--accent)"/></svg></div>';
   }
 
+  // A simple page: the channel, one big number (subscribers) with its change, two small totals,
+  // one plain-English highlight, then recent videos labelled "Doing great / As usual / Below usual".
   function renderAnalyticsData(r) {
     const ch = r.channel;
     document.getElementById('analyticsSubtitle').textContent = ch.handle || 'YouTube';
     const body = document.getElementById('analyticsBody');
     const growth = analyticsGrowth(ch);
-    // Each recent video against the middle (median) of the recent ones.
     const viewCounts = r.recent.map(v => v.views).filter(n => typeof n === 'number').sort((a, b) => a - b);
     const median = viewCounts.length ? viewCounts[Math.floor((viewCounts.length - 1) / 2)] : 0;
-    const vs = (v) => {
-      if (!median || typeof v !== 'number') return '';
+    const rating = (v) => {
+      if (!median || typeof v !== 'number' || viewCounts.length < 3) return null;
       const ratio = v / median;
-      const cls = ratio >= 1.2 ? 'up' : ratio <= 0.8 ? 'down' : 'flat';
-      return '<div class="analytics-vs ' + cls + '">' + (cls === 'up' ? '▲ ' : cls === 'down' ? '▼ ' : '') + ratio.toFixed(1) + '× usual</div>';
+      return ratio >= 1.3 ? { cls: 'great', text: 'Doing great' } : ratio <= 0.7 ? { cls: 'low', text: 'Below usual' } : { cls: 'ok', text: 'As usual' };
     };
     const ago = (iso) => {
       const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
-      return days <= 0 ? 'today' : days === 1 ? 'yesterday' : days < 30 ? days + ' days ago' : new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+      return days <= 0 ? 'Today' : days === 1 ? 'Yesterday' : days < 30 ? days + ' days ago' : new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
     };
-    const len = (s) => typeof s === 'number' ? (s >= 3600 ? Math.floor(s / 3600) + ':' + String(Math.floor(s % 3600 / 60)).padStart(2, '0') : Math.floor(s / 60)) + ':' + String(s % 60).padStart(2, '0') : '';
+    // One highlight sentence.
+    const best = r.recent.filter(v => typeof v.views === 'number').slice().sort((a, b) => b.views - a.views)[0];
+    const latest = r.recent[0];
+    const latestRating = latest ? rating(latest.views) : null;
+    let highlight = '';
+    if (latest && latestRating) {
+      highlight = latestRating.cls === 'great' ? '🔥 Your latest video is doing better than usual.'
+        : latestRating.cls === 'low' ? '📉 Your latest video is getting fewer views than usual so far.'
+        : '👍 Your latest video is doing about as well as usual.';
+    } else if (best) {
+      highlight = '⭐ Your most-watched recent video has ' + formatCount(best.views) + ' views.';
+    }
+    const subsChange = growth && growth.subs !== null
+      ? '<div class="an-change ' + (growth.subs >= 0 ? 'up' : 'down') + '">' + signed(growth.subs) + ' <span>' + escapeHtml(growth.label.charAt(0).toLowerCase() + growth.label.slice(1)) + '</span></div>'
+      : '<div class="an-change muted">Growth shows from tomorrow</div>';
+    const viewsChange = growth ? '<div class="an-small-change ' + (growth.views >= 0 ? 'up' : 'down') + '">' + signed(growth.views) + '</div>' : '';
 
-    body.innerHTML = '<div class="analytics-channel-card">'
-      + (ch.thumbnail ? '<img class="analytics-channel-avatar" src="' + escapeHtml(ch.thumbnail) + '" alt="">' : '')
-      + '<div style="flex:1;min-width:0"><div class="analytics-channel-name">' + escapeHtml(ch.title) + '</div>'
-      + '<div class="analytics-channel-meta">' + escapeHtml(ch.handle || 'YouTube channel') + '</div></div>'
-      + '<button type="button" class="analytics-change-btn" id="analyticsChangeBtn">Change</button></div>'
-      + '<div class="analytics-stats-row">'
-      + '<div class="analytics-stat-tile"><div class="analytics-stat-value">' + (ch.subscribers === null ? 'Hidden' : formatCount(ch.subscribers)) + '</div><div class="analytics-stat-label">Subscribers</div></div>'
-      + '<div class="analytics-stat-tile"><div class="analytics-stat-value">' + formatCount(ch.views) + '</div><div class="analytics-stat-label">Views</div></div>'
-      + '<div class="analytics-stat-tile"><div class="analytics-stat-value">' + formatCount(ch.videos) + '</div><div class="analytics-stat-label">Videos</div></div></div>'
-      + (growth
-        ? '<div class="analytics-section-label">' + escapeHtml(growth.label) + '</div><div class="analytics-growth-row">'
-          + '<div class="analytics-growth-tile"><div class="analytics-growth-value ' + ((growth.subs || 0) >= 0 ? 'up' : 'down') + '">' + (growth.subs === null ? '—' : signed(growth.subs)) + '</div><div class="analytics-growth-label">Subscribers</div></div>'
-          + '<div class="analytics-growth-tile"><div class="analytics-growth-value ' + (growth.views >= 0 ? 'up' : 'down') + '">' + signed(growth.views) + '</div><div class="analytics-growth-label">Views</div></div></div>'
-        : '<div class="analytics-note">Growth starts tracking today. Check back tomorrow to see how your channel is moving.</div>')
-      + subscriberSparkline(ch)
+    body.innerHTML =
+      '<div class="an-channel">'
+      + (ch.thumbnail ? '<img class="an-avatar" src="' + escapeHtml(ch.thumbnail) + '" alt="">' : '<div class="an-avatar"></div>')
+      + '<div class="an-channel-text"><div class="an-channel-name">' + escapeHtml(ch.title) + '</div><div class="an-channel-handle">' + escapeHtml(ch.handle || 'YouTube channel') + '</div></div>'
+      + '<button type="button" class="an-link" id="analyticsChangeBtn">Change</button></div>'
+      + '<div class="an-hero"><div class="an-hero-label">Subscribers</div>'
+      + '<div class="an-hero-value">' + (ch.subscribers === null ? 'Hidden' : formatCount(ch.subscribers)) + '</div>' + subsChange
+      + subscriberSparkline(ch) + '</div>'
+      + '<div class="an-pair">'
+      + '<div class="an-small"><div class="an-small-label">Total views</div><div class="an-small-value">' + formatCount(ch.views) + '</div>' + viewsChange + '</div>'
+      + '<div class="an-small"><div class="an-small-label">Videos</div><div class="an-small-value">' + formatCount(ch.videos) + '</div></div>'
+      + '</div>'
+      + (highlight ? '<div class="an-highlight">' + escapeHtml(highlight) + '</div>' : '')
       + (r.recent.length
-        ? '<div class="analytics-section-label">Recent videos</div><div class="analytics-videos">' + r.recent.map(v =>
-            '<a class="analytics-video" href="https://www.youtube.com/watch?v=' + encodeURIComponent(v.id) + '" target="_blank" rel="noopener">'
-            + (v.thumbnail ? '<img src="' + escapeHtml(v.thumbnail) + '" alt="" loading="lazy">' : '<span></span>')
-            + '<div style="min-width:0"><div class="analytics-video-title">' + escapeHtml(v.title) + '</div>'
-            + '<div class="analytics-video-meta">' + ago(v.publishedAt) + (len(v.seconds) ? ' · ' + len(v.seconds) : '') + (typeof v.likes === 'number' ? ' · ' + formatCount(v.likes) + ' likes' : '') + '</div></div>'
-            + '<div class="analytics-video-views"><b>' + formatCount(v.views) + '</b>' + vs(v.views) + '</div></a>').join('') + '</div>'
-        : '<div class="analytics-note">No public videos yet.</div>')
-      + '<div class="analytics-updated">Public data from YouTube · updated ' + new Date(r.fetchedAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
-      + '. For watch time and retention, open YouTube Studio.</div>';
+        ? '<div class="an-section">Recent videos</div><div class="an-videos">' + r.recent.map(v => {
+            const rt = rating(v.views);
+            return '<a class="an-video" href="https://www.youtube.com/watch?v=' + encodeURIComponent(v.id) + '" target="_blank" rel="noopener">'
+              + (v.thumbnail ? '<img src="' + escapeHtml(v.thumbnail) + '" alt="" loading="lazy">' : '<span class="an-thumb-blank"></span>')
+              + '<div class="an-video-text"><div class="an-video-title">' + escapeHtml(v.title) + '</div>'
+              + '<div class="an-video-meta"><b>' + formatCount(v.views) + ' views</b> · ' + ago(v.publishedAt) + '</div>'
+              + (rt ? '<span class="an-tag ' + rt.cls + '">' + rt.text + '</span>' : '')
+              + '</div></a>';
+          }).join('') + '</div>'
+        : '<div class="an-highlight">No public videos yet. Your first upload will show up here.</div>')
+      + '<div class="analytics-updated">From YouTube · updated ' + new Date(r.fetchedAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }) + '</div>';
     document.getElementById('analyticsChangeBtn').addEventListener('click', () => renderAnalyticsConnect(''));
   }
 
