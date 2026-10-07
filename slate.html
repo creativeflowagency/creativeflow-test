@@ -2595,14 +2595,36 @@
     margin-top: 1px;
   }
   .ai-bubble {
-    max-width: 85%;
-    padding: 11px 14px;
-    border-radius: 14px;
-    font-size: 14px;
+    max-width: 88%;
+    padding: 12px 16px;
+    border-radius: 20px;
+    font-size: 16px;
     line-height: 1.55;
     white-space: pre-wrap;
     word-break: break-word;
   }
+  /* Adonis's replies are formatted (bold, lists, headings), so normal line wrapping. */
+  .ai-bubble.assistant.md { white-space: normal; }
+  .ai-md > :first-child { margin-top: 0; }
+  .ai-md > :last-child { margin-bottom: 0; }
+  .ai-md p { margin: 0 0 10px; }
+  .ai-md h1, .ai-md h2, .ai-md h3 { font-size: 17px; font-weight: 800; margin: 14px 0 6px; line-height: 1.35; }
+  .ai-md ul, .ai-md ol { margin: 0 0 10px; padding-left: 22px; }
+  .ai-md li { margin: 3px 0; }
+  .ai-md li::marker { color: var(--accent); }
+  .ai-md strong { font-weight: 800; }
+  .ai-md code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.9em; background: var(--surface-2); padding: 1px 5px; border-radius: 5px; }
+  .ai-md pre { background: var(--surface-2); padding: 10px 12px; border-radius: 10px; overflow-x: auto; margin: 0 0 10px; white-space: pre; }
+  .ai-md pre code { background: none; padding: 0; }
+  .ai-md hr { border: none; height: 1px; background: var(--border); margin: 12px 0; }
+  .ai-md a { color: var(--accent); }
+  /* Chats: the screen is exactly one window tall, so only the messages scroll and the text box stays put. */
+  #screen-ai.active,
+  #screen-project.active:has(#panel-ai.active),
+  #screen-project.active:has(#panel-ideas.active) {
+    height: var(--app-h, 100dvh); max-height: var(--app-h, 100dvh); box-sizing: border-box; overflow: hidden; flex: none;
+  }
+  .ai-chat-list { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
   .ai-bubble.user {
     align-self: flex-end;
     background: var(--accent);
@@ -2611,10 +2633,10 @@
   }
   .ai-bubble.assistant {
     align-self: flex-start;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-bottom-left-radius: 4px;
+    background: var(--surface-2);
+    border-bottom-left-radius: 6px;
   }
+  .ai-bubble.user { border-bottom-right-radius: 6px; }
   .ai-bubble.assistant.error {
     color: var(--danger);
     border-color: var(--danger);
@@ -9254,8 +9276,47 @@
     }
   }
 
+  // Turns Adonis's Markdown (bold, italics, lists, headings, code) into safe HTML: everything is
+  // escaped first, so a reply can't add its own HTML.
+  function aiMarkdown(src) {
+    const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const inline = (s) => esc(s)
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/__([^_]+?)__/g, '<strong>$1</strong>')
+      .replace(/(^|[^*\w])\*([^*\n]+?)\*(?!\w)/g, '$1<em>$2</em>')
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    const lines = String(src || '').replace(/\r\n?/g, '\n').split('\n');
+    let html = '', list = null, para = [], code = null;
+    const flushPara = () => { if (para.length) { html += '<p>' + para.map(inline).join('<br>') + '</p>'; para = []; } };
+    const closeList = () => { if (list) { html += '</' + list + '>'; list = null; } };
+    for (const line of lines) {
+      if (code !== null) {
+        if (/^\s*```/.test(line)) { html += '<pre><code>' + esc(code.join('\n')) + '</code></pre>'; code = null; }
+        else code.push(line);
+        continue;
+      }
+      if (/^\s*```/.test(line)) { flushPara(); closeList(); code = []; continue; }
+      let m;
+      if ((m = line.match(/^\s*(#{1,6})\s+(.*)$/))) { flushPara(); closeList(); html += '<h3>' + inline(m[2]) + '</h3>'; continue; }
+      if (/^\s*([-*_])\s*\1\s*\1[\s\-*_]*$/.test(line)) { flushPara(); closeList(); html += '<hr>'; continue; }
+      if ((m = line.match(/^\s*[-*•]\s+(.*)$/))) { flushPara(); if (list !== 'ul') { closeList(); html += '<ul>'; list = 'ul'; } html += '<li>' + inline(m[1]) + '</li>'; continue; }
+      if ((m = line.match(/^\s*\d+[.)]\s+(.*)$/))) { flushPara(); if (list !== 'ol') { closeList(); html += '<ol>'; list = 'ol'; } html += '<li>' + inline(m[1]) + '</li>'; continue; }
+      if (!line.trim()) { flushPara(); closeList(); continue; }
+      closeList();
+      para.push(line);
+    }
+    if (code !== null) html += '<pre><code>' + esc(code.join('\n')) + '</code></pre>';
+    flushPara(); closeList();
+    return html;
+  }
+
   function renderAiMessages() {
     const turns = state.aiChats[aiChatKey()] || [];
+    // Stay where the person is reading: only follow new text if they were already at the bottom.
+    const wasEmpty = !aiChatList.querySelector('.ai-bubble');
+    const nearBottom = aiChatList.scrollHeight - aiChatList.scrollTop - aiChatList.clientHeight < 120;
+    const keepScroll = aiChatList.scrollTop;
     aiChatList.innerHTML = '';
     if (turns.length === 0) {
       const wrap = document.createElement('div');
@@ -9311,13 +9372,21 @@
             bubble.appendChild(imgRow);
           }
           const textNode = document.createElement('div');
-          textNode.textContent = t.content;
+          if (t.role === 'assistant' && !t.isError) {
+            bubble.classList.add('md');
+            textNode.className = 'ai-md';
+            textNode.innerHTML = aiMarkdown(t.content);
+          } else {
+            textNode.textContent = t.content;
+          }
           bubble.appendChild(textNode);
         }
         aiChatList.appendChild(bubble);
       });
     }
-    aiChatList.scrollTop = aiChatList.scrollHeight;
+    const last = turns[turns.length - 1];
+    const justSent = last && (last.role === 'user' || (last.role === 'assistant' && last.content === ''));
+    aiChatList.scrollTop = (wasEmpty || nearBottom || justSent) ? aiChatList.scrollHeight : keepScroll;
   }
 
   function buildCreatorProfileContext() {
