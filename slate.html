@@ -285,6 +285,10 @@
     text-align: left;
   }
   .burger-menu-item:active { background: var(--surface-2); }
+  a.burger-menu-item { text-decoration: none; }
+  a.burger-menu-item svg { color: #8C9EFF; }
+  .discord-btn { display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; margin-top: 8px; }
+  .discord-btn svg { color: #8C9EFF; }
   .burger-menu-avatar {
     width: 20px; height: 20px;
     border-radius: 6px;
@@ -3777,6 +3781,10 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7V5a4 4 0 0 1 8 0v2"/><rect x="6" y="7" width="12" height="13" rx="6"/><path d="M12 11v5M3 13h3M18 13h3M4 7l2.5 2M20 7l-2.5 2M4 20l2.5-2M20 20l-2.5-2"/></svg>
             <span>Report a bug</span>
           </button>
+          <a class="burger-menu-item" id="burgerDiscordLink" href="https://discord.gg/AkTxFh4Zvh" target="_blank" rel="noopener noreferrer">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.6 5.2A16.6 16.6 0 0 0 15.5 4l-.5 1a15.3 15.3 0 0 0-6 0l-.5-1a16.6 16.6 0 0 0-4.1 1.2C1.8 9 1.1 12.8 1.4 16.5a16.7 16.7 0 0 0 5 2.5l1.1-1.7a10.8 10.8 0 0 1-1.7-.8l.4-.3a11.9 11.9 0 0 0 11.6 0l.4.3a10.8 10.8 0 0 1-1.7.8l1.1 1.7a16.7 16.7 0 0 0 5-2.5c.4-4.3-.7-8-2-11.3zM8.7 14.3c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2zm6.6 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2z"/></svg>
+            <span>Join Discord</span>
+          </a>
           <button type="button" class="burger-menu-item" id="burgerInstallBtn" hidden>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M5 21h14"/></svg>
             <span>Install CreativeFlow</span>
@@ -4234,6 +4242,7 @@
 
       <div class="sheet-section-label">Something not working?</div>
       <button type="button" class="sheet-btn" id="updatesReportBugBtn">Report a bug</button>
+      <a class="sheet-btn discord-btn" href="https://discord.gg/AkTxFh4Zvh" target="_blank" rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.6 5.2A16.6 16.6 0 0 0 15.5 4l-.5 1a15.3 15.3 0 0 0-6 0l-.5-1a16.6 16.6 0 0 0-4.1 1.2C1.8 9 1.1 12.8 1.4 16.5a16.7 16.7 0 0 0 5 2.5l1.1-1.7a10.8 10.8 0 0 1-1.7-.8l.4-.3a11.9 11.9 0 0 0 11.6 0l.4.3a10.8 10.8 0 0 1-1.7.8l1.1 1.7a16.7 16.7 0 0 0 5-2.5c.4-4.3-.7-8-2-11.3zM8.7 14.3c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2zm6.6 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2z"/></svg> Join our Discord</a>
 
       <div class="sheet-section-label">What's new</div>
       <div id="changelogList"></div>
