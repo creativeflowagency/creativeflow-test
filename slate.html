@@ -3476,7 +3476,6 @@
   #screen-editprofile.active,
   #screen-updates.active,
   #screen-legal.active,
-  #screen-dev.active { animation-name: cfPushIn; }
 
   /* ---------- Updates & help ---------- */
   .update-card {
@@ -3758,9 +3757,6 @@
 
   <!-- SPLASH -->
   <section class="screen active" id="screen-splash">
-    <button type="button" class="splash-dev-toggle" id="splashDevBtn" aria-label="Quick access">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a5 5 0 0 0-6.9 6.9l-4.3 4.3a1.5 1.5 0 0 0 2.1 2.1l4.3-4.3a5 5 0 0 0 6.9-6.9l-2.6 2.6-2.1-2.1z"/></svg>
-    </button>
     <div class="splash-top-group">
       <img class="splash-logo no-save-img" id="splashLogoImg" src="" alt="Creative Flow logo" draggable="false" oncontextmenu="return false;">
       <div class="splash-title">CreativeFlow <span class="beta-tag">BETA</span></div>
@@ -4542,43 +4538,6 @@
     </div>
   </section>
 
-  <!-- DEVELOPER / DEBUG -->
-  <section class="screen" id="screen-dev">
-    <div class="back-row">
-      <button class="back-btn" id="devBackBtn" aria-label="Back">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg>
-      </button>
-      <div class="project-title-row">
-        <div class="project-title">Developer</div>
-      </div>
-    </div>
-    <div class="settings-body">
-
-      <div class="onboard-field-label" style="margin-top:0;">App usage — all time</div>
-      <div class="dev-stats-grid" id="devTotalsGrid"></div>
-
-      <div class="onboard-field-label" style="margin-top:22px;">Opens, last 14 days</div>
-      <div class="analytics-chart" id="devChartOpens"></div>
-
-      <div class="onboard-field-label" style="margin-top:18px;">Ideas added, last 14 days</div>
-      <div class="analytics-chart" id="devChartIdeas"></div>
-
-      <div class="onboard-field-label" style="margin-top:18px;">Script edits, last 14 days</div>
-      <div class="analytics-chart" id="devChartScript"></div>
-
-      <div class="onboard-field-label" style="margin-top:18px;">Projects created, last 14 days</div>
-      <div class="analytics-chart" id="devChartProjects"></div>
-
-      <div class="onboard-field-label" style="margin-top:26px;">How progress % works</div>
-      <div class="onboard-hint" style="margin-bottom:12px;">Each project's progress is 5 equal steps. Pick a project to see which ones it has met.</div>
-      <select class="onboard-input" id="devProjectPicker" style="margin-bottom:12px;"></select>
-      <div id="devProgressChecklist"></div>
-
-      <div class="onboard-field-label" style="margin-top:26px;">Known issues &amp; limitations</div>
-      <div id="devKnownIssues"></div>
-
-    </div>
-  </section>
 
 </div>
 
@@ -4717,7 +4676,6 @@
 
     <button type="button" class="sheet-btn" id="accountEditProfileBtn">Edit Profile</button>
     <button type="button" class="sheet-btn" id="accountRedoSetupBtn">Redo setup questions</button>
-    <button type="button" class="sheet-btn" id="accountDevBtn">Developer</button>
 
     <div class="sheet-section-label">Backup</div>
     <button type="button" class="sheet-btn" id="backupExportBtn">Export backup file</button>
@@ -6756,189 +6714,6 @@
     switchScreen('home');
   });
 
-  // ---------- Developer / Debug panel ----------
-  function formatBytes(n) {
-    if (n < 1024) return n + ' B';
-    if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB';
-    return (n / (1024 * 1024)).toFixed(2) + ' MB';
-  }
-
-  function last14Days() {
-    const days = [];
-    for (let i = 13; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      days.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`);
-    }
-    return days;
-  }
-
-  function renderUsageChart(elId, eventType) {
-    const days = last14Days();
-    const values = days.map(d => (state.usageDaily[d] && state.usageDaily[d][eventType]) || 0);
-    const max = Math.max(...values, 1);
-    const el = document.getElementById(elId);
-    el.innerHTML = values.map((v, i) => {
-      const pct = Math.round((v / max) * 85) + (v > 0 ? 15 : 2);
-      return `<div class="analytics-chart-bar" style="height:${pct}%" title="${days[i]}: ${v}"></div>`;
-    }).join('');
-  }
-
-  function renderDevStats() {
-    let storageBytes = 0;
-    try { storageBytes = new Blob([JSON.stringify(state)]).size; } catch (e) { storageBytes = JSON.stringify(state).length; }
-
-    const allTotals = {};
-    Object.values(state.usageDaily).forEach(day => {
-      Object.keys(day).forEach(type => { allTotals[type] = (allTotals[type] || 0) + day[type]; });
-    });
-    const daysTracked = Object.keys(state.usageDaily).length;
-
-    const tiles = [
-      { value: allTotals.opens || 0, label: 'Total app opens' },
-      { value: allTotals.projectsCreated || 0, label: 'Projects created (all time)' },
-      { value: allTotals.ideasAdded || 0, label: 'Ideas added (all time)' },
-      { value: allTotals.scriptEdits || 0, label: 'Script edit sessions (all time)' },
-      { value: allTotals.published || 0, label: 'Projects published (all time)' },
-      { value: daysTracked, label: 'Days of usage data' },
-      { value: formatBytes(storageBytes), label: 'Local storage used' },
-      { value: state.currentAccountEmail ? 'Signed in' : 'Not signed in', label: 'Account status' }
-    ];
-    document.getElementById('devTotalsGrid').innerHTML = tiles.map(t => `
-      <div class="dev-stat-tile">
-        <div class="dev-stat-value">${t.value}</div>
-        <div class="dev-stat-label">${t.label}</div>
-      </div>
-    `).join('');
-
-    renderUsageChart('devChartOpens', 'opens');
-    renderUsageChart('devChartIdeas', 'ideasAdded');
-    renderUsageChart('devChartScript', 'scriptEdits');
-    renderUsageChart('devChartProjects', 'projectsCreated');
-  }
-
-  function renderDevProjectPicker() {
-    const picker = document.getElementById('devProjectPicker');
-    picker.innerHTML = '';
-    if (state.projects.length === 0) {
-      picker.innerHTML = '<option>No projects yet</option>';
-      picker.disabled = true;
-      return;
-    }
-    picker.disabled = false;
-    state.projects.forEach(p => {
-      const opt = document.createElement('option');
-      opt.value = p.id;
-      opt.textContent = (p.title && p.title.trim()) ? p.title : p.name;
-      picker.appendChild(opt);
-    });
-    renderDevProgressChecklist(state.projects[0].id);
-  }
-
-  function renderDevProgressChecklist(projectId) {
-    const wrap = document.getElementById('devProgressChecklist');
-    const p = findProject(projectId);
-    if (!p) { wrap.innerHTML = ''; return; }
-    const plainScript = scriptPlainText(p.script);
-    const wordCount = plainScript.split(/\s+/).filter(Boolean).length;
-    const checks = [
-      { label: 'At least one idea added', met: p.ideas.length > 0 },
-      { label: 'Script started', met: plainScript.length > 0 },
-      { label: 'Script is 60+ words (currently ' + wordCount + ')', met: wordCount >= 60 },
-      { label: 'Video title set', met: !!(p.title || '').trim() },
-      { label: 'Thumbnail uploaded', met: !!p.thumbnail }
-    ];
-    wrap.innerHTML = checks.map(c => `
-      <div class="dev-check-row ${c.met ? 'met' : ''}">
-        <span class="dev-check-icon">${c.met ? '✓' : ''}</span>
-        <span>${escapeHtml(c.label)}</span>
-      </div>
-    `).join('') + `<div class="dev-progress-total">${computeProgress(p)}% complete</div>`;
-  }
-
-  function renderDevKnownIssues() {
-    const issues = [
-      { title: 'Adonis (AI assistant) needs claude.ai', desc: "Only works when CreativeFlow is open inside a published claude.ai artifact page — not in the standalone desktop .exe build, since it relies on a capability that only exists there." },
-      { title: 'Analytics needs claude.ai + vidIQ', desc: 'Same limitation — the vidIQ connection only works inside the claude.ai hosted page, and only if a YouTube channel is authorized through vidIQ.' },
-      { title: 'Backup export/import needs claude.ai', desc: "The download/import buttons only work inside the claude.ai hosted page — they do nothing in the desktop .exe build." },
-      { title: 'Google / Apple sign-in are not connected', desc: 'Both buttons show an explanatory message instead of signing in for real — they need a real backend server to verify accounts, which this app does not have.' },
-      { title: 'Local sign-in is not secure', desc: "Email/password accounts are stored on this device only, lightly obscured, not encrypted. This is a convenience gate, not real account security." },
-      { title: 'No cross-device sync', desc: 'Everything (projects, profile, chats) lives in this browser/device\'s local storage. Nothing syncs to another device or browser automatically — use Backup export/import to move data manually.' },
-      { title: 'Desktop .exe is unsigned', desc: 'Windows SmartScreen will warn before opening it, since it has no paid code-signing certificate. This is expected, not a sign of a problem.' }
-    ];
-    document.getElementById('devKnownIssues').innerHTML = issues.map(i => `
-      <div class="dev-issue-card">
-        <div class="dev-issue-title">${escapeHtml(i.title)}</div>
-        <div class="dev-issue-desc">${escapeHtml(i.desc)}</div>
-      </div>
-    `).join('');
-  }
-
-  document.getElementById('devProjectPicker').addEventListener('change', (e) => {
-    renderDevProgressChecklist(e.target.value);
-  });
-
-  function openDevPanel() {
-    renderDevStats();
-    renderDevProjectPicker();
-    renderDevKnownIssues();
-    switchScreen('dev');
-  }
-
-  let devUnlockedThisSession = false;
-  let testUnlockedThisSession = false;
-
-  function requestDevAccess(onGranted) {
-    if (devUnlockedThisSession) { onGranted(); return; }
-
-    if (!state.devPasscode) {
-      state.devPasscode = simpleHash('DEV12');
-      save();
-    }
-
-    showPromptSheet({
-      title: 'Developer passcode',
-      placeholder: 'Enter passcode',
-      inputType: 'password',
-      onSubmit: (value) => {
-        if (simpleHash(value) !== state.devPasscode) {
-          showToast('Incorrect passcode.');
-          return;
-        }
-        devUnlockedThisSession = true;
-        onGranted();
-      }
-    });
-  }
-
-  function requestTestAccess(onGranted) {
-    if (testUnlockedThisSession) { onGranted(); return; }
-
-    if (!state.testPasscode) {
-      state.testPasscode = simpleHash('TEST1');
-      save();
-    }
-
-    showPromptSheet({
-      title: 'Enter passcode',
-      placeholder: 'Enter passcode',
-      inputType: 'password',
-      onSubmit: (value) => {
-        if (simpleHash(value) !== state.testPasscode) {
-          showToast('Incorrect passcode.');
-          return;
-        }
-        testUnlockedThisSession = true;
-        onGranted();
-      }
-    });
-  }
-
-  document.getElementById('accountDevBtn').addEventListener('click', () => {
-    backupSheetBackdrop.classList.remove('active');
-    requestDevAccess(() => openDevPanel());
-  });
-  document.getElementById('devBackBtn').addEventListener('click', () => switchScreen('home'));
 
   (async () => {
     try {
@@ -9246,7 +9021,6 @@
     document.getElementById('screen-calendar').classList.toggle('active', name === 'calendar');
     document.getElementById('screen-analytics').classList.toggle('active', name === 'analytics');
     document.getElementById('screen-settings').classList.toggle('active', name === 'settings');
-    document.getElementById('screen-dev').classList.toggle('active', name === 'dev');
     document.getElementById('screen-ideabank').classList.toggle('active', name === 'ideabank');
     document.getElementById('screen-scripts').classList.toggle('active', name === 'scripts');
     document.getElementById('screen-editprofile').classList.toggle('active', name === 'editprofile');
@@ -11511,12 +11285,6 @@ Give concise, specific, practical feedback grounded in the material above when a
 
   document.getElementById('splashSignUpBtn').addEventListener('click', () => openClerkAuth('signup'));
   document.getElementById('splashSignInBtn').addEventListener('click', () => openClerkAuth('signin'));
-  document.getElementById('splashDevBtn').addEventListener('click', () => {
-    requestTestAccess(() => {
-      switchScreen('home');
-      renderHomePersonalization();
-    });
-  });
 
   // ---------- Burger menu ----------
   const burgerMenu = document.getElementById('burgerMenu');
