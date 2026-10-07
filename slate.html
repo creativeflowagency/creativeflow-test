@@ -3,6 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<script>
+  // Inside the iPhone app (Capacitor) the page gets an "ios-app" class: it hides what Apple's rules don't allow there
+  // (links to buy a membership elsewhere) and what can't work there (Google sign-in inside an app, offline caching).
+  if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+    document.documentElement.classList.add('ios-app');
+    // iOS zooms in when a small text box is tapped and doesn't zoom back out; an app never needs to zoom.
+    document.querySelector('meta[name="viewport"]').setAttribute('content',
+      'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
+  }
+  // The Windows/Mac app (preload.js): Google sign-in can't return to the app there either, so its button is hidden too.
+  if (window.creativeflowDesktop) document.documentElement.classList.add('desktop-app');
+</script>
 <title>TEST · CreativeFlow (Beta)</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0A0712">
@@ -241,6 +253,9 @@
     padding-bottom: calc(16px + var(--safe-bottom));
   }
   .screen.active { display: flex; }
+  /* Screens that end in a text box bar (ideas, Adonis): the bar already leaves room for the
+     phone's home bar, so the screen itself adds none (it used to be counted twice). */
+  body:not(.has-tab-bar) #screen-project, body:not(.has-tab-bar) #screen-ai { padding-bottom: 0; }
 
   /* ---------- Splash ---------- */
   #screen-splash {
@@ -1063,6 +1078,27 @@
   @media (prefers-reduced-motion: reduce) {
     #screen-write.active .write-head, #screen-write .write-hooks, #screen-write .write-hooks[hidden], .write-saved.saving::before { animation: none; }
   }
+
+  /* ---------- iPhone app (see the ios-app class in <head>) ---------- */
+  html.ios-app #licenseRenewBtn, html.ios-app .license-buy-hint { display: none !important; }
+  html.ios-app .cl-socialButtonsRoot, html.ios-app .cl-dividerRow,
+  html.desktop-app .cl-socialButtonsRoot, html.desktop-app .cl-dividerRow { display: none !important; }
+
+  /* ---------- Google/Apple sign-in in the apps ---------- */
+  .native-sso { display: none; max-width: 400px; margin: 0 auto 4px; padding: 0 4px; }
+  html.desktop-app .native-sso, html.ios-app .native-sso { display: block; }
+  .native-sso-btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; height: 46px; margin-bottom: 10px;
+    border-radius: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer;
+    font: 600 15px var(--font-body); transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+  }
+  .native-sso-btn:hover { border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); }
+  .native-sso-btn:active { transform: scale(0.98); }
+  .native-sso-btn:disabled { opacity: 0.55; cursor: default; }
+  .native-sso-status { font-size: 13.5px; color: var(--text-muted); text-align: center; margin: 2px 0 10px; line-height: 1.45; }
+  .native-sso-status button { background: none; border: none; color: var(--accent); font: inherit; cursor: pointer; padding: 0; text-decoration: underline; }
+  .native-sso-or { display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 12.5px; margin: 8px 0 4px; }
+  .native-sso-or::before, .native-sso-or::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
   /* ---------- Scripts page ---------- */
   .scripts-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
@@ -3477,6 +3513,19 @@
       </div>
     </div>
     <div class="auth-body">
+      <!-- Apps only (desktop/iPhone): Google and Apple sign-in through the normal browser. -->
+      <div class="native-sso" id="nativeSso">
+        <button type="button" class="native-sso-btn" data-strategy="oauth_google">
+          <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
+          Continue with Google
+        </button>
+        <button type="button" class="native-sso-btn" data-strategy="oauth_apple">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.28-1.6 2.78-.41 6.9 1.15 9.15.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.42-3.65zM14.1 5.86c.63-.77 1.06-1.83.94-2.89-.91.04-2.02.61-2.67 1.37-.58.67-1.1 1.76-.96 2.8 1.02.08 2.05-.52 2.69-1.28z"/></svg>
+          Continue with Apple
+        </button>
+        <p class="native-sso-status" id="nativeSsoStatus" hidden></p>
+        <div class="native-sso-or"><span>or use your email</span></div>
+      </div>
       <div id="clerk-auth-mount"></div>
     </div>
   </section>
@@ -4439,10 +4488,15 @@
   // ---------- Version, what's new, bug reports ----------
   // Keep APP_VERSION in step with "version" in package.json. The desktop app reports its real
   // version itself; this is what the web/phone version shows.
-  const APP_VERSION = '1.0.12';
+  const APP_VERSION = '1.0.13';
   const REPORT_URL = 'https://creativeflow-ai.netlify.app/api/report';
   // Newest first. Add an entry for every release; only the newest is shown on the Updates & help page.
   const CHANGELOG = [
+    { version: '1.0.13', date: '2026-10-07', changes: [
+      'New: CreativeFlow for Mac.',
+      'Sign in with Google or Apple in the Windows and Mac apps. It opens your browser to sign in, then brings you back to the app.',
+      'New on the website too: Continue with Apple.'
+    ] },
     { version: '1.0.12', date: '2026-10-01', changes: [
       'New look: the setup questions and Plan a Video are now cards with option tiles, smooth animations and a progress bar.',
       'Plan a Video floats over your page, and the script step lets you drop in a script (PDF, Word or text) or use one you have already written.',
@@ -9939,7 +9993,86 @@ Give concise, specific, practical feedback grounded in the material above when a
     msg.textContent = text;
   }
 
+  // ---------- Google / Apple sign-in in the apps ----------
+  // Google and Apple refuse to sign in inside an app's own window, so the apps open the sign-in in
+  // the normal browser (desktop) or Safari's sign-in sheet (iPhone). When it's done, the browser
+  // comes back to the app (desktop: the app's local address; iPhone: the app's own link), and the
+  // app finishes the sign-in with the one-time code Clerk added. This is how Clerk's mobile SDKs
+  // do it; both return addresses must be on Clerk's "Allowlist for mobile SSO redirect".
+  const IS_IOS_APP = document.documentElement.classList.contains('ios-app');
+  const NATIVE_SSO_REDIRECT = IS_IOS_APP ? 'com.creativeminds.creativeflow://oauth-callback' : 'http://127.0.0.1:47831/oauth-callback';
+  let nativeSsoWaiting = null; // { resolve, reject } while waiting for the browser to come back
+
+  function nativeSsoCallback(url) {
+    if (!nativeSsoWaiting || !String(url).includes('oauth-callback')) return;
+    const w = nativeSsoWaiting;
+    nativeSsoWaiting = null;
+    w.resolve(url);
+  }
+  if (desktopAppBridge() && desktopAppBridge().onOAuthCallback) desktopAppBridge().onOAuthCallback(nativeSsoCallback);
+  if (IS_IOS_APP && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+    window.Capacitor.Plugins.App.addListener('appUrlOpen', ({ url }) => {
+      if (String(url).startsWith('com.creativeminds.creativeflow://')) {
+        try { window.Capacitor.Plugins.Browser.close(); } catch (e) {}
+        nativeSsoCallback(url);
+      }
+    });
+  }
+  function desktopAppBridge() { return window.creativeflowDesktop || null; }
+
+  function setNativeSsoStatus(text, withCancel) {
+    const el = document.getElementById('nativeSsoStatus');
+    el.hidden = !text;
+    el.textContent = text || '';
+    if (withCancel) {
+      el.append(' ');
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = 'Cancel';
+      b.addEventListener('click', () => { if (nativeSsoWaiting) { const w = nativeSsoWaiting; nativeSsoWaiting = null; w.reject(new Error('cancelled')); } });
+      el.append(b);
+    }
+    document.querySelectorAll('.native-sso-btn').forEach(btn => { btn.disabled = !!withCancel; });
+  }
+
+  async function nativeSignIn(strategy) {
+    const label = strategy === 'oauth_apple' ? 'Apple' : 'Google';
+    try {
+      await clerkReady;
+      const signIn = await clerk.client.signIn.create({ strategy, redirectUrl: NATIVE_SSO_REDIRECT });
+      const verifyUrl = signIn.firstFactorVerification && signIn.firstFactorVerification.externalVerificationRedirectURL;
+      if (!verifyUrl) throw new Error('no_redirect');
+      const back = new Promise((resolve, reject) => { nativeSsoWaiting = { resolve, reject }; });
+      setNativeSsoStatus(IS_IOS_APP ? `Finish signing in with ${label}…` : `Finish signing in with ${label} in your browser, then come back here.`, true);
+      if (IS_IOS_APP) await window.Capacitor.Plugins.Browser.open({ url: verifyUrl.toString(), presentationStyle: 'popover' });
+      else if (!(await desktopAppBridge().openSignIn(verifyUrl.toString()))) throw new Error('blocked');
+      const params = new URL(await back).searchParams;
+      if (params.get('error')) throw new Error(params.get('error'));
+      setNativeSsoStatus('Signing you in…', false);
+      const done = await signIn.reload({ rotatingTokenNonce: params.get('rotating_token_nonce') || undefined });
+      let sessionId = done.createdSessionId;
+      // A new person: Google/Apple confirmed who they are, so turn this into a new account.
+      if (!sessionId && done.firstFactorVerification.status === 'transferable') {
+        const signUp = await clerk.client.signUp.create({ transfer: true });
+        sessionId = signUp.createdSessionId;
+        if (!sessionId) throw new Error('signup_incomplete');
+      }
+      if (!sessionId) throw new Error('no_session');
+      await clerk.setActive({ session: sessionId });
+      setNativeSsoStatus(null, false);
+      // The Clerk listener takes it from here (loads this account's data and opens the app).
+    } catch (e) {
+      console.error('CreativeFlow: ' + label + ' sign-in failed', e);
+      const msg = e && e.message === 'cancelled' ? null
+        : e && e.message === 'signup_incomplete' ? `Your ${label} account is connected, but sign-up needs one more step. Use "Sign up" with your email below.`
+        : `Couldn't sign in with ${label}. Try again, or use your email below.`;
+      setNativeSsoStatus(msg, false);
+    }
+  }
+  document.querySelectorAll('.native-sso-btn').forEach(btn => btn.addEventListener('click', () => nativeSignIn(btn.dataset.strategy)));
+
   async function openClerkAuth(mode) {
+    setNativeSsoStatus(null, false);
     switchScreen('auth');
     document.getElementById('authTitle').textContent = mode === 'signup' ? 'Sign Up' : 'Sign In';
     const mount = document.getElementById('clerk-auth-mount');
@@ -10155,7 +10288,7 @@ Give concise, specific, practical feedback grounded in the material above when a
   // ---------- Installable app ----------
   // The service worker keeps a copy of CreativeFlow so the installed app opens without the
   // local server. "Install CreativeFlow" only shows when the browser says it's installable.
-  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  if ('serviceWorker' in navigator && location.protocol !== 'file:' && !document.documentElement.classList.contains('ios-app')) {
     Promise.reject('no offline copy in the test zone').catch(e => console.error('CreativeFlow: service worker failed', e));
   }
   let installPrompt = null;
