@@ -5259,9 +5259,6 @@
     add.innerHTML = '<div class="pl-stack"><div class="card-thumb pl-front"><div class="pl-plus">+</div><div>New playlist</div></div></div>';
     add.addEventListener('click', () => openPlaylistSheet());
     grid.appendChild(add);
-    if (!state.playlists.length) {
-      grid.insertAdjacentHTML('afterbegin', '<div class="empty-home">No playlists yet. Make one, then add videos to it from a video\'s ⋮ menu.</div>');
-    }
   }
 
   document.querySelectorAll('.home-seg-btn').forEach(b => b.addEventListener('click', () => {
@@ -5498,7 +5495,7 @@
 
       card.innerHTML = `
         <div class="card-thumb" style="${thumbStyle}">
-          ${short ? '<div class="card-format-badge">SHORT</div>' : ''}
+          <div class="card-format-badge">${short ? 'SHORT' : 'LONG'}</div>
           ${showThumb ? '' : '<div class="card-thumb-icon" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="7" y1="6" x2="7" y2="18"/><line x1="17" y1="6" x2="17" y2="18"/><line x1="2" y1="10" x2="7" y2="10"/><line x1="2" y1="14" x2="7" y2="14"/><line x1="17" y1="10" x2="22" y2="10"/><line x1="17" y1="14" x2="22" y2="14"/></svg></div>'}
           ${p.published ? '<div class="card-published-badge">Published</div>' : ''}
           <button type="button" class="card-menu-btn" aria-label="Project options">⋮</button>
