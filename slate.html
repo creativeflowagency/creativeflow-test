@@ -72,6 +72,73 @@
     position: relative;
     z-index: 1;
   }
+  #screen-home > .grid[hidden] { display: none; }
+  #playlistChips[hidden] { display: none; }
+
+  /* All / Playlists toggle and the Long-form / Shorts filter */
+  .home-views { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 4px 20px 14px; }
+  .home-seg { display: flex; padding: 4px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); }
+  .home-seg-btn {
+    padding: 8px 18px; border: none; border-radius: 9px; background: transparent; color: var(--text-muted); cursor: pointer;
+    font: 800 13px var(--font-body); letter-spacing: 0.06em; text-transform: uppercase; transition: background 0.2s ease, color 0.2s ease;
+  }
+  .home-seg-btn[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); box-shadow: 0 4px 14px rgba(var(--accent-rgb), 0.35); }
+  .home-format { display: flex; gap: 6px; }
+  .home-format-btn {
+    padding: 7px 12px; border-radius: 999px; border: 1px solid var(--border); background: transparent; color: var(--text-muted);
+    font: 700 12.5px var(--font-body); cursor: pointer; transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .home-format-btn[aria-pressed="true"] { background: rgba(var(--accent-rgb), 0.16); border-color: rgba(var(--accent-rgb), 0.6); color: var(--text); }
+
+  /* Inside one playlist */
+  .playlist-head { position: relative; z-index: 2; display: flex; align-items: center; gap: 12px; padding: 0 20px 14px; }
+  .playlist-head[hidden] { display: none; }
+  .playlist-head-text { flex: 1; min-width: 0; }
+  .playlist-head-eyebrow { font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  .playlist-head-name { font: 800 20px var(--font-display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .playlist-head-count { font-size: 12.5px; color: var(--text-muted); flex: none; }
+
+  /* Playlists as folders */
+  .folder-card { position: relative; border: none; background: none; padding: 0; cursor: pointer; text-align: center; font-family: inherit; color: #FFFFFF;
+    animation: cfRiseIn 0.4s var(--ease-out) both; animation-delay: calc(var(--i, 0) * 40ms); }
+  .folder-art { position: relative; width: 100%; aspect-ratio: 4 / 3; }
+  .folder-back {
+    position: absolute; inset: 9% 0 0 0; border-radius: 6px 16px 16px 16px;
+    background: color-mix(in srgb, var(--folder, #7A4BC2) 78%, #000);
+  }
+  .folder-back::before { /* the tab */
+    content: ''; position: absolute; left: 0; top: -9%; width: 42%; height: 14%; border-radius: 10px 14px 0 0;
+    background: color-mix(in srgb, var(--folder, #7A4BC2) 78%, #000);
+  }
+  .folder-paper {
+    position: absolute; left: 8%; right: 8%; top: 6%; height: 62%; border-radius: 8px; background: #F4F1FB center / cover no-repeat;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); transition: transform 0.3s var(--ease-out);
+  }
+  .folder-paper.p2 { left: 13%; right: 3%; top: 3%; transform: rotate(3deg); background-color: #E4DDF5; }
+  .folder-front {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 72%; border-radius: 14px 14px 16px 16px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--folder, #7A4BC2) 100%, #fff 8%), var(--folder, #7A4BC2));
+    border: 1.5px solid rgba(255, 255, 255, 0.85);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 10px 14px;
+    transform-origin: bottom center; transition: transform 0.3s var(--ease-out); box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.18);
+  }
+  .folder-name { font: 800 clamp(16px, 4.2vw, 21px)/1.15 var(--font-display); letter-spacing: 0.02em; text-transform: uppercase; overflow-wrap: anywhere;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); }
+  .folder-count { font-size: 12px; font-weight: 600; opacity: 0.85; }
+  .folder-card:hover .folder-front, .folder-card:focus-visible .folder-front { transform: perspective(600px) rotateX(-14deg); }
+  .folder-card:hover .folder-paper { transform: translateY(-6%); }
+  .folder-card:hover .folder-paper.p2 { transform: translateY(-9%) rotate(4deg); }
+  .folder-card:active .folder-front { transform: perspective(600px) rotateX(-6deg) scale(0.98); }
+  .folder-card.new .folder-front { background: transparent; border-style: dashed; color: var(--text-muted); box-shadow: none; }
+  .folder-card.new .folder-back, .folder-card.new .folder-paper { display: none; }
+  .folder-plus { font-size: 30px; line-height: 1; font-weight: 300; }
+  .folder-grid .empty-home { grid-column: 1 / -1; }
+  @media (max-width: 699px) {
+    .folder-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 14px; }
+    .home-views { padding: 4px 16px 12px; }
+    .home-format-btn { padding: 6px 10px; font-size: 12px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .folder-card { animation: none; } .folder-front, .folder-paper { transition: none; } }
   html, body { margin: 0; padding: 0; }
   body {
     background: var(--bg);
@@ -190,15 +257,6 @@
     z-index: 40;
   }
   .burger-menu.active { display: flex; }
-  .playlist-btn[hidden] { display: none; }
-  .playlist-btn.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-  .playlist-menu { min-width: 220px; max-height: 60vh; overflow-y: auto; }
-  .playlist-menu-title { font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; padding: 6px 10px 4px; }
-  .playlist-menu .burger-menu-item { justify-content: space-between; }
-  .playlist-menu .burger-menu-item.on { background: rgba(var(--accent-rgb), 0.16); color: var(--text); }
-  .playlist-menu-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .playlist-menu-count { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
-  .playlist-menu-sep { height: 1px; background: var(--border); margin: 4px 6px; }
   .burger-menu-item[hidden] { display: none; }
   .burger-menu-item {
     display: flex;
@@ -3635,10 +3693,6 @@
         <div class="search-dropdown" id="searchDropdown"></div>
       </div>
       <div style="display:flex; gap:8px; flex-shrink:0; position:relative;">
-        <button class="icon-btn playlist-btn" id="playlistBtn" title="Playlists" aria-label="Playlists" aria-haspopup="menu" aria-expanded="false" hidden>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-        </button>
-        <div class="burger-menu playlist-menu" id="playlistMenu" role="menu" aria-label="Playlists"></div>
         <button class="icon-btn" id="burgerBtn" title="Menu" aria-label="Menu" style="position:relative;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
           <span class="topbar-level-badge" id="topbarLevelBadge">1</span>
@@ -3686,9 +3740,32 @@
     </div>
     <input type="file" id="importFileInput" accept="application/json,.json" hidden aria-label="Import backup file">
 
+    <div class="home-views" id="homeViews">
+      <div class="home-seg" role="tablist" aria-label="Show">
+        <button type="button" class="home-seg-btn" data-view="all" role="tab">All</button>
+        <button type="button" class="home-seg-btn" data-view="playlists" role="tab">Playlists</button>
+      </div>
+      <div class="home-format" role="group" aria-label="Video type">
+        <button type="button" class="home-format-btn" data-format="all">All types</button>
+        <button type="button" class="home-format-btn" data-format="long">Long-form</button>
+        <button type="button" class="home-format-btn" data-format="short">Shorts</button>
+      </div>
+    </div>
+    <div class="playlist-head" id="playlistHead" hidden>
+      <button type="button" class="back-btn" id="playlistHeadBack" aria-label="Back to playlists">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="playlist-head-text">
+        <div class="playlist-head-eyebrow">Playlist</div>
+        <div class="playlist-head-name" id="playlistHeadName"></div>
+      </div>
+      <div class="playlist-head-count" id="playlistHeadCount"></div>
+    </div>
+
     <div class="chip-row" id="playlistChips"></div>
 
     <div class="grid" id="projectGrid"></div>
+    <div class="grid folder-grid" id="folderGrid" hidden></div>
 
     <div class="fab-menu" id="fabMenu">
       <button type="button" class="fab-menu-item" id="fabPlanVideoBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/><rect x="9" y="2" width="6" height="4" rx="1"/><path d="m9 14 2 2 4-4"/></svg> Plan a Video</button>
@@ -5003,16 +5080,96 @@
     return d.innerHTML;
   }
 
+  // Home: "All" (every video) or "Playlists" (folders; tap one to open it). The Long-form /
+  // Shorts filter and Active / Published apply in both.
+  var homeView = 'all';        // 'all' | 'playlists'
+  var openPlaylistId = null;   // the folder that's open in the Playlists view
+  var homeFormat = 'all';      // 'all' | 'long' | 'short'
+  try { homeFormat = localStorage.getItem('slate.homeFormat') || 'all'; } catch (e) {}
+
+  function formatMatches(p) { return homeFormat === 'all' || (homeFormat === 'short') === (p.format === 'short'); }
+
   function getFilteredProjects() {
     let list = state.projects.slice();
     if (filterMode.type === 'active') list = list.filter(p => !p.published);
     else if (filterMode.type === 'published') list = list.filter(p => p.published);
-    else if (filterMode.type === 'playlist') list = list.filter(p => (p.playlists || []).includes(filterMode.id));
-    return list;
+    if (homeView === 'playlists' && openPlaylistId) list = list.filter(p => (p.playlists || []).includes(openPlaylistId));
+    return list.filter(formatMatches);
   }
+
+  function renderHomeViews() {
+    if (openPlaylistId && !state.playlists.some(pl => pl.id === openPlaylistId)) openPlaylistId = null;
+    if (filterMode.type === 'playlist') filterMode = { type: 'active' };
+    document.querySelectorAll('.home-seg-btn').forEach(b => b.setAttribute('aria-selected', String(b.dataset.view === homeView)));
+    document.querySelectorAll('.home-format-btn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.format === homeFormat)));
+    const inFolders = homeView === 'playlists' && !openPlaylistId;
+    document.getElementById('projectGrid').hidden = inFolders;
+    document.getElementById('folderGrid').hidden = !inFolders;
+    const head = document.getElementById('playlistHead');
+    const pl = homeView === 'playlists' && openPlaylistId ? state.playlists.find(x => x.id === openPlaylistId) : null;
+    head.hidden = !pl;
+    if (pl) {
+      document.getElementById('playlistHeadName').textContent = pl.name;
+      const n = state.projects.filter(p => (p.playlists || []).includes(pl.id)).length;
+      document.getElementById('playlistHeadCount').textContent = n + ' video' + (n === 1 ? '' : 's');
+    }
+    if (inFolders) renderFolderGrid();
+  }
+
+  function renderFolderGrid() {
+    const grid = document.getElementById('folderGrid');
+    grid.innerHTML = '';
+    const FOLDER_COLORS = ['#7A4BC2', '#5865F2', '#C2417A', '#2E9C8A', '#D9822B', '#4B6BC2'];
+    state.playlists.forEach((pl, i) => {
+      const inIt = state.projects.filter(p => (p.playlists || []).includes(pl.id));
+      const shown = inIt.filter(formatMatches);
+      const thumbs = inIt.filter(p => p.thumbnail).slice(0, 2).map(p => p.thumbnail);
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'folder-card';
+      card.style.setProperty('--i', Math.min(i, 10));
+      card.style.setProperty('--folder', FOLDER_COLORS[i % FOLDER_COLORS.length]);
+      card.innerHTML = '<div class="folder-art"><div class="folder-back"></div>'
+        + '<div class="folder-paper p2"></div><div class="folder-paper"></div>'
+        + '<div class="folder-front"><div class="folder-name"></div><div class="folder-count"></div></div></div>';
+      const papers = card.querySelectorAll('.folder-paper');
+      if (thumbs[0]) papers[1].style.backgroundImage = 'url(' + thumbs[0] + ')';
+      if (thumbs[1]) papers[0].style.backgroundImage = 'url(' + thumbs[1] + ')';
+      card.querySelector('.folder-name').textContent = pl.name;
+      card.querySelector('.folder-count').textContent = homeFormat === 'all'
+        ? inIt.length + ' video' + (inIt.length === 1 ? '' : 's')
+        : shown.length + ' of ' + inIt.length + ' video' + (inIt.length === 1 ? '' : 's');
+      card.setAttribute('aria-label', 'Open playlist ' + pl.name);
+      card.addEventListener('click', () => { openPlaylistId = pl.id; renderHome(); });
+      grid.appendChild(card);
+    });
+    const add = document.createElement('button');
+    add.type = 'button';
+    add.className = 'folder-card new';
+    add.style.setProperty('--i', Math.min(state.playlists.length, 10));
+    add.innerHTML = '<div class="folder-art"><div class="folder-front"><div class="folder-plus">+</div><div class="folder-count">New playlist</div></div></div>';
+    add.addEventListener('click', () => openPlaylistSheet());
+    grid.appendChild(add);
+    if (!state.playlists.length) {
+      grid.insertAdjacentHTML('afterbegin', '<div class="empty-home">No playlists yet. Make one, then add videos to it from a video\'s ⋮ menu.</div>');
+    }
+  }
+
+  document.querySelectorAll('.home-seg-btn').forEach(b => b.addEventListener('click', () => {
+    homeView = b.dataset.view;
+    openPlaylistId = null;
+    renderHome();
+  }));
+  document.querySelectorAll('.home-format-btn').forEach(b => b.addEventListener('click', () => {
+    homeFormat = b.dataset.format;
+    try { localStorage.setItem('slate.homeFormat', homeFormat); } catch (e) {}
+    renderHome();
+  }));
+  document.getElementById('playlistHeadBack').addEventListener('click', () => { openPlaylistId = null; renderHome(); });
 
   // ---------- Rendering: Home ----------
   function renderHome() {
+    renderHomeViews();
     renderPlaylistChips();
     renderProjectFeed();
   }
@@ -5020,6 +5177,7 @@
   function renderPlaylistChips() {
     const row = document.getElementById('playlistChips');
     row.innerHTML = '';
+    row.hidden = homeView === 'playlists' && !openPlaylistId; // the folder list has no Active / Published
 
     const fixedChips = [
       { type: 'active', label: 'Active' },
@@ -5033,67 +5191,7 @@
       btn.addEventListener('click', () => { filterMode = { type: c.type }; renderPlaylistChips(); renderProjectFeed(); });
       row.appendChild(btn);
     });
-
-    renderPlaylistMenu();
   }
-
-  // Playlists live behind the folder button next to ☰ (it only shows once a playlist exists),
-  // so the Active / Published row at the bottom never overflows.
-  function renderPlaylistMenu() {
-    const btn = document.getElementById('playlistBtn');
-    const menu = document.getElementById('playlistMenu');
-    const lists = state.playlists || [];
-    if (filterMode.type === 'playlist' && !lists.some(p => p.id === filterMode.id)) filterMode = { type: 'active' };
-    btn.hidden = !lists.length;
-    const current = filterMode.type === 'playlist' ? lists.find(p => p.id === filterMode.id) : null;
-    btn.classList.toggle('on', !!current);
-    btn.title = current ? 'Playlist: ' + current.name : 'Playlists';
-    menu.innerHTML = '<div class="playlist-menu-title">Playlists</div>';
-    lists.forEach(pl => {
-      const count = state.projects.filter(p => (p.playlists || []).includes(pl.id)).length;
-      const item = document.createElement('button');
-      item.type = 'button';
-      item.className = 'burger-menu-item' + (current && current.id === pl.id ? ' on' : '');
-      item.setAttribute('role', 'menuitem');
-      item.innerHTML = '<span class="playlist-menu-name"></span><span class="playlist-menu-count">' + count + '</span>';
-      item.querySelector('.playlist-menu-name').textContent = pl.name;
-      item.addEventListener('click', () => {
-        filterMode = current && current.id === pl.id ? { type: 'active' } : { type: 'playlist', id: pl.id };
-        setPlaylistMenu(false);
-        renderPlaylistChips();
-        renderProjectFeed();
-      });
-      menu.appendChild(item);
-    });
-    menu.insertAdjacentHTML('beforeend', '<div class="playlist-menu-sep"></div>');
-    if (current) {
-      const all = document.createElement('button');
-      all.type = 'button';
-      all.className = 'burger-menu-item';
-      all.textContent = 'Show all videos';
-      all.addEventListener('click', () => { filterMode = { type: 'active' }; setPlaylistMenu(false); renderPlaylistChips(); renderProjectFeed(); });
-      menu.appendChild(all);
-    }
-    const add = document.createElement('button');
-    add.type = 'button';
-    add.className = 'burger-menu-item';
-    add.textContent = '+ New playlist';
-    add.addEventListener('click', () => { setPlaylistMenu(false); openPlaylistSheet(); });
-    menu.appendChild(add);
-  }
-  function setPlaylistMenu(open) {
-    document.getElementById('playlistMenu').classList.toggle('active', open);
-    document.getElementById('playlistBtn').setAttribute('aria-expanded', String(open));
-    if (open) document.getElementById('burgerMenu').classList.remove('active');
-  }
-  document.getElementById('playlistBtn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    setPlaylistMenu(!document.getElementById('playlistMenu').classList.contains('active'));
-  });
-  document.addEventListener('click', (e) => {
-    const menu = document.getElementById('playlistMenu');
-    if (menu.classList.contains('active') && !menu.contains(e.target)) setPlaylistMenu(false);
-  });
 
   const searchInputEl = document.getElementById('searchInput');
   const searchDropdown = document.getElementById('searchDropdown');
@@ -5196,10 +5294,12 @@
       grid.appendChild(card);
     });
 
-    if (list.length === 0 && state.projects.length > 0 && filterMode.type !== 'published') {
+    if (list.length === 0 && state.projects.length > 0 && (filterMode.type !== 'published' || openPlaylistId)) {
       const empty = document.createElement('div');
       empty.className = 'empty-home';
-      empty.textContent = 'Nothing matches here yet.';
+      empty.textContent = homeView === 'playlists' && openPlaylistId
+        ? (homeFormat === 'all' ? 'No videos in this playlist yet. Add one from a video\'s ⋮ menu.' : 'No ' + (homeFormat === 'short' ? 'Shorts' : 'long-form videos') + ' in this playlist.')
+        : homeFormat !== 'all' ? 'No ' + (homeFormat === 'short' ? 'Shorts' : 'long-form videos') + ' here yet.' : 'Nothing matches here yet.';
       grid.appendChild(empty);
     }
   }
@@ -5402,7 +5502,7 @@
     state.playlists.push({ id: uid(), name, createdAt: Date.now() });
     save();
     closePlaylistSheet();
-    renderPlaylistChips();
+    renderHome();
   });
 
   // ---------- Account sheet: avatar, sign in/out, backup ----------
