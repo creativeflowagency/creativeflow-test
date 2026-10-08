@@ -2987,10 +2987,11 @@
   .doc-page h1 { font-size: 1.7em; }
   .doc-page h2 { font-size: 1.35em; }
   .doc-page h3 { font-size: 1.15em; }
-  .doc-page p { margin: 0 0 0.7em; }
+  .doc-page p { margin: 0 0 0.45em; }
   /* A blank line between paragraphs (common in imported or pasted scripts) is the gap on its
-     own: no extra paragraph spacing around it, so it looks like one empty line, like in Docs. */
+     own: no extra paragraph spacing around it, and it's only about half a line tall. */
   .doc-page p:has(> br:only-child), .doc-page p:has(+ p > br:only-child) { margin-bottom: 0; }
+  .doc-page p:has(> br:only-child) { line-height: 0.8; }
   .doc-page ul, .doc-page ol { margin: 0 0 0.7em; padding-left: 1.4em; }
 
   /* ---------- Thumbnail ---------- */
