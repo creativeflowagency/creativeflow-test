@@ -1255,6 +1255,24 @@
     #screen-write .doc-toolbar { max-width: calc(100% - 20px); }
     #screen-write .write-hooks { width: calc(100% - 20px); }
   }
+  /* Phones: "mobile view" like Google Docs. The text fills the screen width and is bigger; no A4
+     page gaps. "Print layout" switches back to the real pages. */
+  .print-layout-btn { display: none; }
+  @media (max-width: 600px) {
+    .print-layout-btn { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 9px; border-radius: 999px; cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.12); background: rgba(255, 255, 255, 0.05); color: #B8B5C6; font: 700 11.5px 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+    .print-layout-btn[aria-pressed="true"] { background: rgba(88, 101, 242, 0.22); border-color: rgba(88, 101, 242, 0.55); color: #C9CDFF; }
+    #screen-write.mobile-view .doc-canvas { padding: 10px 0 0; align-items: stretch; }
+    #screen-write.mobile-view .doc-page {
+      max-width: none; width: 100%; height: auto !important; min-height: 100%; flex: 1 0 auto;
+      background: #FDFDFB; border-radius: 18px 18px 0 0; filter: none; box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.35);
+      padding: 22px 18px calc(90px + var(--safe-bottom)); font-size: 17px; line-height: 1.65;
+    }
+    #screen-write.mobile-view .doc-page:empty::before,
+    #screen-write.mobile-view .doc-page.is-empty::before { top: 22px; left: 18px; }
+    #screen-write.mobile-view .doc-page h1 { font-size: 1.55em; }
+    #screen-write.mobile-view .doc-page h2 { font-size: 1.3em; }
+  }
   @media (prefers-reduced-motion: reduce) {
     #screen-write.active .write-head, #screen-write .write-hooks, #screen-write .write-hooks[hidden], .write-saved.saving::before { animation: none; }
   }
@@ -4081,6 +4099,10 @@
       <div class="write-head-side">
         <div class="write-pills" id="writeMeta"></div>
         <span class="write-saved" id="writeSaved" aria-live="polite">Saved</span>
+        <button type="button" class="print-layout-btn" id="printLayoutBtn" aria-pressed="false" title="Show the script as A4 pages">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+          Print layout
+        </button>
       </div>
       <button type="button" class="write-share-btn" id="writeShareBtn" aria-label="Share and export" aria-haspopup="menu" aria-expanded="false" aria-controls="writeShareMenu">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg>
@@ -6989,6 +7011,7 @@
     ensureScriptParagraph();
     updateScriptMeta(p);
     renderWriteHooks(p);
+    applyScriptView();
     switchScreen('write');
     paginateScript();
     updateScriptMeta(p);
@@ -7002,8 +7025,38 @@
   const PAGE_GAP = 18;
   let scriptPageCount = 1;
 
+  // Phones show the script in "mobile view" unless Print layout is switched on (remembered).
+  function scriptMobileView() {
+    let print = false;
+    try { print = localStorage.getItem('cf.printLayout') === '1'; } catch (e) {}
+    return window.matchMedia('(max-width: 600px)').matches && !print;
+  }
+  function applyScriptView() {
+    const mobile = scriptMobileView();
+    document.getElementById('screen-write').classList.toggle('mobile-view', mobile);
+    const btn = document.getElementById('printLayoutBtn');
+    btn.setAttribute('aria-pressed', String(!mobile));
+  }
+  document.getElementById('printLayoutBtn').addEventListener('click', () => {
+    let print = false;
+    try { print = localStorage.getItem('cf.printLayout') === '1'; localStorage.setItem('cf.printLayout', print ? '0' : '1'); } catch (e) {}
+    applyScriptView();
+    paginateScript();
+    const p = findProject(currentProjectId);
+    if (p) updateScriptMeta(p);
+    showToast(print ? 'Mobile view: text fits your screen.' : 'Print layout: A4 pages, like the exported PDF.');
+  });
+
   function paginateScript() {
     const el = scriptBoxFull;
+    if (document.getElementById('screen-write').classList.contains('mobile-view')) {
+      // No page breaks in mobile view; the page count is estimated from the words (about 500 a page).
+      el.querySelectorAll('[data-pb]').forEach(b => { b.style.marginTop = ''; b.removeAttribute('data-pb'); if (!b.getAttribute('style')) b.removeAttribute('style'); });
+      el.style.height = '';
+      const words = (el.innerText || '').split(/\s+/).filter(Boolean).length;
+      scriptPageCount = Math.max(1, Math.ceil(words / 500));
+      return;
+    }
     const width = el.clientWidth;
     if (!width) return; // not on screen
     const pageH = Math.round(width * 297 / 210);
@@ -7055,7 +7108,7 @@
   }
 
   window.addEventListener('resize', () => {
-    if (document.getElementById('screen-write').classList.contains('active')) paginateScript();
+    if (document.getElementById('screen-write').classList.contains('active')) { applyScriptView(); paginateScript(); }
   });
 
   scriptOpenBtn.addEventListener('click', () => {
