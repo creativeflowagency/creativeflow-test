@@ -1326,6 +1326,9 @@
   .script-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--dot); }
   .script-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--dot) 60%, var(--border)); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22); }
   .script-card-top { display: flex; align-items: center; gap: 8px; }
+  .script-card-menu { flex: none; width: 30px; height: 30px; margin: -4px -6px -4px 0; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 800; color: var(--text-muted); cursor: pointer; }
+  .script-card-menu:hover, .script-card-menu:focus-visible { background: var(--surface-2); color: var(--text); outline: none; }
   .script-card-name { flex: 1; min-width: 0; font-weight: 700; font-size: 15.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .script-card-tag { flex: none; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: color-mix(in srgb, var(--dot) 18%, transparent); color: var(--text); }
   .script-card-preview { font-size: 13.5px; line-height: 1.5; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 3em; }
@@ -4746,6 +4749,21 @@
   </div>
 </div>
 
+<!-- SCRIPT ACTIONS SHEET (Scripts page ⋮) -->
+<div class="sheet-backdrop" id="scriptActionsBackdrop">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3 id="scriptActionsTitle">Script</h3>
+    <div class="sheet-section-label">Name</div>
+    <input type="text" class="onboard-input" id="scriptRenameInput" maxlength="80" aria-label="Script name" autocomplete="off">
+    <button type="button" class="sheet-btn" id="scriptDuplicateBtn" style="margin-top:12px;">Duplicate script</button>
+    <button type="button" class="sheet-btn danger" id="scriptDeleteBtn">Delete script</button>
+    <div class="sheet-actions" style="margin-top:6px;">
+      <button class="btn-create" id="scriptActionsDoneBtn">Done</button>
+    </div>
+  </div>
+</div>
+
 <!-- PLAYLIST ACTIONS SHEET -->
 <div class="sheet-backdrop" id="plActionsBackdrop">
   <div class="sheet">
@@ -7004,7 +7022,7 @@
   }
 
   function openScriptWriter(p) {
-    document.getElementById('writeProjTitle').textContent = (p.title && p.title.trim()) ? p.title : p.name;
+    document.getElementById('writeProjTitle').textContent = scriptDisplayName(p);
     document.getElementById('writeEyebrow').textContent = `Script · ${p.format === 'short' ? 'Short-form' : 'Long-form'}`;
     setWriteSaved(true);
     scriptBoxFull.innerHTML = scriptHtmlFromLegacy(p.script);
@@ -11435,6 +11453,74 @@ Give concise, specific, practical feedback grounded in the material above when a
     openScriptFromList(p.id);
   });
 
+  // A script's name: its own name if renamed here, else the video's title or name.
+  function scriptDisplayName(p) { return (p.scriptName && p.scriptName.trim()) || (p.title && p.title.trim()) || p.name; }
+
+  // ⋮ on a script card: rename (the script only; the video keeps its name), duplicate, delete.
+  let scriptActionsId = null;
+  const scriptActionsBackdrop = document.getElementById('scriptActionsBackdrop');
+  function openScriptActions(id) {
+    const p = findProject(id);
+    if (!p) return;
+    scriptActionsId = id;
+    document.getElementById('scriptActionsTitle').textContent = scriptDisplayName(p);
+    document.getElementById('scriptRenameInput').value = scriptDisplayName(p);
+    const hasScript = !!scriptPlainText(p.script);
+    document.getElementById('scriptDeleteBtn').disabled = !hasScript;
+    document.getElementById('scriptDuplicateBtn').disabled = !hasScript;
+    scriptActionsBackdrop.classList.add('active');
+  }
+  function closeScriptActions() {
+    const p = findProject(scriptActionsId);
+    const name = document.getElementById('scriptRenameInput').value.trim();
+    if (p && name && name !== scriptDisplayName(p)) { p.scriptName = name; save(); showToast('Script renamed.'); }
+    scriptActionsBackdrop.classList.remove('active');
+    scriptActionsId = null;
+    renderScriptsList();
+  }
+  document.getElementById('scriptActionsDoneBtn').addEventListener('click', closeScriptActions);
+  scriptActionsBackdrop.addEventListener('click', (e) => { if (e.target === scriptActionsBackdrop) closeScriptActions(); });
+  document.getElementById('scriptRenameInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') closeScriptActions(); });
+  document.getElementById('scriptDuplicateBtn').addEventListener('click', () => {
+    const p = findProject(scriptActionsId);
+    if (!p) return;
+    const name = (scriptDisplayName(p) + ' (copy)').slice(0, 80);
+    const copy = {
+      id: uid(), name: (p.name + ' (copy)').slice(0, 80), scriptName: name, color: p.color, format: p.format,
+      ideas: [], script: p.script || '', title: '', thumbnail: null, published: false, playlists: [], scheduledDate: '',
+      createdAt: Date.now(), scriptEditedAt: Date.now()
+    };
+    const i = state.projects.indexOf(p);
+    state.projects.splice(i < 0 ? 0 : i + 1, 0, copy);
+    save();
+    recordUsage('projectsCreated');
+    scriptActionsBackdrop.classList.remove('active');
+    scriptActionsId = null;
+    renderHome();
+    renderScriptsList();
+    showToast('Duplicated: "' + name + '". It\'s also a new video in your projects.');
+  });
+  document.getElementById('scriptDeleteBtn').addEventListener('click', () => {
+    const p = findProject(scriptActionsId);
+    if (!p) return;
+    scriptActionsBackdrop.classList.remove('active');
+    scriptActionsId = null;
+    showConfirm({
+      title: 'Delete this script?',
+      message: 'The script text is removed. The video stays in your projects with its ideas, title and thumbnail.',
+      confirmLabel: 'Delete script',
+      onConfirm: () => {
+        p.script = '';
+        p.scriptName = '';
+        p.scriptEditedAt = Date.now();
+        save();
+        renderHome();
+        renderScriptsList();
+        showToast('Script deleted.');
+      }
+    });
+  });
+
   function openScriptsPage() {
     renderScriptsList();
     switchScreen('scripts');
@@ -11512,8 +11598,12 @@ Give concise, specific, practical feedback grounded in the material above when a
       card.className = 'script-card';
       card.style.setProperty('--dot', r.p.color || '#8358FF');
       card.style.setProperty('--i', Math.min(i, 12));
-      card.innerHTML = '<div class="script-card-top"><span class="script-card-name"></span><span class="script-card-tag"></span></div><div class="script-card-preview"></div><div class="script-card-meta"></div>';
-      card.querySelector('.script-card-name').textContent = (r.p.title && r.p.title.trim()) || r.p.name;
+      card.innerHTML = '<div class="script-card-top"><span class="script-card-name"></span><span class="script-card-tag"></span><span class="script-card-menu" role="button" tabindex="0" aria-label="Script options">⋮</span></div><div class="script-card-preview"></div><div class="script-card-meta"></div>';
+      card.querySelector('.script-card-name').textContent = scriptDisplayName(r.p);
+      const menu = card.querySelector('.script-card-menu');
+      const openMenu = (e) => { e.stopPropagation(); e.preventDefault(); openScriptActions(r.p.id); };
+      menu.addEventListener('click', openMenu);
+      menu.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') openMenu(e); });
       card.querySelector('.script-card-tag').textContent = r.p.format === 'short' ? 'Short' : 'Long';
       const preview = card.querySelector('.script-card-preview');
       if (r.words) preview.textContent = r.plain.slice(0, 220);
