@@ -1273,6 +1273,57 @@
     #screen-write.mobile-view .doc-page h1 { font-size: 1.55em; }
     #screen-write.mobile-view .doc-page h2 { font-size: 1.3em; }
   }
+  /* Google-Docs-style phone view */
+  .write-fab, .write-bottom { display: none; }
+  @media (max-width: 600px) {
+    #screen-write.mobile-view { background: #1F2023; }
+    #screen-write.mobile-view > .write-glow { display: none; }
+    #screen-write.mobile-view .write-head {
+      margin: 0; border-radius: 0; border: none; box-shadow: none; background: #1F2023; backdrop-filter: none; -webkit-backdrop-filter: none;
+      padding: calc(6px + var(--safe-top)) 6px 6px; gap: 2px; flex-wrap: nowrap; animation: none;
+    }
+    #screen-write.mobile-view .write-back { background: transparent; border: none; width: 42px; height: 42px; }
+    #screen-write.mobile-view .write-back svg { width: 22px; height: 22px; }
+    #screen-write.mobile-view .write-head-main { flex: 1 1 0; min-width: 0; padding-left: 2px; }
+    #screen-write.mobile-view .write-eyebrow { display: none; }
+    #screen-write.mobile-view .write-title { font-size: 16px; font-weight: 700; }
+    #screen-write.mobile-view .write-head-side { order: 2; width: auto; flex: none; gap: 0; }
+    #screen-write.mobile-view .write-pills, #screen-write.mobile-view .write-saved { display: none; }
+    #screen-write.mobile-view .print-layout-btn { width: 42px; height: 42px; padding: 0; justify-content: center; border: none; background: transparent; color: #E3E3E3; font-size: 0; gap: 0; }
+    #screen-write.mobile-view .print-layout-btn svg { width: 21px; height: 21px; }
+    #screen-write.mobile-view .write-share-btn { order: 3; width: 42px; height: 42px; background: transparent; box-shadow: none; color: #E3E3E3; }
+    #screen-write.mobile-view .write-share-btn svg { width: 21px; height: 21px; }
+    #screen-write.mobile-view .write-progress { display: none; }
+    #screen-write.mobile-view .doc-toolbar {
+      margin: 0; max-width: none; width: 100%; border-radius: 0; border: none; border-top: 1px solid rgba(255, 255, 255, 0.07);
+      background: #1F2023; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; padding: 4px 8px 6px; animation: none;
+    }
+    #screen-write.mobile-view .doc-canvas { padding: 0; }
+    #screen-write.mobile-view .doc-page {
+      border-radius: 0; box-shadow: none; background: #FFFFFF; min-height: 100%;
+      padding: 24px 22px calc(130px + var(--safe-bottom)); animation: none;
+    }
+    #screen-write.mobile-view .doc-page:empty::before,
+    #screen-write.mobile-view .doc-page.is-empty::before { top: 24px; left: 22px; }
+    #screen-write.mobile-view .write-hooks { top: auto !important; bottom: calc(80px + var(--safe-bottom)); }
+    /* Floating pencil, like Docs: tap to start typing. Hidden while typing. */
+    #screen-write.mobile-view .write-fab {
+      display: flex; position: absolute; right: 18px; bottom: calc(84px + var(--safe-bottom)); z-index: 6; width: 58px; height: 58px; border-radius: 18px;
+      border: none; align-items: center; justify-content: center; background: #2A2B2F; color: #E3E3E3; cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); transition: transform 0.15s ease, opacity 0.2s ease;
+    }
+    #screen-write.mobile-view .write-fab:active { transform: scale(0.94); }
+    #screen-write.mobile-view.editing .write-fab { opacity: 0; pointer-events: none; }
+    /* Bottom bar, like Docs' tab bar: word count, time, and saved. */
+    #screen-write.mobile-view .write-bottom {
+      display: flex; position: absolute; left: 0; right: 0; bottom: 0; z-index: 5; align-items: center; justify-content: center; gap: 14px;
+      padding: 16px 16px calc(16px + var(--safe-bottom)); background: #1F2023; border-radius: 22px 22px 0 0;
+      color: #E3E3E3; font: 700 14.5px 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+    #screen-write.mobile-view .write-bottom-saved { font-weight: 600; font-size: 13px; color: #9A9AA0; display: inline-flex; align-items: center; gap: 6px; }
+    #screen-write.mobile-view .write-bottom-saved::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #6FCF97; }
+    #screen-write.mobile-view .write-bottom-saved.saving::before { background: #F2C94C; }
+  }
   @media (prefers-reduced-motion: reduce) {
     #screen-write.active .write-head, #screen-write .write-hooks, #screen-write .write-hooks[hidden], .write-saved.saving::before { animation: none; }
   }
@@ -4178,6 +4229,10 @@
       <div id="writeHooksList"></div>
     </div>
 
+    <button type="button" class="write-fab" id="writeFab" aria-label="Start typing">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.8 9.94l-3.75-3.75zM20.7 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75z"/></svg>
+    </button>
+    <div class="write-bottom" aria-live="polite"><span id="writeBottomMeta"></span><span class="write-bottom-saved" id="writeBottomSaved">Saved</span></div>
     <div class="doc-canvas">
       <div class="doc-page" id="scriptBoxFull" contenteditable="true" spellcheck="true" aria-label="Script editor, full screen" data-placeholder="Write your script here..."></div>
     </div>
@@ -7033,7 +7088,7 @@
     switchScreen('write');
     paginateScript();
     updateScriptMeta(p);
-    setTimeout(() => scriptBoxFull.focus(), 80);
+    if (!scriptMobileView()) setTimeout(() => scriptBoxFull.focus(), 80);
   }
 
   // ---------- A4 pages ----------
@@ -7706,7 +7761,22 @@
     const el = document.getElementById('writeSaved');
     el.textContent = done ? 'Saved' : 'Saving…';
     el.classList.toggle('saving', !done);
+    const b = document.getElementById('writeBottomSaved');
+    b.textContent = done ? 'Saved' : 'Saving…';
+    b.classList.toggle('saving', !done);
   }
+  // Pencil: start typing at the end of the script.
+  document.getElementById('writeFab').addEventListener('click', () => {
+    scriptBoxFull.focus();
+    const range = document.createRange();
+    range.selectNodeContents(scriptBoxFull);
+    range.collapse(false);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  });
+  scriptBoxFull.addEventListener('focus', () => document.getElementById('screen-write').classList.add('editing'));
+  scriptBoxFull.addEventListener('blur', () => document.getElementById('screen-write').classList.remove('editing'));
 
   function updateScriptMeta(p) {
     const plain = scriptPlainText(p.script);
@@ -7721,6 +7791,7 @@
     document.getElementById('timeEstimate').textContent = timeLabel;
     document.getElementById('writeMeta').innerHTML = [wordLabel, timeLabel, `${scriptPageCount} page${scriptPageCount === 1 ? '' : 's'}`]
       .map(t => `<span class="write-pill">${escapeHtml(t)}</span>`).join('');
+    document.getElementById('writeBottomMeta').textContent = wordLabel + ' · ' + timeLabel;
 
     const progress = computeProgress(p);
     const writeBar = document.getElementById('writeProgressBar');
