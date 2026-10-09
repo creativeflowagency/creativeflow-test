@@ -5087,11 +5087,20 @@
   // ---------- Version, what's new, bug reports ----------
   // Keep APP_VERSION in step with "version" in package.json. The desktop app reports its real
   // version itself; this is what the web/phone version shows.
-  const APP_VERSION = '1.0.13';
+  const APP_VERSION = '1.0.14';
   window.CF_APP_VERSION = APP_VERSION;
   const REPORT_URL = 'https://creativeflow-ai.netlify.app/api/report';
   // Newest first. Add an entry for every release; only the newest is shown on the Updates & help page.
   const CHANGELOG = [
+    { version: '1.0.14', date: '2026-10-09', changes: [
+      'CreativeFlow is now free! The Basic plan has the whole planning app. Creator adds Adonis and AI scores, and you can try it free for 7 days.',
+      'New: Creator Max, with a Competitor tracker, Team access (invite up to 3 people), several channels, early access, a Max role in Discord and a Max badge.',
+      'Your plan and AI uses are in Account, and Adonis shows how many you have left.',
+      'Scripts: rename, duplicate and delete them from the Scripts page. On phones, scripts look like Google Docs, with a Print layout switch.',
+      'Rate hooks, titles and thumbnails 1-100 when you plan a video, and rate a title and thumbnail together in a project\'s Thumbnail tab.',
+      'Analytics is live, with a simpler layout and your best videos from the past 30 days.',
+      'Join our Discord from the menu. The menus are tidier, with Analytics and Daily Tasks in ☰ and the calendar and leaderboard by the search bar.'
+    ] },
     { version: '1.0.13', date: '2026-10-07', changes: [
       'New: CreativeFlow for Mac.',
       'Sign in with Google or Apple in the Windows and Mac apps. It opens your browser to sign in, then brings you back to the app.',
@@ -5549,10 +5558,11 @@
     return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
   }
 
+  // Safe for text and for attribute values (quotes too), so names and titles from other people
+  // can't break out of an attribute.
   function escapeHtml(str) {
-    const d = document.createElement('div');
-    d.textContent = str;
-    return d.innerHTML;
+    return String(str === undefined || str === null ? '' : str)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
   // Home: "All" (every video) or "Playlists" (folders; tap one to open it). The Long-form /
@@ -9671,7 +9681,7 @@
       .replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>')
       .replace(/__([^_]+?)__/g, '<strong>$1</strong>')
       .replace(/(^|[^*\w])\*([^*\n]+?)\*(?!\w)/g, '$1<em>$2</em>')
-      .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)"'<>]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
     const lines = String(src || '').replace(/\r\n?/g, '\n').split('\n');
     let html = '', list = null, para = [], code = null;
     const flushPara = () => { if (para.length) { html += '<p>' + para.map(inline).join('<br>') + '</p>'; para = []; } };
@@ -11100,6 +11110,7 @@ Give concise, specific, practical feedback grounded in the material above when a
   function analyticsErrorText(code) {
     switch (code) {
       case 'bad_channel': return "That doesn't look like a YouTube channel link. Try something like youtube.com/@yourchannel.";
+      case 'too_many_lookups': return "You've looked up a lot of channels today. Try again tomorrow.";
       case 'channel_not_found': return "Couldn't find that channel on YouTube. Check the link and try again.";
       case 'quota_exceeded': return "YouTube's daily limit for CreativeFlow has been reached. It resets at midnight (Pacific time).";
       case 'server_config': return 'Analytics is being set up. Check back soon.';
@@ -11473,6 +11484,7 @@ Give concise, specific, practical feedback grounded in the material above when a
       case 'max_required': return 'Inviting people is part of Creator Max.';
       case 'team_full': return 'Your team is full (3 people, invites included). Remove someone or cancel an invite first.';
       case 'bad_code': return "That code doesn't work. Codes are 6 characters and last 7 days. Ask for a new one.";
+      case 'too_many_tries': return 'Too many wrong codes today. Try again tomorrow.';
       case 'own_team': return "That's your own team's code. Send it to the person you're inviting.";
       case 'not_member': return "You're no longer on this team.";
       case 'owner_not_max': return "This team is paused: the owner isn't on Creator Max right now.";
