@@ -40,6 +40,10 @@
   })();
 </script>
 <script>
+  // The app's look: true = the setup-questions style everywhere (chunky cards, round buttons).
+  // Set to false to go back to the previous look; everything for it is in the "cf-v2" CSS layer.
+  window.CF_NEW_LOOK = true;
+  if (window.CF_NEW_LOOK) document.documentElement.classList.add('cf-v2');
   // Inside the iPhone app (Capacitor) the page gets an "ios-app" class: it hides what Apple's rules don't allow there
   // (links to buy a membership elsewhere) and what can't work there (Google sign-in inside an app, offline caching).
   if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
@@ -468,24 +472,10 @@
     background: linear-gradient(90deg, #8358FF var(--fill, 50%), #241C42 var(--fill, 50%)); }
   .obf-range::-webkit-slider-thumb { -webkit-appearance: none; width: 54px; height: 36px; border-radius: 14px; background: #8358FF; border: 2px solid #B9A3FF; box-shadow: 0 4px 0 #5531C9; }
   .obf-range::-moz-range-thumb { width: 54px; height: 36px; border-radius: 14px; background: #8358FF; border: 2px solid #B9A3FF; box-shadow: 0 4px 0 #5531C9; }
-  .obf-range.round::-webkit-slider-thumb { width: 38px; height: 38px; border-radius: 50%; background: radial-gradient(circle, #FFFFFF 0 5px, #8358FF 6px); }
-  .obf-range.round::-moz-range-thumb { width: 38px; height: 38px; border-radius: 50%; background: radial-gradient(circle, #FFFFFF 0 5px, #8358FF 6px); }
   .obf-ticks { display: flex; justify-content: space-between; padding: 14px 4px 0; }
   .obf-ticks i { width: 3px; height: 14px; border-radius: 2px; background: #3A2B6E; transition: background 0.15s ease; }
   .obf-ticks i.on { background: #8358FF; }
   .obf-ends { display: flex; justify-content: space-between; margin-top: 16px; font-weight: 800; font-size: 16px; color: #A9A2C4; }
-  /* Dial */
-  .obf-dial { position: relative; width: min(300px, 78vw); aspect-ratio: 1; margin: 18px auto 30px; animation: obItemIn 0.5s cubic-bezier(0.2, 0.9, 0.25, 1) 0.12s both; }
-  .obf-dial-ticks { position: absolute; inset: 0; }
-  .obf-dial-ticks i { position: absolute; left: 50%; top: 0; width: 5px; height: 26px; margin-left: -2.5px; border-radius: 3px; background: #2C2252; transform-origin: 50% calc(min(300px, 78vw) / 2);
-    transition: background 0.2s ease, box-shadow 0.2s ease; }
-  .obf-dial-ticks i.on { background: #E9E2FF; box-shadow: 0 0 10px rgba(185, 163, 255, 0.8); }
-  .obf-dial-core { position: absolute; inset: 15%; border-radius: 50%; background: radial-gradient(circle at 50% 35%, #2A1F52, #17112B 70%); box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.06), 0 20px 50px rgba(0, 0, 0, 0.45);
-    display: flex; flex-direction: column; align-items: center; justify-content: center; }
-  .obf-dial-num { font-size: 64px; font-weight: 900; letter-spacing: -0.03em; line-height: 1; }
-  .obf-dial-num.roll { animation: obfRoll 0.32s cubic-bezier(0.2, 0.9, 0.25, 1); }
-  @keyframes obfRoll { from { transform: translateY(18px); opacity: 0; filter: blur(4px); } to { transform: none; opacity: 1; filter: none; } }
-  .obf-dial-unit { margin-top: 10px; font-size: 13px; font-weight: 900; letter-spacing: 0.18em; color: #CFC6EE; }
   /* Reminders explainer */
   .obf-notif { width: min(330px, 100%); margin: 26px auto 0; border-radius: 22px; background: #1F1838; border: 1.5px solid #3A2B6E; text-align: center; overflow: hidden;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45); animation: obItemIn 0.5s cubic-bezier(0.2, 0.9, 0.25, 1) 0.15s both; }
@@ -4079,9 +4069,151 @@
       margin-right: auto;
     }
   }
+
+  /* =====================================================================================
+     NEW LOOK (html.cf-v2): the setup-questions style across the whole app. Theme-aware: card and
+     line colours come from the member's chosen background, and the accent colour stays theirs.
+     Remove the cf-v2 class (window.CF_NEW_LOOK = false) to get the previous look back.
+     ===================================================================================== */
+  html.cf-v2 {
+    --v2-card: color-mix(in srgb, var(--surface-2) 42%, var(--bg));
+    --v2-card-hi: color-mix(in srgb, var(--surface-2) 62%, var(--bg));
+    --v2-line: color-mix(in srgb, var(--surface-2) 82%, #FFFFFF 9%);
+    --v2-edge: color-mix(in srgb, var(--bg) 55%, #000000);
+    --v2-accent-edge: color-mix(in srgb, var(--accent) 58%, #000000);
+    --v2-accent-soft: color-mix(in srgb, var(--accent) 22%, var(--bg));
+    --v2-radius: 20px;
+  }
+  /* Flat, calm backgrounds instead of glows. */
+  html.cf-v2 body, html.cf-v2 #screen-home, html.cf-v2 #screen-splash:not(.splash-v2) { background: var(--bg); }
+  html.cf-v2 #screen-home::after, html.cf-v2 #screen-splash:not(.splash-v2)::after { display: none; }
+
+  /* Headers: round back button, bold titles. */
+  html.cf-v2 .back-btn, html.cf-v2 .icon-btn, html.cf-v2 .ob-close {
+    width: 44px; height: 44px; border-radius: 50%; background: var(--v2-card); border: 1.5px solid var(--v2-line); color: var(--text);
+    box-shadow: 0 3px 0 var(--v2-edge); transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  html.cf-v2 .back-btn:active, html.cf-v2 .icon-btn:active { transform: translateY(2px) scale(0.96); box-shadow: 0 1px 0 var(--v2-edge); }
+  html.cf-v2 .project-title { font-weight: 900; letter-spacing: -0.02em; }
+  html.cf-v2 .project-sub { font-weight: 600; }
+  html.cf-v2 .onboard-question, html.cf-v2 .sheet h3 { font-weight: 900; letter-spacing: -0.02em; }
+
+  /* Cards: rounded, with a soft 3D edge. */
+  html.cf-v2 :is(.card, .script-card, .an-hero, .an-small, .an-highlight, .an-video, .lb-row, .idea-item, .comp-card, .team-row, .max-perk, .plan-option,
+      .plan-card, .customize-card, .account-level-card, .update-card, .lbp-stat, .lbp-badge, .comp-chip, .blocked-row, .settings-body .feature-toggle-row,
+      .license-card, .planner-list-row, .ob-script-row, .folder-card) {
+    border-radius: var(--v2-radius); border: 2px solid var(--v2-line); background: var(--v2-card); box-shadow: 0 4px 0 var(--v2-edge);
+  }
+  html.cf-v2 .settings-body .feature-toggle-row { padding: 14px 16px; margin-bottom: 10px; }
+  html.cf-v2 .settings-body .feature-toggle-row:last-child { border-bottom: 2px solid var(--v2-line); }
+  html.cf-v2 :is(.card, .script-card, .lb-row, .team-row, .comp-card, .planner-list-row, .ob-script-row) { transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.18s ease; }
+  html.cf-v2 :is(.card, .script-card, .lb-row, .team-row, .ob-script-row):active { transform: translateY(3px); box-shadow: 0 1px 0 var(--v2-edge); }
+  html.cf-v2 .lb-row.you, html.cf-v2 .plan-option.current { border-color: var(--accent); background: var(--v2-accent-soft); box-shadow: 0 4px 0 var(--v2-accent-edge); }
+  html.cf-v2 .card-thumb { border-radius: 14px; }
+
+  /* Buttons: chunky, with a press-down edge. */
+  html.cf-v2 :is(.btn-create, .planner-action.solid, .splash-enter-btn, .upgrade-btn:not(.ghost), .plan-option-btn:not(.is-current), .onboard-btn.primary, .lbp-link) {
+    border-radius: 16px; border: 1.5px solid color-mix(in srgb, var(--accent), #FFFFFF 18%); background: var(--accent); color: var(--accent-ink, #FFFFFF);
+    font-weight: 800; box-shadow: 0 4px 0 var(--v2-accent-edge); transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.2s ease;
+  }
+  html.cf-v2 :is(.btn-create, .planner-action.solid, .splash-enter-btn, .upgrade-btn, .plan-option-btn, .onboard-btn.primary, .lbp-link):active:not(:disabled) {
+    transform: translateY(3px); box-shadow: 0 1px 0 var(--v2-accent-edge);
+  }
+  html.cf-v2 :is(.btn-cancel, .planner-action:not(.solid), .splash-secondary-btn, .upgrade-btn.ghost, .onboard-btn.secondary, .sheet-btn, .team-x, .comp-actions button, .blocked-row button, .planner-add-row) {
+    border-radius: 16px; border: 2px solid var(--v2-line); background: var(--v2-card); color: var(--text); font-weight: 800;
+    box-shadow: 0 4px 0 var(--v2-edge); transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  html.cf-v2 :is(.btn-cancel, .planner-action:not(.solid), .splash-secondary-btn, .onboard-btn.secondary, .sheet-btn, .team-x, .comp-actions button, .blocked-row button, .planner-add-row):active:not(:disabled) {
+    transform: translateY(3px); box-shadow: 0 1px 0 var(--v2-edge);
+  }
+  html.cf-v2 .sheet-btn { padding: 15px 16px; margin-bottom: 10px; }
+  html.cf-v2 .sheet-btn.danger, html.cf-v2 .sheet-btn.danger-btn, html.cf-v2 .danger-btn { color: var(--danger); }
+  html.cf-v2 :is(.btn-create, .btn-cancel):disabled { opacity: 0.45; }
+
+  /* Text boxes: big and rounded, purple border while typing. */
+  html.cf-v2 :is(.onboard-input, .search-wrap input, .sheet input[type="text"], .sheet textarea, .inbox-form input, #aiInput, .team-idea input) {
+    border-radius: 16px; border: 2px solid var(--v2-line); background: var(--v2-card); color: var(--text); font-weight: 600;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  }
+  html.cf-v2 :is(.onboard-input, .search-wrap input, .sheet input[type="text"], .sheet textarea, .inbox-form input, #aiInput, .team-idea input):focus {
+    border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+
+  /* Chips, tabs and segmented controls: bold pills. */
+  html.cf-v2 :is(.chip, .home-seg-btn, .home-format-btn, .lb-tab, .comp-tab, .onboard-option, .reminder-chip, .an-channel-chip) {
+    border-radius: 999px; border: 2px solid var(--v2-line); background: var(--v2-card); color: var(--text); font-weight: 800;
+    box-shadow: 0 3px 0 var(--v2-edge); transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.18s ease, border-color 0.18s ease;
+  }
+  html.cf-v2 :is(.chip, .home-seg-btn, .home-format-btn, .lb-tab, .comp-tab, .onboard-option, .reminder-chip, .an-channel-chip):active { transform: translateY(2px); box-shadow: 0 1px 0 var(--v2-edge); }
+  html.cf-v2 :is(.chip.active, .home-seg-btn[aria-selected="true"], .home-format-btn[aria-pressed="true"], .lb-tab[aria-selected="true"], .comp-tab[aria-selected="true"],
+      .onboard-option.selected, .onboard-option[aria-pressed="true"], .reminder-chip.active, .reminder-chip[aria-pressed="true"], .an-channel-chip[aria-pressed="true"]) {
+    background: var(--accent); border-color: color-mix(in srgb, var(--accent), #FFFFFF 18%); color: var(--accent-ink, #FFFFFF); box-shadow: 0 3px 0 var(--v2-accent-edge);
+  }
+  html.cf-v2 .home-seg { background: transparent; border: none; gap: 8px; }
+
+  /* Project tabs (Ideas / Script / Thumbnail / Adonis). */
+  html.cf-v2 .tab { border-radius: 999px; font-weight: 800; }
+  html.cf-v2 .tab.active { background: var(--accent); color: var(--accent-ink, #FFFFFF); box-shadow: 0 3px 0 var(--v2-accent-edge); }
+
+  /* Switches: chunkier. */
+  html.cf-v2 .feature-switch { border: 2px solid var(--v2-line); background: var(--v2-card-hi); }
+  html.cf-v2 .feature-switch.on { background: var(--accent); border-color: color-mix(in srgb, var(--accent), #FFFFFF 18%); }
+
+  /* Sheets, menus and pop-ups. */
+  html.cf-v2 .sheet { border-radius: 28px 28px 0 0; border: 2px solid var(--v2-line); border-bottom: none; background: color-mix(in srgb, var(--surface-2) 28%, var(--bg)); }
+  @media (min-width: 700px) { html.cf-v2 .sheet { border-radius: 28px; border-bottom: 2px solid var(--v2-line); } }
+  html.cf-v2 .sheet-handle { width: 44px; height: 5px; border-radius: 999px; background: var(--v2-line); }
+  html.cf-v2 :is(.burger-menu, .fab-menu, .search-dropdown) { border-radius: 22px; border: 2px solid var(--v2-line); background: var(--v2-card); box-shadow: 0 6px 0 var(--v2-edge), 0 20px 50px rgba(0, 0, 0, 0.45); }
+  html.cf-v2 :is(.burger-menu-item, .fab-menu-item) { border-radius: 14px; font-weight: 700; }
+  html.cf-v2 .lbp-card { border-radius: 28px; border: 2px solid var(--v2-line); box-shadow: 0 6px 0 var(--v2-edge), 0 30px 80px rgba(0, 0, 0, 0.55); }
+  html.cf-v2 .toast { border-radius: 999px; border: 2px solid var(--v2-line); background: var(--v2-card); box-shadow: 0 4px 0 var(--v2-edge), 0 14px 40px rgba(0, 0, 0, 0.45); font-weight: 700; }
+  html.cf-v2 .fab-btn { box-shadow: 0 5px 0 var(--v2-accent-edge), 0 14px 30px rgba(0, 0, 0, 0.4); border: 1.5px solid color-mix(in srgb, var(--accent), #FFFFFF 18%); }
+  html.cf-v2 .fab-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--v2-accent-edge); }
+  html.cf-v2 .tab-bar { border-top: 2px solid var(--v2-line); background: color-mix(in srgb, var(--surface-2) 22%, var(--bg)); }
+  html.cf-v2 .topbar { border-bottom: none; }
+
+  /* Adonis chat bubbles and box. */
+  html.cf-v2 .ai-bubble { border-radius: 20px; }
+  html.cf-v2 .ai-bubble.assistant { border: 2px solid var(--v2-line); background: var(--v2-card); }
+  html.cf-v2 .ai-input-row { border-radius: 22px; }
+
+  /* Plan a Video card: same feel as the setup questions. */
+  html.cf-v2 .ob-card { border-radius: 28px; border: 2px solid var(--v2-line); background: color-mix(in srgb, var(--surface-2) 30%, #0B0A12); box-shadow: 0 6px 0 var(--v2-edge), 0 30px 80px rgba(0, 0, 0, 0.55); }
+  html.cf-v2 .ob-card { --accent: #8358FF; --accent-rgb: 131, 88, 255; }
+  html.cf-v2 .ob-tile { border-radius: 18px; border: 2px solid var(--v2-line); background: var(--v2-card); box-shadow: 0 4px 0 var(--v2-edge); font-weight: 800; }
+  html.cf-v2 .ob-tile.selected { border-color: var(--accent); background: var(--v2-accent-soft); box-shadow: 0 4px 0 var(--v2-accent-edge); }
+  html.cf-v2 .ob-bar { height: 6px; border-radius: 999px; }
+
+  /* Sign in / sign up (Clerk's form) in the same style. */
+  html.cf-v2 #screen-auth #authTitle { visibility: hidden; }
+  html.cf-v2 #screen-auth .cl-cardBox { border: none !important; box-shadow: none !important; background: transparent !important; max-width: 520px !important; }
+  html.cf-v2 #screen-auth .cl-card { background: transparent !important; box-shadow: none !important; border: none !important; padding-left: 4px !important; padding-right: 4px !important; }
+  html.cf-v2 #screen-auth .cl-header { align-items: flex-start !important; text-align: left !important; }
+  html.cf-v2 #screen-auth .cl-headerTitle { font-size: 30px !important; font-weight: 900 !important; letter-spacing: -0.02em !important; text-align: left !important; line-height: 1.15 !important; }
+  html.cf-v2 #screen-auth .cl-headerSubtitle { font-size: 16.5px !important; font-weight: 600 !important; text-align: left !important; color: var(--text-muted) !important; }
+  html.cf-v2 #screen-auth :is(.cl-socialButtonsBlockButton, .native-sso-btn) {
+    border-radius: 18px !important; border: 2px solid var(--v2-line) !important; background: var(--v2-card) !important; box-shadow: 0 4px 0 var(--v2-edge) !important;
+    min-height: 56px !important; font-weight: 800 !important;
+  }
+  html.cf-v2 #screen-auth :is(.cl-socialButtonsBlockButton, .native-sso-btn):active { transform: translateY(3px); box-shadow: 0 1px 0 var(--v2-edge) !important; }
+  html.cf-v2 #screen-auth .cl-socialButtonsBlockButtonText { font-weight: 800 !important; font-size: 16px !important; }
+  html.cf-v2 #screen-auth .cl-formFieldLabel { font-weight: 800 !important; }
+  html.cf-v2 #screen-auth .cl-formFieldInput {
+    border-radius: 16px !important; border: 2px solid var(--v2-line) !important; background: var(--v2-card) !important; min-height: 54px !important;
+    font-size: 16.5px !important; font-weight: 600 !important; box-shadow: none !important;
+  }
+  html.cf-v2 #screen-auth .cl-formFieldInput:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent) !important; }
+  html.cf-v2 #screen-auth .cl-formButtonPrimary {
+    border-radius: 18px !important; min-height: 56px !important; font-size: 17px !important; font-weight: 800 !important; text-transform: none !important;
+    background: var(--accent) !important; border: 1.5px solid color-mix(in srgb, var(--accent), #FFFFFF 18%) !important; box-shadow: 0 5px 0 var(--v2-accent-edge) !important;
+  }
+  html.cf-v2 #screen-auth .cl-formButtonPrimary:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--v2-accent-edge) !important; }
+  html.cf-v2 #screen-auth .cl-footer { background: transparent !important; border: none !important; }
+  html.cf-v2 #screen-auth .cl-footerActionLink { font-weight: 800 !important; }
+  html.cf-v2 #screen-auth .cl-otpCodeFieldInput { border-radius: 14px !important; border: 2px solid var(--v2-line) !important; background: var(--v2-card) !important; }
 </style>
 </head>
-<body><div id="testZoneBanner" style="position:fixed;top:0;left:0;right:0;z-index:99999;background:#F2B400;color:#1A1A1A;font:700 12px/1.4 Helvetica,Arial,sans-serif;text-align:center;padding:calc(3px + env(safe-area-inset-top,0px)) 8px 3px;pointer-events:none;letter-spacing:.5px">TEST ZONE · not the real app</div>
+<body><div id="testZoneBanner" style="position:fixed;top:0;left:0;right:0;z-index:99999;background:#F2B400;color:#1A1A1A;font:700 12px/1.4 Helvetica,Arial,sans-serif;text-align:center;padding:calc(3px + env(safe-area-inset-top,0px)) 8px 3px;pointer-events:none;letter-spacing:.5px">TEST ZONE · not the real app</div><style>:root{--safe-top:calc(env(safe-area-inset-top,0px) + 24px) !important}</style>
 <div id="app">
 
   <!-- SPLASH -->
@@ -10541,6 +10673,29 @@ Give concise, specific, practical feedback grounded in the material above when a
     if (sub) { const s = document.createElement('p'); s.className = 'obf-sub'; s.textContent = sub; page.appendChild(s); }
   }
 
+  // A chunky slider with a bubble showing the current choice and a tick for each step.
+  function obfSlider(page, labels, idx, startLabel, endLabel, aria, onChange) {
+    const wrap = document.createElement('div'); wrap.className = 'obf-slider-wrap';
+    wrap.innerHTML = '<div class="obf-bubble-row"><div class="obf-bubble"></div></div><input type="range" class="obf-range" min="0" max="' + (labels.length - 1) + '" step="1">'
+      + '<div class="obf-ticks">' + labels.map(() => '<i></i>').join('') + '</div><div class="obf-ends"><span></span><span></span></div>';
+    page.appendChild(wrap);
+    const range = wrap.querySelector('input'), bubble = wrap.querySelector('.obf-bubble');
+    range.setAttribute('aria-label', aria);
+    const ends = wrap.querySelectorAll('.obf-ends span');
+    ends[0].textContent = startLabel; ends[1].textContent = endLabel;
+    const show = () => {
+      const v = +range.value, pct = v / (labels.length - 1) * 100;
+      range.style.setProperty('--fill', pct + '%');
+      bubble.textContent = labels[v];
+      bubble.style.left = 'calc(' + pct + '% + ' + (27 - pct * 0.54) + 'px)';
+      wrap.querySelectorAll('.obf-ticks i').forEach((t, i) => t.classList.toggle('on', i === v));
+      range.setAttribute('aria-valuetext', labels[v]);
+      onChange(labels[v]);
+    };
+    range.value = idx; show();
+    range.addEventListener('input', show);
+  }
+
   function obfStepValid(key) {
     const p = state.profile;
     if (key === 'platforms') return p.creatorTypes.length > 0;
@@ -10574,6 +10729,7 @@ Give concise, specific, practical feedback grounded in the material above when a
       const picked = p.creatorTypes.filter(t => t !== 'Multi-platform' && t !== 'Other');
       const opts = (picked.length >= 2 ? picked : CREATOR_TYPE_OPTIONS.filter(o => o !== 'Multi-platform'));
       obfHeader(page, 'Which one matters most?', 'Your main platform.');
+      p.mainPlatform = ''; // always start empty, so it's a fresh pick
       obfChoices(page, opts.map(l => ({ label: l, icon: (OBF_PLATFORM_ICONS[l] || ['✨'])[0], tile: (OBF_PLATFORM_ICONS[l] || [, '#5E5680'])[1] })),
         { multi: false, isOn: (l) => p.mainPlatform === l, toggle: (l) => { p.mainPlatform = l; } });
     } else if (key === 'name') {
@@ -10589,46 +10745,14 @@ Give concise, specific, practical feedback grounded in the material above when a
       page.append(name, lab, url);
     } else if (key === 'upload') {
       obfHeader(page, 'How often do you upload?', 'Slide to choose. Be honest, there are no wrong answers.');
-      let idx = Math.max(0, OBF_UPLOAD.indexOf(p.uploadFrequency));
-      if (!p.uploadFrequency || OBF_UPLOAD.indexOf(p.uploadFrequency) < 0) { idx = 3; p.uploadFrequency = OBF_UPLOAD[idx]; }
-      const wrap = document.createElement('div'); wrap.className = 'obf-slider-wrap';
-      wrap.innerHTML = '<div class="obf-bubble-row"><div class="obf-bubble"></div></div><input type="range" class="obf-range" min="0" max="' + (OBF_UPLOAD.length - 1) + '" step="1" aria-label="How often you upload">'
-        + '<div class="obf-ticks">' + OBF_UPLOAD.map(() => '<i></i>').join('') + '</div><div class="obf-ends"><span>Rarely</span><span>Every day</span></div>';
-      page.appendChild(wrap);
-      const range = wrap.querySelector('input'), bubble = wrap.querySelector('.obf-bubble');
-      const show = () => {
-        const v = +range.value, pct = v / (OBF_UPLOAD.length - 1) * 100;
-        range.style.setProperty('--fill', pct + '%');
-        bubble.textContent = OBF_UPLOAD[v];
-        bubble.style.left = 'calc(' + pct + '% + ' + (27 - pct * 0.54) + 'px)';
-        wrap.querySelectorAll('.obf-ticks i').forEach((t, i) => t.classList.toggle('on', i === v));
-        p.uploadFrequency = OBF_UPLOAD[v];
-      };
-      range.value = idx; show();
-      range.addEventListener('input', show);
+      let idx = OBF_UPLOAD.indexOf(p.uploadFrequency);
+      if (idx < 0) { idx = 3; p.uploadFrequency = OBF_UPLOAD[idx]; }
+      obfSlider(page, OBF_UPLOAD, idx, 'Rarely', 'Every day', 'How often you upload', (label) => { p.uploadFrequency = label; });
     } else if (key === 'subs') {
-      obfHeader(page, 'How many subscribers do you have?', 'Roughly is fine. We\'ll help you grow from here.');
+      obfHeader(page, 'How many subscribers do you have?', 'Roughly is fine. Slide to choose.');
       let idx = OBF_SUBS.findIndex(n => obfSubsLabel(n) === String(p.subscriberCount).trim());
       if (idx < 0) { idx = 2; p.subscriberCount = obfSubsLabel(OBF_SUBS[idx]); }
-      const TICKS = 48;
-      const dial = document.createElement('div'); dial.className = 'obf-dial';
-      dial.innerHTML = '<div class="obf-dial-ticks">' + Array.from({ length: TICKS }, (_, i) => '<i style="transform: rotate(' + (i * 360 / TICKS) + 'deg)"></i>').join('') + '</div>'
-        + '<div class="obf-dial-core"><div class="obf-dial-num"></div><div class="obf-dial-unit">SUBSCRIBERS</div></div>';
-      const wrap = document.createElement('div');
-      wrap.innerHTML = '<input type="range" class="obf-range round" min="0" max="' + (OBF_SUBS.length - 1) + '" step="1" aria-label="Subscribers"><div class="obf-ends"><span>0</span><span>1M+</span></div>';
-      page.append(dial, wrap);
-      const range = wrap.querySelector('input'), num = dial.querySelector('.obf-dial-num');
-      const show = (roll) => {
-        const v = +range.value, frac = v / (OBF_SUBS.length - 1);
-        range.style.setProperty('--fill', frac * 100 + '%');
-        const label = obfSubsLabel(OBF_SUBS[v]);
-        if (num.textContent !== label) { num.textContent = label; if (roll) { num.classList.remove('roll'); void num.offsetWidth; num.classList.add('roll'); } }
-        const lit = Math.round(4 + frac * (TICKS - 4));
-        dial.querySelectorAll('.obf-dial-ticks i').forEach((t, i) => t.classList.toggle('on', i < lit));
-        p.subscriberCount = label;
-      };
-      range.value = idx; show(false);
-      range.addEventListener('input', () => show(true));
+      obfSlider(page, OBF_SUBS.map(obfSubsLabel), idx, '0', '1M+', 'Subscribers', (label) => { p.subscriberCount = label; });
     } else if (key === 'goals') {
       obfHeader(page, 'What do you want to achieve?', 'Pick all that apply.');
       obfChoices(page, GOAL_OPTIONS.map(l => ({ label: l, icon: (OBF_GOALS[l] || ['✨'])[0], tile: (OBF_GOALS[l] || [, '#5E5680'])[1] })),
