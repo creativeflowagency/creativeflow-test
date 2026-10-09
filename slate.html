@@ -841,6 +841,13 @@
   .lbp-banner { height: 84px; background: linear-gradient(135deg, var(--lbp-color, #5865F2), color-mix(in srgb, var(--lbp-color, #5865F2) 40%, #2E1A5E)); }
   .lbp-close { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 50%; border: none; cursor: pointer; background: rgba(0, 0, 0, 0.35); color: #FFFFFF; display: flex; align-items: center; justify-content: center; }
   .lbp-body { padding: 0 20px 20px; }
+  .lbp-safety { display: flex; justify-content: center; gap: 18px; margin-top: 16px; }
+  .lbp-safety button { background: none; border: none; color: #A6A3B3; font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; padding: 6px 4px; display: inline-flex; align-items: center; gap: 5px; }
+  .lbp-safety button:hover { color: #fff; }
+  .report-reasons .onboard-option[aria-pressed="true"] { border-color: var(--accent); background: rgba(131, 88, 255, 0.18); }
+  .report-block-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; font-size: 13.5px; color: var(--text-muted); cursor: pointer; }
+  .blocked-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0 0; font-size: 14px; }
+  .blocked-row button { background: none; border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 5px 10px; font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; }
   .lbp-avatar {
     width: 84px; height: 84px; margin-top: -42px; border-radius: 50%; border: 6px solid #18181E; box-sizing: border-box;
     background: var(--lbp-color, #5865F2); display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 800;
@@ -4732,6 +4739,11 @@
         </div>
         <button type="button" class="feature-switch" id="settingsChannelLinkSwitch" aria-label="Show my channel link on my leaderboard profile"></button>
       </div>
+      <div class="feature-toggle-row" style="display:block;">
+        <div class="feature-toggle-name">Blocked profiles</div>
+        <div class="feature-toggle-desc" id="settingsBlockedHint">People you block don't show on your leaderboard.</div>
+        <div id="settingsBlockedList"></div>
+      </div>
 
       <div class="reminders-section">
         <div class="onboard-field-label" style="margin-top:26px;">Reminders</div>
@@ -4975,6 +4987,28 @@
     <button type="button" class="sheet-btn danger-btn" id="deleteAccountBtn">Delete my account and data</button>
     <div class="sheet-actions" style="margin-top:6px;">
       <button class="btn-cancel" id="backupCancelBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- REPORT PROFILE SHEET -->
+<div class="sheet-backdrop" id="reportProfileBackdrop">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3 id="reportProfileTitle">Report this profile</h3>
+    <div class="onboard-hint" style="margin-bottom:12px;">What's wrong with it? We'll look at it within 24 hours. They won't know who reported them.</div>
+    <div class="onboard-options report-reasons" id="reportReasons">
+      <button type="button" class="onboard-option" data-reason="name">Inappropriate name</button>
+      <button type="button" class="onboard-option" data-reason="picture">Inappropriate picture</button>
+      <button type="button" class="onboard-option" data-reason="bio">Inappropriate bio</button>
+      <button type="button" class="onboard-option" data-reason="spam">Spam or fake profile</button>
+      <button type="button" class="onboard-option" data-reason="other">Something else</button>
+    </div>
+    <textarea class="onboard-input" id="reportNote" rows="3" maxlength="500" placeholder="Anything else we should know? (optional)" style="margin-top:12px;resize:vertical;"></textarea>
+    <label class="report-block-row"><input type="checkbox" id="reportAlsoBlock" checked> Also block this profile</label>
+    <div class="sheet-actions">
+      <button class="btn-cancel" id="reportCancelBtn">Cancel</button>
+      <button class="btn-create" id="reportSendBtn" disabled>Send report</button>
     </div>
   </div>
 </div>
@@ -6882,10 +6916,18 @@
       + (row.channelUrl && /^https?:\/\//i.test(row.channelUrl)
         ? '<a class="lbp-link" href="' + escapeHtml(row.channelUrl) + '" target="_blank" rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>Visit channel</a>'
         : '')
+      + (!row.you && row.pid
+        ? '<div class="lbp-safety"><button type="button" id="lbpReport"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>Report this profile</button>'
+          + '<button type="button" id="lbpBlock"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="m5.7 5.7 12.6 12.6"/></svg>Block this profile</button></div>'
+        : '')
       + '</div>';
     const backdrop = document.getElementById('lbProfile');
     backdrop.hidden = false;
     document.getElementById('lbpClose').addEventListener('click', closeLbProfile);
+    const rep = document.getElementById('lbpReport');
+    if (rep) rep.addEventListener('click', () => openReportProfile(row));
+    const blk = document.getElementById('lbpBlock');
+    if (blk) blk.addEventListener('click', () => confirmBlockProfile(row));
     requestAnimationFrame(() => requestAnimationFrame(() => { document.getElementById('lbpBar').style.width = pct + '%'; }));
     document.getElementById('lbpClose').focus();
   }
@@ -6894,6 +6936,110 @@
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !document.getElementById('lbProfile').hidden) closeLbProfile(); });
 
   document.getElementById('editProfileViewBtn').addEventListener('click', () => openLbProfile(ownProfileRow()));
+
+  // ---------- Report and block profiles ----------
+  // Reports go to the founder (HQ → Bugs), who can take a profile off the leaderboard. Blocking
+  // hides that person from your own leaderboard; they aren't told. Unblock in Settings.
+  async function leaderboardPost(body) {
+    let token = null;
+    try { token = clerk && clerk.session ? await clerk.session.getToken() : null; } catch (e) {}
+    if (!token) return { error: 'signed_out' };
+    try {
+      const res = await fetch(LEADERBOARD_URL, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify(body), signal: AbortSignal.timeout(15000)
+      });
+      const data = await res.json().catch(() => null);
+      return res.ok ? { data } : { error: (data && data.error && data.error.code) || 'server_error' };
+    } catch (e) {
+      return { error: 'offline' };
+    }
+  }
+
+  const reportBackdrop = document.getElementById('reportProfileBackdrop');
+  let reportRow = null, reportReason = null;
+  function openReportProfile(row) {
+    reportRow = row;
+    reportReason = null;
+    document.getElementById('reportProfileTitle').textContent = 'Report ' + (row.name || 'this profile');
+    document.querySelectorAll('#reportReasons .onboard-option').forEach(b => b.setAttribute('aria-pressed', 'false'));
+    document.getElementById('reportNote').value = '';
+    document.getElementById('reportAlsoBlock').checked = true;
+    document.getElementById('reportSendBtn').disabled = true;
+    reportBackdrop.classList.add('active');
+  }
+  document.querySelectorAll('#reportReasons .onboard-option').forEach(b => b.addEventListener('click', () => {
+    reportReason = b.dataset.reason;
+    document.querySelectorAll('#reportReasons .onboard-option').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    document.getElementById('reportSendBtn').disabled = false;
+  }));
+  document.getElementById('reportCancelBtn').addEventListener('click', () => reportBackdrop.classList.remove('active'));
+  reportBackdrop.addEventListener('click', (e) => { if (e.target === reportBackdrop) reportBackdrop.classList.remove('active'); });
+  document.getElementById('reportSendBtn').addEventListener('click', async () => {
+    if (!reportRow || !reportReason) return;
+    const btn = document.getElementById('reportSendBtn');
+    btn.disabled = true; btn.textContent = 'Sending…';
+    const r = await leaderboardPost({ action: 'report', pid: reportRow.pid, reason: reportReason, note: document.getElementById('reportNote').value });
+    btn.textContent = 'Send report';
+    if (r.error) {
+      btn.disabled = false;
+      showToast(r.error === 'daily_limit' ? "You've sent a lot of reports today. Try again tomorrow." : r.error === 'signed_out' ? 'Sign in to report a profile.' : "Couldn't send the report. Try again.");
+      return;
+    }
+    reportBackdrop.classList.remove('active');
+    if (document.getElementById('reportAlsoBlock').checked) await blockProfile(reportRow, true);
+    showToast('Thanks. We\'ll look at this profile within 24 hours.');
+  });
+
+  function confirmBlockProfile(row) {
+    showConfirm({
+      title: 'Block ' + (row.name || 'this profile') + '?',
+      message: "You won't see them on the leaderboard any more. They won't be told. You can unblock them in Settings.",
+      confirmLabel: 'Block',
+      onConfirm: () => blockProfile(row, false)
+    });
+  }
+  async function blockProfile(row, quiet) {
+    const r = await leaderboardPost({ action: 'block', pid: row.pid });
+    if (r.error) { showToast("Couldn't block them. Try again."); return; }
+    closeLbProfile();
+    if (!quiet) showToast((row.name || 'They') + ' is blocked.');
+    if (currentScreenName() === 'leaderboard') loadLeaderboard();
+  }
+
+  async function renderBlockedProfiles() {
+    const list = document.getElementById('settingsBlockedList');
+    const hint = document.getElementById('settingsBlockedHint');
+    if (!list) return;
+    list.innerHTML = '';
+    let token = null;
+    try { token = clerk && clerk.session ? await clerk.session.getToken() : null; } catch (e) {}
+    if (!token) { hint.textContent = 'Sign in to see who you\'ve blocked.'; return; }
+    let blocked = [];
+    try {
+      const res = await fetch(LEADERBOARD_URL, { headers: { Authorization: 'Bearer ' + token }, signal: AbortSignal.timeout(15000) });
+      if (res.ok) blocked = (await res.json()).blocked || [];
+    } catch (e) {}
+    hint.textContent = blocked.length ? "People you block don't show on your leaderboard." : "You haven't blocked anyone. People you block don't show on your leaderboard.";
+    blocked.forEach(b => {
+      const row = document.createElement('div');
+      row.className = 'blocked-row';
+      const name = document.createElement('span');
+      name.textContent = b.name || 'Creator';
+      const un = document.createElement('button');
+      un.type = 'button';
+      un.textContent = 'Unblock';
+      un.addEventListener('click', async () => {
+        un.disabled = true;
+        const r = await leaderboardPost({ action: 'unblock', pid: b.pid });
+        if (r.error) { un.disabled = false; showToast("Couldn't unblock. Try again."); return; }
+        showToast((b.name || 'They') + ' is unblocked.');
+        renderBlockedProfiles();
+      });
+      row.append(name, un);
+      list.appendChild(row);
+    });
+  }
 
   async function loadLeaderboard() {
     lbData = null;
@@ -6939,6 +7085,7 @@
     renderSettingsFeatureToggles();
     renderCustomizeSection();
     refreshSettingsMax();
+    renderBlockedProfiles();
     renderLeaderboardSwitch();
     renderReminderSettings();
     document.getElementById('settingsSaveBtn').disabled = true;
