@@ -382,6 +382,127 @@
   html.ios-app body, html.ios-app #app { min-height: var(--app-h, 100dvh); }
 
 
+  /* ---------- Chunky buttons (welcome + setup) ---------- */
+  .cf-chunky { display: block; width: 100%; padding: 17px 18px; border-radius: 18px; border: 1.5px solid transparent; cursor: pointer;
+    font: 800 17px 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: 0.01em; transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.2s ease;
+    -webkit-tap-highlight-color: transparent; }
+  .cf-chunky.primary { background: #8358FF; color: #FFFFFF; border-color: #9C7BFF; box-shadow: 0 5px 0 #5531C9; }
+  .cf-chunky.secondary { background: #17112B; color: #B9A3FF; border-color: #3A2B6E; box-shadow: 0 5px 0 #0E0A1C; }
+  .cf-chunky:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 1px 0 #5531C9; }
+  .cf-chunky.secondary:active:not(:disabled) { box-shadow: 0 1px 0 #0E0A1C; }
+  .cf-chunky:disabled { opacity: 0.4; cursor: default; }
+
+  /* ---------- Welcome screen ---------- */
+  #screen-splash.splash-v2 { justify-content: flex-end; align-items: stretch; padding: 0; background: #0B0A12; }
+  #screen-splash.splash-v2::after { display: none; }
+  .splash-art { position: absolute; left: 0; right: 0; top: 0; height: 72%; overflow: hidden; }
+  .splash-art svg { width: 100%; height: 100%; display: block; }
+  .splash-art::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 45%; background: linear-gradient(to bottom, rgba(11, 10, 18, 0), #0B0A12); }
+  .sp-float { animation: spFloat 6s ease-in-out infinite alternate; transform-box: fill-box; }
+  .sp-f2 { animation-duration: 7.5s; animation-delay: -2s; }
+  .sp-f3 { animation-duration: 8.5s; animation-delay: -4s; }
+  @keyframes spFloat { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+  .splash-content { position: relative; z-index: 1; width: 100%; max-width: 520px; margin: 0 auto; box-sizing: border-box;
+    padding: 0 24px calc(22px + var(--safe-bottom)); animation: spIn 0.6s cubic-bezier(0.2, 0.9, 0.25, 1) both; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+  @keyframes spIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+  .splash-brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 14px; color: #CFC6EE; margin-bottom: 10px; }
+  .splash-v2 .splash-logo { width: 28px; height: 28px; border-radius: 8px; margin: 0; }
+  .splash-v2 .splash-welcome-back { text-align: left; margin: 0 0 6px; }
+  .splash-v2-title { margin: 0 0 12px; color: #FFFFFF; font-size: 34px; line-height: 1.1; font-weight: 900; letter-spacing: -0.02em; }
+  .splash-v2-sub { margin: 0 0 18px; color: #C9C2E0; font-size: 17.5px; line-height: 1.45; font-weight: 600; }
+  .splash-v2-ready { margin: 0 0 16px; color: #FFFFFF; font-size: 16.5px; font-weight: 800; }
+  .splash-v2 .cf-chunky + .cf-chunky { margin-top: 14px; }
+  .splash-v2 .consent-note { margin-top: 16px; text-align: center; }
+
+  /* ---------- Setup questions: one per screen ---------- */
+  #screen-onboarding.obf-screen { padding: 0; background: #0B0A12; align-items: stretch; justify-content: stretch; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #FFFFFF; }
+  .obf { flex: 1; display: flex; flex-direction: column; min-height: 0; width: 100%; max-width: 620px; margin: 0 auto; }
+  .obf-top { display: flex; align-items: center; gap: 16px; padding: calc(14px + var(--safe-top)) 22px 6px; }
+  .obf-back { flex: none; width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid #3A2B6E; background: #17112B; color: #FFFFFF;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.12s ease, opacity 0.2s ease; }
+  .obf-back:active { transform: scale(0.92); }
+  .obf-back.is-hidden { opacity: 0; pointer-events: none; }
+  .obf-bar { flex: 1; height: 8px; border-radius: 999px; background: #1E1838; overflow: hidden; }
+  .obf-bar i { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #6A3DF0, #A88BFF); transition: width 0.6s cubic-bezier(0.2, 0.9, 0.25, 1); }
+  .obf-stage { position: relative; flex: 1; min-height: 0; overflow: hidden; }
+  .obf-page { position: absolute; inset: 0; overflow-y: auto; padding: 26px 24px 24px; -webkit-overflow-scrolling: touch; }
+  .obf-page.entering { animation: obfIn 0.45s cubic-bezier(0.2, 0.9, 0.25, 1) both; }
+  .obf-page.leaving { animation: obfOut 0.45s cubic-bezier(0.2, 0.9, 0.25, 1) both; pointer-events: none; }
+  @keyframes obfIn { from { transform: translateX(calc(100% * var(--dir, 1))); opacity: 0.3; } to { transform: none; opacity: 1; } }
+  @keyframes obfOut { from { transform: none; opacity: 1; } to { transform: translateX(calc(-100% * var(--dir, 1))); opacity: 0.25; } }
+  .obf-q { margin: 0 0 10px; font-size: 31px; line-height: 1.15; font-weight: 900; letter-spacing: -0.02em; }
+  .obf-sub { margin: 0 0 24px; font-size: 17px; line-height: 1.4; color: #A9A2C4; font-weight: 600; }
+  .obf-q + .obf-list, .obf-q + .obf-grid { margin-top: 24px; }
+  .obf-list { display: flex; flex-direction: column; gap: 14px; }
+  .obf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .obf-opt { position: relative; display: flex; align-items: center; gap: 16px; width: 100%; text-align: left; padding: 16px 16px 16px 14px; border-radius: 20px; cursor: pointer;
+    background: #17112B; border: 2px solid #2C2252; box-shadow: 0 4px 0 #0E0A1C; color: #FFFFFF; font: inherit;
+    transition: transform 0.14s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.14s ease;
+    animation: obItemIn 0.45s cubic-bezier(0.2, 0.9, 0.25, 1) both; animation-delay: calc(120ms + var(--i, 0) * 45ms); -webkit-tap-highlight-color: transparent; }
+  .obf-opt:active { transform: translateY(3px); box-shadow: 0 1px 0 #0E0A1C; }
+  .obf-opt.selected { background: #251548; border-color: #8358FF; box-shadow: 0 4px 0 #5531C9; }
+  .obf-icon { flex: none; width: 46px; height: 46px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 25px;
+    background: var(--tile, #3A2B6E); box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.18); }
+  .obf-label { flex: 1; min-width: 0; font-size: 18.5px; font-weight: 800; }
+  .obf-desc { display: block; font-size: 13.5px; font-weight: 600; color: #A9A2C4; margin-top: 3px; }
+  .obf-radio { flex: none; width: 30px; height: 30px; border-radius: 50%; border: 2.5px solid #3A2B6E; display: flex; align-items: center; justify-content: center; transition: background 0.18s ease, border-color 0.18s ease, transform 0.25s cubic-bezier(0.3, 1.6, 0.5, 1); }
+  .obf-radio svg { opacity: 0; transform: scale(0.4); transition: opacity 0.15s ease, transform 0.25s cubic-bezier(0.3, 1.6, 0.5, 1); }
+  .obf-opt.selected .obf-radio { background: #8358FF; border-color: #8358FF; transform: scale(1.06); }
+  .obf-opt.selected .obf-radio svg { opacity: 1; transform: none; }
+  .obf-grid .obf-opt { flex-direction: column; align-items: flex-start; gap: 0; min-height: 150px; padding: 16px; }
+  .obf-grid .obf-icon { width: 52px; height: 52px; font-size: 28px; margin-bottom: auto; }
+  .obf-grid .obf-label { flex: none; margin-top: 18px; font-size: 17px; }
+  .obf-grid .obf-radio { position: absolute; top: 14px; right: 14px; width: 26px; height: 26px; }
+  .obf-input { width: 100%; box-sizing: border-box; padding: 18px; border-radius: 18px; border: 2px solid #2C2252; background: #17112B; color: #FFFFFF;
+    font: 700 19px 'Helvetica Neue', Helvetica, Arial, sans-serif; outline: none; transition: border-color 0.18s ease; animation: obItemIn 0.45s cubic-bezier(0.2, 0.9, 0.25, 1) 0.12s both; }
+  .obf-input:focus { border-color: #8358FF; }
+  .obf-input.small { font-size: 16px; padding: 15px 16px; margin-top: 10px; animation-delay: 0.2s; }
+  .obf-field-label { font-size: 14px; font-weight: 800; color: #A9A2C4; margin: 22px 0 0; }
+  /* Slider */
+  .obf-slider-wrap { padding: 70px 6px 0; animation: obItemIn 0.45s cubic-bezier(0.2, 0.9, 0.25, 1) 0.12s both; }
+  .obf-bubble-row { position: relative; height: 0; }
+  .obf-bubble { position: absolute; bottom: 22px; transform: translateX(-50%); white-space: nowrap; padding: 9px 16px; border-radius: 14px; background: #251548;
+    border: 1.5px solid #5531C9; color: #B9A3FF; font-weight: 900; font-size: 17px; transition: left 0.12s ease; }
+  .obf-bubble::after { content: ''; position: absolute; left: 50%; bottom: -8px; width: 12px; height: 12px; background: #251548; border-right: 1.5px solid #5531C9; border-bottom: 1.5px solid #5531C9; transform: translateX(-50%) rotate(45deg); }
+  .obf-range { -webkit-appearance: none; appearance: none; width: 100%; height: 12px; border-radius: 999px; outline: none; margin: 0; cursor: pointer;
+    background: linear-gradient(90deg, #8358FF var(--fill, 50%), #241C42 var(--fill, 50%)); }
+  .obf-range::-webkit-slider-thumb { -webkit-appearance: none; width: 54px; height: 36px; border-radius: 14px; background: #8358FF; border: 2px solid #B9A3FF; box-shadow: 0 4px 0 #5531C9; }
+  .obf-range::-moz-range-thumb { width: 54px; height: 36px; border-radius: 14px; background: #8358FF; border: 2px solid #B9A3FF; box-shadow: 0 4px 0 #5531C9; }
+  .obf-range.round::-webkit-slider-thumb { width: 38px; height: 38px; border-radius: 50%; background: radial-gradient(circle, #FFFFFF 0 5px, #8358FF 6px); }
+  .obf-range.round::-moz-range-thumb { width: 38px; height: 38px; border-radius: 50%; background: radial-gradient(circle, #FFFFFF 0 5px, #8358FF 6px); }
+  .obf-ticks { display: flex; justify-content: space-between; padding: 14px 4px 0; }
+  .obf-ticks i { width: 3px; height: 14px; border-radius: 2px; background: #3A2B6E; transition: background 0.15s ease; }
+  .obf-ticks i.on { background: #8358FF; }
+  .obf-ends { display: flex; justify-content: space-between; margin-top: 16px; font-weight: 800; font-size: 16px; color: #A9A2C4; }
+  /* Dial */
+  .obf-dial { position: relative; width: min(300px, 78vw); aspect-ratio: 1; margin: 18px auto 30px; animation: obItemIn 0.5s cubic-bezier(0.2, 0.9, 0.25, 1) 0.12s both; }
+  .obf-dial-ticks { position: absolute; inset: 0; }
+  .obf-dial-ticks i { position: absolute; left: 50%; top: 0; width: 5px; height: 26px; margin-left: -2.5px; border-radius: 3px; background: #2C2252; transform-origin: 50% calc(min(300px, 78vw) / 2);
+    transition: background 0.2s ease, box-shadow 0.2s ease; }
+  .obf-dial-ticks i.on { background: #E9E2FF; box-shadow: 0 0 10px rgba(185, 163, 255, 0.8); }
+  .obf-dial-core { position: absolute; inset: 15%; border-radius: 50%; background: radial-gradient(circle at 50% 35%, #2A1F52, #17112B 70%); box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.06), 0 20px 50px rgba(0, 0, 0, 0.45);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .obf-dial-num { font-size: 64px; font-weight: 900; letter-spacing: -0.03em; line-height: 1; }
+  .obf-dial-num.roll { animation: obfRoll 0.32s cubic-bezier(0.2, 0.9, 0.25, 1); }
+  @keyframes obfRoll { from { transform: translateY(18px); opacity: 0; filter: blur(4px); } to { transform: none; opacity: 1; filter: none; } }
+  .obf-dial-unit { margin-top: 10px; font-size: 13px; font-weight: 900; letter-spacing: 0.18em; color: #CFC6EE; }
+  /* Reminders explainer */
+  .obf-notif { width: min(330px, 100%); margin: 26px auto 0; border-radius: 22px; background: #1F1838; border: 1.5px solid #3A2B6E; text-align: center; overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45); animation: obItemIn 0.5s cubic-bezier(0.2, 0.9, 0.25, 1) 0.15s both; }
+  .obf-notif-title { padding: 20px 18px 6px; font-weight: 900; font-size: 17px; line-height: 1.3; }
+  .obf-notif-text { padding: 0 20px 18px; color: #A9A2C4; font-size: 14.5px; line-height: 1.4; }
+  .obf-notif-btns { display: grid; grid-template-columns: 1fr 1fr; border-top: 1.5px solid #3A2B6E; }
+  .obf-notif-btns span { padding: 15px; font-weight: 800; font-size: 17px; color: #A9A2C4; }
+  .obf-notif-btns span + span { border-left: 1.5px solid #3A2B6E; color: #B9A3FF; }
+  .obf-arrow { display: block; margin: 12px auto 0; color: #9C7BFF; animation: obfBob 1.2s ease-in-out infinite alternate; }
+  @keyframes obfBob { from { transform: translateY(4px); } to { transform: translateY(-6px); } }
+  .obf-tools .feature-toggle-row { padding: 14px 16px; margin-bottom: 10px; border: 2px solid #2C2252; border-bottom: 2px solid #2C2252; border-radius: 18px; background: #17112B; }
+  .obf-foot { padding: 12px 24px calc(18px + var(--safe-bottom)); }
+  .obf-foot.is-hidden { visibility: hidden; }
+  @media (prefers-reduced-motion: reduce) {
+    .obf-page.entering, .obf-page.leaving, .obf-opt, .sp-float, .obf-arrow { animation: none !important; }
+  }
+
   /* ---------- Splash ---------- */
   #screen-splash {
     position: relative;
@@ -3964,15 +4085,72 @@
 <div id="app">
 
   <!-- SPLASH -->
-  <section class="screen active" id="screen-splash">
-    <div class="splash-top-group">
-      <img class="splash-logo no-save-img" id="splashLogoImg" src="" alt="Creative Flow logo" draggable="false" oncontextmenu="return false;">
-      <div class="splash-title">CreativeFlow <span class="beta-tag">BETA</span></div>
-      <div class="splash-welcome-back" id="splashWelcomeBack" style="display:none;"></div>
+  <section class="screen active splash-v2" id="screen-splash">
+    <div class="splash-art" aria-hidden="true">
+      <svg viewBox="0 0 400 520" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="spSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2A1466"/><stop offset="0.55" stop-color="#4B23B8"/><stop offset="1" stop-color="#0B0A12"/></linearGradient>
+          <radialGradient id="spGlow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#C9B6FF" stop-opacity="0.9"/><stop offset="1" stop-color="#C9B6FF" stop-opacity="0"/></radialGradient>
+          <linearGradient id="spCard" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.95"/><stop offset="1" stop-color="#E6DDFF" stop-opacity="0.9"/></linearGradient>
+          <linearGradient id="spPlay" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9B7BFF"/><stop offset="1" stop-color="#6A3DF0"/></linearGradient>
+          <filter id="spBlur" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="14"/></filter>
+          <filter id="spSoft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5"/></filter>
+          <filter id="spShadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#12062E" flood-opacity="0.55"/></filter>
+        </defs>
+        <rect width="400" height="520" fill="url(#spSky)"/>
+        <circle cx="200" cy="215" r="170" fill="url(#spGlow)" opacity="0.45"/>
+        <g filter="url(#spBlur)" opacity="0.75">
+          <ellipse cx="60" cy="120" rx="90" ry="38" fill="#B9A3FF"/>
+          <ellipse cx="350" cy="80" rx="80" ry="30" fill="#D7CBFF"/>
+          <ellipse cx="320" cy="330" rx="110" ry="40" fill="#A98BFF"/>
+          <ellipse cx="80" cy="360" rx="120" ry="44" fill="#C7B5FF"/>
+          <ellipse cx="200" cy="420" rx="190" ry="50" fill="#7E5BEA"/>
+        </g>
+        <g fill="#FFFFFF" opacity="0.9">
+          <path d="M70 60l3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/><path d="M330 190l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>
+          <path d="M110 250l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/><circle cx="290" cy="40" r="2"/><circle cx="40" cy="210" r="1.6"/><circle cx="360" cy="260" r="1.8"/>
+        </g>
+        <g class="sp-float sp-f1" filter="url(#spShadow)">
+          <rect x="105" y="140" width="190" height="122" rx="20" fill="url(#spCard)"/>
+          <rect x="117" y="152" width="166" height="82" rx="12" fill="#2A1466"/>
+          <circle cx="200" cy="193" r="22" fill="url(#spPlay)"/>
+          <path d="M193 182l18 11-18 11z" fill="#FFFFFF"/>
+          <rect x="117" y="243" width="96" height="8" rx="4" fill="#B9A9EC"/>
+          <rect x="221" y="243" width="40" height="8" rx="4" fill="#D9CFFA"/>
+        </g>
+        <g class="sp-float sp-f2" filter="url(#spShadow)">
+          <rect x="34" y="250" width="108" height="78" rx="16" fill="url(#spCard)"/>
+          <rect x="46" y="264" width="54" height="7" rx="3.5" fill="#6A3DF0"/>
+          <rect x="46" y="279" width="82" height="6" rx="3" fill="#C9BEF0"/>
+          <rect x="46" y="292" width="70" height="6" rx="3" fill="#C9BEF0"/>
+          <rect x="46" y="305" width="76" height="6" rx="3" fill="#C9BEF0"/>
+        </g>
+        <g class="sp-float sp-f3" filter="url(#spShadow)">
+          <rect x="262" y="262" width="104" height="92" rx="16" fill="url(#spCard)"/>
+          <rect x="262" y="262" width="104" height="24" rx="16" fill="#8358FF"/>
+          <rect x="262" y="276" width="104" height="10" fill="#8358FF"/>
+          <g fill="#CFC3F5"><circle cx="282" cy="302" r="4"/><circle cx="300" cy="302" r="4"/><circle cx="318" cy="302" r="4"/><circle cx="336" cy="302" r="4"/>
+          <circle cx="282" cy="320" r="4"/><circle cx="300" cy="320" r="4"/><circle cx="336" cy="320" r="4"/><circle cx="282" cy="338" r="4"/><circle cx="300" cy="338" r="4"/></g>
+          <circle cx="318" cy="320" r="7" fill="#F2C94C"/>
+        </g>
+        <g class="sp-float sp-f2" opacity="0.95">
+          <circle cx="322" cy="128" r="30" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-opacity="0.9" filter="url(#spSoft)"/>
+          <circle cx="322" cy="128" r="30" fill="none" stroke="#FFFFFF" stroke-width="4"/>
+        </g>
+        <g class="sp-float sp-f3">
+          <path d="M66 172c0-8 6-14 14-14h20c8 0 14 6 14 14v8c0 8-6 14-14 14H86l-10 9v-9c-6-2-10-7-10-14z" fill="#F2C94C"/>
+          <path d="M84 176h22M84 168h16" stroke="#3A2A07" stroke-width="3" stroke-linecap="round"/>
+        </g>
+      </svg>
     </div>
-    <div class="splash-button-group">
-      <button type="button" class="splash-enter-btn" id="splashSignUpBtn">Sign Up</button>
-      <button type="button" class="splash-secondary-btn" id="splashSignInBtn">Sign In</button>
+    <div class="splash-content">
+      <div class="splash-brand"><img class="splash-logo no-save-img" id="splashLogoImg" src="" alt="Creative Flow logo" draggable="false" oncontextmenu="return false;"><span>CreativeFlow</span> <span class="beta-tag">BETA</span></div>
+      <div class="splash-welcome-back" id="splashWelcomeBack" style="display:none;"></div>
+      <h1 class="splash-v2-title">Welcome to CreativeFlow</h1>
+      <p class="splash-v2-sub">Plan, script and grow your channel, one video at a time.</p>
+      <p class="splash-v2-ready">Ready to create?</p>
+      <button type="button" class="cf-chunky primary" id="splashSignUpBtn">Get started</button>
+      <button type="button" class="cf-chunky secondary" id="splashSignInBtn">I already have an account</button>
       <p class="consent-note">By continuing you agree to our <button type="button" class="legal-link" data-legal="terms">Terms of Service</button> and <button type="button" class="legal-link" data-legal="privacy">Privacy Policy</button>, and confirm you're 16 or older.</p>
     </div>
   </section>
@@ -4022,17 +4200,14 @@
   </section>
 
   <!-- ONBOARDING -->
-  <section class="screen" id="screen-onboarding">
-    <div class="ob-backdrop" aria-hidden="true"><span></span><span></span><span></span></div>
-    <div class="ob-card" role="dialog" aria-modal="true" aria-labelledby="obQuestion">
-      <div class="ob-bar" aria-hidden="true"><i id="onboardBar"></i></div>
-      <div class="onboard-progress" id="onboardProgress"></div>
-      <div class="onboard-body" id="onboardBody"></div>
-      <div class="onboard-footer">
-        <button type="button" class="onboard-btn primary" id="onboardNextBtn">Next</button>
-        <span class="ob-hint" id="obHint"></span>
-        <button type="button" class="onboard-btn secondary" id="onboardBackBtn">Back</button>
+  <section class="screen obf-screen" id="screen-onboarding">
+    <div class="obf">
+      <div class="obf-top">
+        <button type="button" class="obf-back" id="obfBack" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg></button>
+        <div class="obf-bar" aria-hidden="true"><i id="obfBar"></i></div>
       </div>
+      <div class="obf-stage" id="obfStage"></div>
+      <div class="obf-foot" id="obfFoot"><button type="button" class="cf-chunky primary" id="obfContinue">Continue</button></div>
     </div>
   </section>
 
@@ -5389,8 +5564,6 @@
   let aiContextId = null;
   let aiSending = false;
   let aiAbortController = null;
-  let onboardStep = 1;
-  const ONBOARD_STEP_COUNT = 5;
 
   function defaultLicense() {
     return {
@@ -8087,6 +8260,7 @@
     // also switches on reminders (3 days before, 1 day before and on the day, at 9:00).
     setTimeout(async () => {
       try {
+        if (!state.profile.onboarded) return; // setup has its own reminders step
         const perm = await api.checkPermissions();
         if (!perm || !/^prompt/.test(perm.display)) return;
         const res = await api.requestPermissions();
@@ -10300,153 +10474,241 @@ Give concise, specific, practical feedback grounded in the material above when a
     });
   }
 
-  function renderMultiSelect(container, options, selectedArr) {
-    renderOptionTiles(container, options, (o) => selectedArr.includes(o), (o) => toggleInArray(selectedArr, o));
-  }
+  // ---------- Setup questions, one per screen ----------
+  // Same answers as before (creatorTypes, contentTypes, mainPlatform, channelName, channelUrl,
+  // uploadFrequency, subscriberCount, goals, enabledFeatures); just a calmer, one-question layout.
+  const OBF_PLATFORM_ICONS = { 'YouTube': ['▶️', '#E8433F'], 'TikTok': ['🎵', '#1F9FA8'], 'Instagram': ['📸', '#D9468F'], 'Twitch/Streaming': ['🎮', '#7B4DE8'], 'Multi-platform': ['🌐', '#3E7BEA'], 'Other': ['✨', '#5E5680'] };
+  const OBF_CONTENT = {
+    'Gaming': ['🎮', '#7B4DE8', "Let's plays, streams"], 'Vlogs': ['🎥', '#E8433F', 'Day in my life, travel'], 'Commentary': ['🎙️', '#E08A2E', 'Reactions, opinions'],
+    'Education': ['📚', '#3E7BEA', 'Tutorials, explainers'], 'Fitness': ['💪', '#2E9E6A', 'Workouts, health'], 'Comedy': ['😂', '#E0B12E', 'Skits, sketches'],
+    'Tech': ['💻', '#4A5BD8', 'Reviews, setups'], 'Lifestyle': ['🌿', '#3BA88A', 'Fashion, food, home'], 'Reviews': ['⭐', '#D9468F', 'Products, movies'], 'Other': ['✨', '#5E5680', 'Something else']
+  };
+  const OBF_GOALS = { 'Grow my audience': ['📈', '#2E9E6A'], 'Get more views': ['👀', '#3E7BEA'], 'Improve my content': ['🎬', '#7B4DE8'], 'Generate better video ideas': ['💡', '#E0B12E'],
+    'Improve retention': ['⏱️', '#E08A2E'], 'Improve titles and thumbnails': ['🖼️', '#D9468F'], 'Become more consistent': ['📅', '#1F9FA8'], 'Monetize my content': ['💰', '#3BA88A'],
+    'Build a personal brand': ['🌟', '#C9701F'], 'Other': ['✨', '#5E5680'] };
+  const OBF_UPLOAD = ['Rarely', 'Once a month', 'Every 2 weeks', 'Once a week', '2–3 times a week', 'Every day'];
+  const OBF_SUBS = [0, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000, 1000000];
+  const obfSubsLabel = (n) => n >= 1000000 ? '1M+' : n >= 1000 ? (n / 1000) + 'K' : String(n);
+  let obfIndex = 0;
+  let obfAdvanceTimer = null;
 
-  let obSwapDir = 1; // 1 = next question slides in from the right, -1 = going back
-  function updateOnboardProgress() {
-    const track = document.getElementById('onboardProgress');
-    track.innerHTML = '';
-    for (let i = 1; i <= ONBOARD_STEP_COUNT; i++) {
-      const seg = document.createElement('div');
-      seg.className = 'onboard-progress-seg' + (i <= onboardStep ? ' done' : '');
-      track.appendChild(seg);
-    }
-  }
-
-  function renderOnboardStep() {
-    updateOnboardProgress();
-    const body = document.getElementById('onboardBody');
-    const nextBtn = document.getElementById('onboardNextBtn');
-    const backBtn = document.getElementById('onboardBackBtn');
-    backBtn.style.visibility = onboardStep === 1 ? 'hidden' : 'visible';
-    body.innerHTML = '';
-    body.style.setProperty('--ob-dir', obSwapDir);
-    body.classList.remove('ob-swap'); void body.offsetWidth; body.classList.add('ob-swap');
-    obSwapDir = 1;
-    document.getElementById('onboardBar').style.width = (onboardStep / ONBOARD_STEP_COUNT * 100) + '%';
-    document.getElementById('obHint').textContent = [1, 2, 4].includes(onboardStep) ? 'Choose all that apply.' : '';
+  function obfSteps() {
     const p = state.profile;
+    const steps = ['platforms', 'content'];
+    const picked = p.creatorTypes.filter(t => t !== 'Multi-platform' && t !== 'Other');
+    if (picked.length === 1) p.mainPlatform = picked[0]; else steps.push('main'); // one platform: that's the main one
+    steps.push('name', 'upload', 'subs', 'goals');
+    if (notificationsApi() && !state.profile.onboarded) steps.push('reminders');
+    steps.push('tools');
+    return steps;
+  }
 
-    if (onboardStep === 1) {
-      body.innerHTML = `
-        <div class="ob-count">Question ${onboardStep} of ${ONBOARD_STEP_COUNT}</div>
-        <div class="onboard-question" id="obQuestion">What type of creator are you?</div>
-        <div class="onboard-options" id="ms1"></div>`;
-      renderMultiSelect(document.getElementById('ms1'), CREATOR_TYPE_OPTIONS, p.creatorTypes);
-      nextBtn.textContent = 'Next';
-    } else if (onboardStep === 2) {
-      body.innerHTML = `
-        <div class="ob-count">Question ${onboardStep} of ${ONBOARD_STEP_COUNT}</div>
-        <div class="onboard-question">What type of content do you create?</div>
-        <div class="onboard-options" id="ms2"></div>`;
-      renderMultiSelect(document.getElementById('ms2'), CONTENT_TYPE_OPTIONS, p.contentTypes);
-      nextBtn.textContent = 'Next';
-    } else if (onboardStep === 3) {
-      body.innerHTML = `
-        <div class="ob-count">Question ${onboardStep} of ${ONBOARD_STEP_COUNT}</div>
-        <div class="onboard-question">Tell us about your channel</div>
-        <div class="onboard-hint">This helps tailor ideas and feedback to your channel.</div>
-        <div class="onboard-field-label">Channel / creator name</div>
-        <input type="text" class="onboard-input" id="fChannelName" placeholder="e.g. Alex Plays" value="${escapeHtml(p.channelName)}">
-        <div class="onboard-field-label">Channel URL</div>
-        <input type="text" class="onboard-input" id="fChannelUrl" placeholder="youtube.com/@yourchannel" value="${escapeHtml(p.channelUrl)}">
-        <div class="onboard-field-label">Subscriber / follower count</div>
-        <input type="text" class="onboard-input" id="fSubs" placeholder="e.g. 12,000" value="${escapeHtml(p.subscriberCount)}">
-        <div class="onboard-field-label">Typical video length</div>
-        <input type="text" class="onboard-input" id="fLength" placeholder="e.g. 10 minutes" value="${escapeHtml(p.videoLength)}">
-        <div class="onboard-field-label">Upload frequency</div>
-        <input type="text" class="onboard-input" id="fFreq" placeholder="e.g. 2x per week" value="${escapeHtml(p.uploadFrequency)}">
-        <div class="onboard-field-label">Main platform</div>
-        <div class="onboard-options" id="msPlatform"></div>
-        <div class="onboard-field-label">Connect a platform</div>
-        <div class="onboard-connect-row">
-          <button type="button" class="onboard-connect-btn" data-platform="YouTube">Connect YouTube</button>
-          <button type="button" class="onboard-connect-btn" data-platform="TikTok">Connect TikTok</button>
-          <button type="button" class="onboard-connect-btn" data-platform="Instagram">Connect Instagram</button>
-          <button type="button" class="onboard-connect-btn" data-platform="Twitch">Connect Twitch</button>
-        </div>`;
-      document.getElementById('fChannelName').addEventListener('input', e => { p.channelName = e.target.value; });
-      document.getElementById('fChannelUrl').addEventListener('input', e => { p.channelUrl = e.target.value; });
-      document.getElementById('fSubs').addEventListener('input', e => { p.subscriberCount = e.target.value; });
-      document.getElementById('fLength').addEventListener('input', e => { p.videoLength = e.target.value; });
-      document.getElementById('fFreq').addEventListener('input', e => { p.uploadFrequency = e.target.value; });
-      const platformOptions = CREATOR_TYPE_OPTIONS.filter(o => o !== 'Multi-platform');
-      renderOptionTiles(document.getElementById('msPlatform'), platformOptions, (o) => p.mainPlatform === o, (o) => { p.mainPlatform = o; });
-      body.querySelectorAll('.onboard-connect-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          showToast(`Connecting ${btn.dataset.platform} is coming soon — enter your info manually for now.`);
-        });
+  const CHECK_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  function obfOption(label, icon, tile, desc, selected, i) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'obf-opt' + (selected ? ' selected' : '');
+    b.style.setProperty('--i', i);
+    b.setAttribute('aria-pressed', String(selected));
+    b.innerHTML = '<span class="obf-icon" aria-hidden="true"></span><span class="obf-label"></span><span class="obf-radio" aria-hidden="true">' + CHECK_SVG + '</span>';
+    b.querySelector('.obf-icon').textContent = icon;
+    b.querySelector('.obf-icon').style.setProperty('--tile', tile);
+    const lab = b.querySelector('.obf-label');
+    lab.textContent = label;
+    if (desc) { const d = document.createElement('span'); d.className = 'obf-desc'; d.textContent = desc; lab.appendChild(d); }
+    return b;
+  }
+
+  // Cards: multi = tick as many as you like (Continue); single = pick one and move on.
+  function obfChoices(page, opts, { multi, grid, isOn, toggle }) {
+    const wrap = document.createElement('div');
+    wrap.className = grid ? 'obf-grid' : 'obf-list';
+    opts.forEach((o, i) => {
+      const b = obfOption(o.label, o.icon, o.tile, o.desc, isOn(o.label), i);
+      b.addEventListener('click', () => {
+        toggle(o.label);
+        wrap.querySelectorAll('.obf-opt').forEach((x, j) => { const on = isOn(opts[j].label); x.classList.toggle('selected', on); x.setAttribute('aria-pressed', String(on)); });
+        obfUpdateFoot();
+        if (!multi) { clearTimeout(obfAdvanceTimer); obfAdvanceTimer = setTimeout(() => obfGo(1), 380); }
       });
-      nextBtn.textContent = 'Next';
-    } else if (onboardStep === 4) {
-      body.innerHTML = `
-        <div class="ob-count">Question ${onboardStep} of ${ONBOARD_STEP_COUNT}</div>
-        <div class="onboard-question">What are you trying to accomplish?</div>
-        <div class="onboard-options" id="ms4"></div>`;
-      renderMultiSelect(document.getElementById('ms4'), GOAL_OPTIONS, p.goals);
-      nextBtn.textContent = 'Next';
-    } else if (onboardStep === 5) {
-      body.innerHTML = `
-        <div class="ob-count">Question ${onboardStep} of ${ONBOARD_STEP_COUNT}</div>
-        <div class="onboard-question">Customize your workspace</div>
-        <div class="onboard-hint">Turn on the tools you actually want — you can change this anytime.</div>
-        <div id="featureToggleList"></div>`;
-      const list = document.getElementById('featureToggleList');
+      wrap.appendChild(b);
+    });
+    page.appendChild(wrap);
+  }
+
+  function obfHeader(page, q, sub) {
+    const h = document.createElement('h2'); h.className = 'obf-q'; h.id = 'obQuestion'; h.textContent = q; page.appendChild(h);
+    if (sub) { const s = document.createElement('p'); s.className = 'obf-sub'; s.textContent = sub; page.appendChild(s); }
+  }
+
+  function obfStepValid(key) {
+    const p = state.profile;
+    if (key === 'platforms') return p.creatorTypes.length > 0;
+    if (key === 'content') return p.contentTypes.length > 0;
+    if (key === 'main') return !!p.mainPlatform;
+    if (key === 'name') return !!p.channelName.trim();
+    if (key === 'goals') return p.goals.length > 0;
+    return true;
+  }
+
+  function obfUpdateFoot() {
+    const key = obfSteps()[obfIndex];
+    const foot = document.getElementById('obfFoot');
+    const btn = document.getElementById('obfContinue');
+    foot.classList.toggle('is-hidden', key === 'main'); // single choice moves on by itself
+    btn.disabled = !obfStepValid(key);
+    btn.textContent = key === 'tools' ? "Let's go" : key === 'reminders' ? 'Turn on reminders' : 'Continue';
+  }
+
+  function obfBuild(key, page) {
+    const p = state.profile;
+    if (key === 'platforms') {
+      obfHeader(page, 'Where do you post your videos?', 'Pick all that apply.');
+      obfChoices(page, CREATOR_TYPE_OPTIONS.map(l => ({ label: l, icon: (OBF_PLATFORM_ICONS[l] || ['✨'])[0], tile: (OBF_PLATFORM_ICONS[l] || [, '#5E5680'])[1] })),
+        { multi: true, isOn: (l) => p.creatorTypes.includes(l), toggle: (l) => toggleInArray(p.creatorTypes, l) });
+    } else if (key === 'content') {
+      obfHeader(page, 'What do you make?', 'Pick all that apply.');
+      obfChoices(page, CONTENT_TYPE_OPTIONS.map(l => { const c = OBF_CONTENT[l] || ['✨', '#5E5680', '']; return { label: l, icon: c[0], tile: c[1], desc: c[2] }; }),
+        { multi: true, grid: true, isOn: (l) => p.contentTypes.includes(l), toggle: (l) => toggleInArray(p.contentTypes, l) });
+    } else if (key === 'main') {
+      const picked = p.creatorTypes.filter(t => t !== 'Multi-platform' && t !== 'Other');
+      const opts = (picked.length >= 2 ? picked : CREATOR_TYPE_OPTIONS.filter(o => o !== 'Multi-platform'));
+      obfHeader(page, 'Which one matters most?', 'Your main platform.');
+      obfChoices(page, opts.map(l => ({ label: l, icon: (OBF_PLATFORM_ICONS[l] || ['✨'])[0], tile: (OBF_PLATFORM_ICONS[l] || [, '#5E5680'])[1] })),
+        { multi: false, isOn: (l) => p.mainPlatform === l, toggle: (l) => { p.mainPlatform = l; } });
+    } else if (key === 'name') {
+      obfHeader(page, "What's your channel called?", 'Your creator or channel name.');
+      const name = document.createElement('input');
+      name.className = 'obf-input'; name.type = 'text'; name.maxLength = 60; name.placeholder = 'e.g. Alex Plays'; name.value = p.channelName; name.autocomplete = 'off';
+      name.addEventListener('input', () => { p.channelName = name.value; obfUpdateFoot(); });
+      name.addEventListener('keydown', (e) => { if (e.key === 'Enter' && obfStepValid('name')) obfGo(1); });
+      const lab = document.createElement('div'); lab.className = 'obf-field-label'; lab.textContent = 'Channel link (optional)';
+      const url = document.createElement('input');
+      url.className = 'obf-input small'; url.type = 'text'; url.placeholder = 'youtube.com/@yourchannel'; url.value = p.channelUrl; url.autocomplete = 'off';
+      url.addEventListener('input', () => { p.channelUrl = url.value; });
+      page.append(name, lab, url);
+    } else if (key === 'upload') {
+      obfHeader(page, 'How often do you upload?', 'Slide to choose. Be honest, there are no wrong answers.');
+      let idx = Math.max(0, OBF_UPLOAD.indexOf(p.uploadFrequency));
+      if (!p.uploadFrequency || OBF_UPLOAD.indexOf(p.uploadFrequency) < 0) { idx = 3; p.uploadFrequency = OBF_UPLOAD[idx]; }
+      const wrap = document.createElement('div'); wrap.className = 'obf-slider-wrap';
+      wrap.innerHTML = '<div class="obf-bubble-row"><div class="obf-bubble"></div></div><input type="range" class="obf-range" min="0" max="' + (OBF_UPLOAD.length - 1) + '" step="1" aria-label="How often you upload">'
+        + '<div class="obf-ticks">' + OBF_UPLOAD.map(() => '<i></i>').join('') + '</div><div class="obf-ends"><span>Rarely</span><span>Every day</span></div>';
+      page.appendChild(wrap);
+      const range = wrap.querySelector('input'), bubble = wrap.querySelector('.obf-bubble');
+      const show = () => {
+        const v = +range.value, pct = v / (OBF_UPLOAD.length - 1) * 100;
+        range.style.setProperty('--fill', pct + '%');
+        bubble.textContent = OBF_UPLOAD[v];
+        bubble.style.left = 'calc(' + pct + '% + ' + (27 - pct * 0.54) + 'px)';
+        wrap.querySelectorAll('.obf-ticks i').forEach((t, i) => t.classList.toggle('on', i === v));
+        p.uploadFrequency = OBF_UPLOAD[v];
+      };
+      range.value = idx; show();
+      range.addEventListener('input', show);
+    } else if (key === 'subs') {
+      obfHeader(page, 'How many subscribers do you have?', 'Roughly is fine. We\'ll help you grow from here.');
+      let idx = OBF_SUBS.findIndex(n => obfSubsLabel(n) === String(p.subscriberCount).trim());
+      if (idx < 0) { idx = 2; p.subscriberCount = obfSubsLabel(OBF_SUBS[idx]); }
+      const TICKS = 48;
+      const dial = document.createElement('div'); dial.className = 'obf-dial';
+      dial.innerHTML = '<div class="obf-dial-ticks">' + Array.from({ length: TICKS }, (_, i) => '<i style="transform: rotate(' + (i * 360 / TICKS) + 'deg)"></i>').join('') + '</div>'
+        + '<div class="obf-dial-core"><div class="obf-dial-num"></div><div class="obf-dial-unit">SUBSCRIBERS</div></div>';
+      const wrap = document.createElement('div');
+      wrap.innerHTML = '<input type="range" class="obf-range round" min="0" max="' + (OBF_SUBS.length - 1) + '" step="1" aria-label="Subscribers"><div class="obf-ends"><span>0</span><span>1M+</span></div>';
+      page.append(dial, wrap);
+      const range = wrap.querySelector('input'), num = dial.querySelector('.obf-dial-num');
+      const show = (roll) => {
+        const v = +range.value, frac = v / (OBF_SUBS.length - 1);
+        range.style.setProperty('--fill', frac * 100 + '%');
+        const label = obfSubsLabel(OBF_SUBS[v]);
+        if (num.textContent !== label) { num.textContent = label; if (roll) { num.classList.remove('roll'); void num.offsetWidth; num.classList.add('roll'); } }
+        const lit = Math.round(4 + frac * (TICKS - 4));
+        dial.querySelectorAll('.obf-dial-ticks i').forEach((t, i) => t.classList.toggle('on', i < lit));
+        p.subscriberCount = label;
+      };
+      range.value = idx; show(false);
+      range.addEventListener('input', () => show(true));
+    } else if (key === 'goals') {
+      obfHeader(page, 'What do you want to achieve?', 'Pick all that apply.');
+      obfChoices(page, GOAL_OPTIONS.map(l => ({ label: l, icon: (OBF_GOALS[l] || ['✨'])[0], tile: (OBF_GOALS[l] || [, '#5E5680'])[1] })),
+        { multi: true, isOn: (l) => p.goals.includes(l), toggle: (l) => toggleInArray(p.goals, l) });
+    } else if (key === 'reminders') {
+      obfHeader(page, 'Never miss an upload', 'A reminder before each scheduled video helps you stay consistent.');
+      page.insertAdjacentHTML('beforeend', '<div class="obf-notif" aria-hidden="true"><div class="obf-notif-title">“CreativeFlow” Would Like to Send You Notifications</div>'
+        + '<div class="obf-notif-text">Reminders before your scheduled uploads, with what\'s left to do.</div><div class="obf-notif-btns"><span>Don\'t Allow</span><span>Allow</span></div></div>'
+        + '<svg class="obf-arrow" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>');
+    } else if (key === 'tools') {
+      obfHeader(page, 'Customize your workspace', 'Turn on the tools you want. You can change this anytime.');
+      const list = document.createElement('div'); list.className = 'obf-tools';
       TOOLS_CONFIG.forEach(tool => {
         if (IOS_FREE && toolPlan(tool)) return; // no AI or Max tools in the iPhone app
         list.appendChild(featureToggleRow(tool, p.enabledFeatures.includes(tool.key), () => toggleInArray(p.enabledFeatures, tool.key)));
       });
-      nextBtn.textContent = 'Finish';
+      page.appendChild(list);
     }
   }
 
-  function validateOnboardStep() {
-    const p = state.profile;
-    if (onboardStep === 1) {
-      if (p.creatorTypes.length === 0) return 'Pick at least one to continue.';
-    } else if (onboardStep === 2) {
-      if (p.contentTypes.length === 0) return 'Pick at least one to continue.';
-    } else if (onboardStep === 3) {
-      if (!p.channelName.trim()) return 'Enter your channel or creator name to continue.';
-      if (!p.mainPlatform) return 'Choose your main platform to continue.';
-    } else if (onboardStep === 4) {
-      if (p.goals.length === 0) return 'Pick at least one to continue.';
-    }
-    return null;
-  }
-
-  document.getElementById('onboardNextBtn').addEventListener('click', () => {
-    const problem = validateOnboardStep();
-    if (problem) { showToast(problem); return; }
-    if (onboardStep < ONBOARD_STEP_COUNT) {
-      onboardStep++;
-      renderOnboardStep();
-      document.getElementById('onboardBody').scrollTop = 0;
+  function obfRender(dir) {
+    const steps = obfSteps();
+    obfIndex = Math.max(0, Math.min(obfIndex, steps.length - 1));
+    const stage = document.getElementById('obfStage');
+    const page = document.createElement('div');
+    page.className = 'obf-page';
+    obfBuild(steps[obfIndex], page);
+    const old = stage.querySelector('.obf-page:not(.leaving)');
+    if (old && dir) {
+      old.style.setProperty('--dir', dir);
+      old.classList.add('leaving');
+      setTimeout(() => old.remove(), 460);
+      page.style.setProperty('--dir', dir);
+      page.classList.add('entering');
     } else {
-      state.profile.onboarded = true;
-      save();
-      switchScreen('home');
-      renderHomePersonalization();
+      stage.innerHTML = '';
     }
-  });
-  document.getElementById('onboardBackBtn').addEventListener('click', () => {
-    if (onboardStep > 1) {
-      onboardStep--;
-      obSwapDir = -1;
-      renderOnboardStep();
-      document.getElementById('onboardBody').scrollTop = 0;
-    } else if (state.profile.onboarded) {
-      // Redoing setup from the Account menu: Back on the first step returns home.
-      switchScreen('home');
+    stage.appendChild(page);
+    document.getElementById('obfBar').style.width = ((obfIndex + 1) / steps.length * 100) + '%';
+    document.getElementById('obfBack').classList.toggle('is-hidden', obfIndex === 0 && !state.profile.onboarded);
+    obfUpdateFoot();
+    if (steps[obfIndex] === 'name' && !matchMedia('(pointer: coarse)').matches) setTimeout(() => { const i = page.querySelector('.obf-input'); if (i) i.focus(); }, 460);
+  }
+
+  async function obfGo(delta) {
+    clearTimeout(obfAdvanceTimer);
+    const steps = obfSteps();
+    const key = steps[obfIndex];
+    if (delta > 0 && !obfStepValid(key)) return;
+    if (delta > 0 && key === 'reminders') {
+      const api = notificationsApi();
+      try {
+        const res = api ? await api.requestPermissions() : null;
+        if (res && res.display === 'granted' && !(state.profile.reminders && state.profile.reminders.on)) {
+          state.profile.reminders = normalizeReminders({ on: true, offsets: [3, 1, 0], time: '09:00' });
+        }
+      } catch (e) {}
     }
-  });
+    if (delta > 0 && obfIndex >= steps.length - 1) { finishOnboarding(); return; }
+    if (delta < 0 && obfIndex === 0) { if (state.profile.onboarded) switchScreen('home'); return; }
+    save();
+    obfIndex += delta;
+    obfRender(delta);
+  }
+
+  function finishOnboarding() {
+    state.profile.onboarded = true;
+    save();
+    switchScreen('home');
+    renderHomePersonalization();
+    showToast("You're all set! Let's make something great. 🎬");
+  }
+
+  document.getElementById('obfContinue').addEventListener('click', () => obfGo(1));
+  document.getElementById('obfBack').addEventListener('click', () => obfGo(-1));
 
   function startOnboarding() {
-    onboardStep = 1;
-    renderOnboardStep();
+    obfIndex = 0;
     switchScreen('onboarding');
+    obfRender(0);
   }
 
   // ---------- Home personalization ----------
