@@ -3458,6 +3458,86 @@
     color: var(--text-muted);
     margin-top: 3px;
   }
+  .team-section { font-family: var(--font-display); font-weight: 800; font-size: 15px; margin: 18px 0 8px; }
+  .team-section:first-child { margin-top: 0; }
+  .team-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border); margin-bottom: 8px; }
+  .team-row-main { flex: 1; min-width: 0; }
+  .team-row-name { font-weight: 700; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .team-row-meta { font-size: 12px; color: var(--text-muted); }
+  .team-row button.team-x { background: none; border: 1px solid var(--border); color: var(--text-muted); border-radius: 8px; padding: 6px 10px; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .team-code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 20px; font-weight: 800; letter-spacing: 0.18em; }
+  .team-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; flex: none; }
+  .team-project { cursor: pointer; text-align: left; width: 100%; font: inherit; color: inherit; }
+  .team-project img, .team-project .team-thumb-blank { width: 64px; height: 36px; border-radius: 6px; object-fit: cover; flex: none; background: var(--border); }
+  .team-script { background: #FDFDFB; color: #1C1C1E; border-radius: 12px; padding: 18px 16px; min-height: 260px; font-size: 16px; line-height: 1.6; outline: none; }
+  .team-script p { margin: 0 0 0.45em; }
+  .team-idea { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+  .team-idea input { flex: 1; min-width: 0; }
+  .team-saved { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--text-muted); }
+  .max-perk { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border); margin-bottom: 8px; }
+  .max-perk-icon { font-size: 20px; flex: none; width: 28px; text-align: center; }
+  .max-perk-text { flex: 1; min-width: 0; }
+  .max-perk-name { font-weight: 700; font-size: 14px; }
+  .max-perk-desc { font-size: 12.5px; color: var(--text-muted); }
+  .max-perk button { flex: none; padding: 8px 12px; border-radius: 9px; border: none; background: var(--accent); color: #fff; font: inherit; font-size: 12.5px; font-weight: 800; cursor: pointer; }
+  .max-perk button.ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .burger-max { margin-left: auto; font-size: 9px; padding: 1px 6px; }
+  .comp-form { display: flex; gap: 8px; margin-bottom: 12px; }
+  .comp-form input { flex: 1; min-width: 0; }
+  .comp-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 14px; scrollbar-width: none; }
+  .comp-chips::-webkit-scrollbar { display: none; }
+  .comp-chip { flex: none; display: flex; align-items: center; gap: 7px; padding: 5px 6px 5px 5px; border-radius: 999px; background: var(--surface-2);
+    border: 1px solid var(--border); font-size: 12.5px; font-weight: 700; max-width: 200px; }
+  .comp-chip img, .comp-chip .comp-chip-blank { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; flex: none; background: var(--border); }
+  .comp-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .comp-chip button { flex: none; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px; padding: 0 4px; line-height: 1; }
+  .comp-tabs { display: flex; gap: 6px; margin: 4px 0 10px; }
+  .comp-tab { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); font: inherit; font-weight: 700; font-size: 13px; cursor: pointer; }
+  .comp-tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .comp-card { display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border); margin-bottom: 10px; }
+  .comp-card .an-video { padding: 0; background: none; border: none; }
+  .comp-ratio { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 800; color: #1A1206; background: linear-gradient(135deg, #F2C94C, #F2994A); }
+  .comp-actions { display: flex; gap: 8px; }
+  .comp-actions button { flex: 1; padding: 8px; border-radius: 9px; border: 1px solid var(--border); background: transparent; color: var(--text); font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+  .an-channels { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 12px; scrollbar-width: none; }
+  .an-channels::-webkit-scrollbar { display: none; }
+  .an-channel-chip { flex: none; display: flex; align-items: center; gap: 6px; padding: 5px 10px 5px 5px; border-radius: 999px; border: 1px solid var(--border);
+    background: transparent; color: var(--text); font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; max-width: 180px; }
+  .an-channel-chip[aria-pressed="true"] { border-color: var(--accent); background: rgba(131, 88, 255, 0.18); }
+  .an-channel-chip img, .an-channel-chip .comp-chip-blank { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; flex: none; background: var(--border); }
+  .an-channel-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .an-channel-chip.add { padding: 5px 12px; color: var(--accent); }
+  .chip.channel-chip { border-style: dashed; }
+  .plan-card { background: linear-gradient(135deg, rgba(131, 88, 255, 0.18), rgba(88, 101, 242, 0.08)); border: 1px solid rgba(131, 88, 255, 0.35);
+    border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; }
+  .plan-card-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+  .plan-card-name { font-family: var(--font-display); font-weight: 800; font-size: 15px; }
+  .plan-card-link { background: none; border: none; color: var(--accent); font: inherit; font-weight: 700; font-size: 13px; cursor: pointer; padding: 4px 0; }
+  .plan-meter-text { font-size: 12.5px; color: var(--text-muted); margin-bottom: 6px; }
+  .plan-meter-bar.low { background: #F2994A; }
+  .plans-list { display: flex; flex-direction: column; gap: 10px; }
+  .plan-option { border: 1px solid var(--border); border-radius: 14px; padding: 14px; background: var(--surface-2); }
+  .plan-option.current { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+  .plan-option.max { background: linear-gradient(160deg, rgba(131, 88, 255, 0.22), rgba(242, 201, 76, 0.07)); }
+  .plan-option-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .plan-option-name { font-family: var(--font-display); font-weight: 800; font-size: 16px; }
+  .plan-option-price { font-weight: 800; font-size: 15px; }
+  .plan-option-price small { font-weight: 600; font-size: 12px; color: var(--text-muted); }
+  .plan-option-blurb { font-size: 12.5px; color: var(--text-muted); margin: 3px 0 8px; }
+  .plan-option ul { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 5px; font-size: 13px; }
+  .plan-option li::before { content: '✓'; color: var(--accent); font-weight: 800; margin-right: 7px; }
+  .plan-option-btn { display: block; text-align: center; text-decoration: none; padding: 10px; border-radius: 10px; font-weight: 800; font-size: 14px;
+    background: var(--accent); color: #fff; border: none; width: 100%; box-sizing: border-box; cursor: pointer; }
+  .plan-option-btn.is-current { background: transparent; color: var(--accent); border: 1px solid var(--accent); cursor: default; }
+  .plans-ios-note { display: none; margin-top: 10px; }
+  html.ios-app .plans-ios-note { display: block; }
+  html.ios-app a.plan-option-btn { display: none; }
+  .ai-uses-pill { margin-left: auto; flex: none; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-muted);
+    border-radius: 999px; padding: 5px 10px; font-family: inherit; font-weight: 700; font-size: 12px; cursor: pointer; white-space: nowrap; }
+  .ai-uses-pill.low { color: #F2994A; border-color: rgba(242, 153, 74, 0.5); }
+  .max-badge, .lb-badge-max { display: inline-flex; align-items: center; padding: 1px 7px; border-radius: 999px; font-size: 10.5px; font-weight: 900;
+    letter-spacing: 0.06em; color: #1A1206; background: linear-gradient(135deg, #F2C94C, #F2994A); }
+  .lb-badge-max { font-size: 9.5px; padding: 1px 6px; margin-left: 2px; vertical-align: middle; }
   .account-level-card {
     background: var(--surface-2);
     border: 1px solid var(--border);
@@ -3947,6 +4027,16 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
             <span>Analytics</span>
           </button>
+          <button type="button" class="burger-menu-item" id="burgerTeamBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>Team</span>
+            <span class="max-badge burger-max">MAX</span>
+          </button>
+          <button type="button" class="burger-menu-item" id="burgerCompetitorsBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6M8 11h6"/></svg>
+            <span>Competitors</span>
+            <span class="max-badge burger-max">MAX</span>
+          </button>
           <button type="button" class="burger-menu-item" id="burgerUpdatesBtn">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
             <span>Updates &amp; help</span>
@@ -4296,6 +4386,7 @@
         <div class="project-title" id="aiTitle">Ask Adonis</div>
         <div class="project-sub" id="aiSub">Creator's Assistant</div>
       </div>
+      <button type="button" class="ai-uses-pill" id="aiUsesPill" hidden title="AI uses left this month"></button>
     </div>
 
     <div class="ai-chat-core" id="aiChatCore">
@@ -4468,6 +4559,38 @@
     <div class="analytics-body" id="analyticsBody"></div>
   </section>
 
+  <!-- TEAM (Creator Max) -->
+  <section class="screen" id="screen-team">
+    <div class="back-row">
+      <button class="back-btn" id="teamBackBtn" aria-label="Back">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="project-title-row">
+        <div class="project-title" id="teamTitle">Team</div>
+        <div class="project-sub" id="teamSub">Work on videos together</div>
+      </div>
+      <span class="team-saved" id="teamSaved" hidden></span>
+    </div>
+    <div class="analytics-body" id="teamBody"></div>
+  </section>
+
+  <!-- COMPETITOR TRACKER (Creator Max) -->
+  <section class="screen" id="screen-competitors">
+    <div class="back-row">
+      <button class="back-btn" id="competitorsBackBtn" aria-label="Back">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="project-title-row">
+        <div class="project-title">Competitors</div>
+        <div class="project-sub">What's working in your niche</div>
+      </div>
+      <button class="icon-btn" id="competitorsRefreshBtn" aria-label="Refresh">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg>
+      </button>
+    </div>
+    <div class="analytics-body" id="competitorsBody"></div>
+  </section>
+
   <!-- SETTINGS -->
   <section class="screen" id="screen-settings">
     <div class="back-row">
@@ -4523,6 +4646,9 @@
           <button type="button" class="planner-add-row" id="customizeLookResetBtn" style="margin-top:14px;">Reset look &amp; layout to default</button>
         </div>
       </div>
+
+      <div class="onboard-field-label" style="margin-top:26px;">Creator Max <span class="max-badge" style="margin-left:6px;vertical-align:middle;">MAX</span></div>
+      <div id="settingsMaxSection"></div>
 
       <div class="onboard-field-label" style="margin-top:26px;">Leaderboard</div>
       <div class="feature-toggle-row">
@@ -4759,6 +4885,15 @@
       <div class="account-level-track"><div class="account-level-bar" id="accountLevelBar" style="width:4%;"></div></div>
     </div>
 
+    <div class="plan-card" id="accountPlanCard">
+      <div class="plan-card-row">
+        <span class="plan-card-name" id="accountPlanName">Basic</span>
+        <button type="button" class="plan-card-link" id="accountPlansBtn">See plans</button>
+      </div>
+      <div class="plan-meter-text" id="accountPlanUses">AI uses this month</div>
+      <div class="account-level-track"><div class="account-level-bar plan-meter-bar" id="accountPlanBar" style="width:0%;"></div></div>
+    </div>
+
     <button type="button" class="sheet-btn" id="accountEditProfileBtn">Edit Profile</button>
     <button type="button" class="sheet-btn" id="accountRedoSetupBtn">Redo setup questions</button>
 
@@ -4770,6 +4905,20 @@
     <button type="button" class="sheet-btn danger-btn" id="deleteAccountBtn">Delete my account and data</button>
     <div class="sheet-actions" style="margin-top:6px;">
       <button class="btn-cancel" id="backupCancelBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- PLANS SHEET -->
+<div class="sheet-backdrop" id="plansBackdrop">
+  <div class="sheet plans-sheet">
+    <div class="sheet-handle"></div>
+    <h3 id="plansTitle">Plans</h3>
+    <div class="onboard-hint" id="plansNote" style="margin-bottom:12px;"></div>
+    <div class="plans-list" id="plansList"></div>
+    <div class="onboard-hint plans-ios-note">To change your plan, visit creativeflow.media on the web.</div>
+    <div class="sheet-actions" style="margin-top:6px;">
+      <button class="btn-cancel" id="plansCloseBtn">Close</button>
     </div>
   </div>
 </div>
@@ -5271,7 +5420,8 @@
   // Add beta testers to the OG list by email.
   const BADGES = [
     { key: 'founder', label: '👑 Founder', className: 'founder-badge', image: null, emails: [FOUNDER_EMAIL] },
-    { key: 'og', label: 'OG', className: 'og-badge', image: 'icons/badges/og.png', emails: ['richmalone11@gmail.com', 'webo.99@seznam.cz', 'darenuzo65@gmail.com'] }
+    { key: 'og', label: 'OG', className: 'og-badge', image: 'icons/badges/og.png', emails: ['richmalone11@gmail.com', 'webo.99@seznam.cz', 'darenuzo65@gmail.com'] },
+    { key: 'max', label: 'MAX', className: 'max-badge', image: null, emails: [] } // Creator Max members (from their plan)
   ];
 
   function verifiedEmails() {
@@ -5286,7 +5436,7 @@
   // The badges the signed-in member has (by key), for the account panel and later the leaderboard.
   function memberBadges() {
     const mine = verifiedEmails();
-    return BADGES.filter(b => b.emails.some(e => mine.includes(e.toLowerCase())));
+    return BADGES.filter(b => b.emails.some(e => mine.includes(e.toLowerCase())) || (b.key === 'max' && currentTier() === 'max'));
   }
 
   function renderFounderBadge() {
@@ -5417,6 +5567,7 @@
     if (filterMode.type === 'active') list = list.filter(p => !p.published);
     else if (filterMode.type === 'published') list = list.filter(p => p.published);
     if (homeView === 'playlists' && openPlaylistId) list = list.filter(p => (p.playlists || []).includes(openPlaylistId));
+    if (channelFilterOn() && homeChannel !== 'all' && savedChannels().some(c => c.id === homeChannel)) list = list.filter(p => p.channelId === homeChannel);
     return homeView === 'all' ? list.filter(formatMatches) : list; // the type filter is only on "All"
   }
 
@@ -5635,6 +5786,21 @@
       btn.addEventListener('click', () => { filterMode = { type: c.type }; renderPlaylistChips(); renderProjectFeed(); });
       row.appendChild(btn);
     });
+    if (channelFilterOn()) {
+      [{ id: 'all', title: 'All channels' }, ...savedChannels()].forEach(c => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'chip channel-chip' + (homeChannel === c.id ? ' active' : '');
+        btn.textContent = c.title || 'Channel';
+        btn.title = c.id === 'all' ? 'Show every channel' : 'Show ' + (c.title || 'this channel') + "'s videos (new videos go to this channel)";
+        btn.addEventListener('click', () => {
+          homeChannel = c.id;
+          try { localStorage.setItem('cf.homeChannel', homeChannel); } catch (e) {}
+          renderPlaylistChips(); renderProjectFeed();
+        });
+        row.appendChild(btn);
+      });
+    }
   }
 
   const searchInputEl = document.getElementById('searchInput');
@@ -6079,6 +6245,8 @@
 
   document.getElementById('accountBtn').addEventListener('click', () => {
     renderAccountSheet();
+    renderPlanBits();
+    refreshPlan();
     backupSheetBackdrop.classList.add('active');
   });
   document.getElementById('backupCancelBtn').addEventListener('click', () => backupSheetBackdrop.classList.remove('active'));
@@ -6470,6 +6638,7 @@
       const b = BADGES.find(x => x.key === k);
       if (!b) return '';
       if (k === 'founder') return '<span class="lb-badge-crown" title="Founder" aria-label="Founder">👑</span>';
+      if (k === 'max') return '<span class="lb-badge-max" title="Creator Max" aria-label="Creator Max">MAX</span>';
       if (b.image) return '<img class="lb-badge-img" src="' + b.image + '" alt="' + escapeHtml(b.label) + ' badge" title="' + escapeHtml(b.label) + '">';
       return '<span class="chip" style="padding:1px 6px;font-size:10px">' + escapeHtml(b.label) + '</span>';
     }).join('');
@@ -6572,6 +6741,7 @@
     const badgeCards = (row.badges || []).map(k => {
       const b = BADGES.find(x => x.key === k);
       if (!b) return '';
+      if (k === 'max') return '<div class="lbp-badge"><span class="max-badge">MAX</span>Creator Max</div>';
       const icon = k === 'founder' ? '<span class="lbp-badge-emoji">👑</span>' : b.image ? '<img src="' + b.image + '" alt="">' : '';
       return '<div class="lbp-badge">' + icon + escapeHtml(b.label) + '</div>';
     }).join('');
@@ -6651,6 +6821,7 @@
     renderSettingsAiStyle();
     renderSettingsFeatureToggles();
     renderCustomizeSection();
+    refreshSettingsMax();
     renderLeaderboardSwitch();
     renderReminderSettings();
     document.getElementById('settingsSaveBtn').disabled = true;
@@ -6941,7 +7112,7 @@
     if (!name) return;
     const inPlaylist = newProjectPlaylistId && state.playlists.find(x => x.id === newProjectPlaylistId);
     const p = { id: uid(), name, color: selectedColor, format: selectedFormat, ideas: [], script: '', title: '', thumbnail: null, published: false, playlists: inPlaylist ? [inPlaylist.id] : [], scheduledDate: '', createdAt: Date.now() };
-    state.projects.unshift(p);
+    state.projects.unshift(tagNewProject(p));
     save();
     recordUsage('projectsCreated');
     closeSheet();
@@ -9046,7 +9217,7 @@
         ideas: [], script: '', title: '', thumbnail: null, published: false, playlists: [], scheduledDate: '', createdAt: Date.now(),
         plan: normalizePlan({ ...defaultPlan(), topic: plannerDraft.topic, topicOther: plannerDraft.topicOther.trim() })
       };
-      state.projects.unshift(p);
+      state.projects.unshift(tagNewProject(p));
       plannerProjectId = p.id;
       currentProjectId = p.id;
       plannerDraft = null;
@@ -9167,6 +9338,8 @@
     document.getElementById('screen-ai').classList.toggle('active', name === 'ai');
     document.getElementById('screen-calendar').classList.toggle('active', name === 'calendar');
     document.getElementById('screen-analytics').classList.toggle('active', name === 'analytics');
+    document.getElementById('screen-competitors').classList.toggle('active', name === 'competitors');
+    document.getElementById('screen-team').classList.toggle('active', name === 'team');
     document.getElementById('screen-settings').classList.toggle('active', name === 'settings');
     document.getElementById('screen-ideabank').classList.toggle('active', name === 'ideabank');
     document.getElementById('screen-scripts').classList.toggle('active', name === 'scripts');
@@ -9315,18 +9488,24 @@
     const images = opts.images && opts.images.length ? await Promise.all(opts.images.map(shrinkImageForAi)) : [];
     let res;
     try {
+      let token = null;
+      try { token = clerk && clerk.session ? await clerk.session.getToken() : null; } catch (e) {}
       res = await fetch(AI_SERVER_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ licenseKey: state.license.key, messages: turns, images }),
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) },
+        body: JSON.stringify({ licenseKey: state.license.key || '', messages: turns, images }),
         signal
       });
     } catch (e) {
       throw aiError(signal && signal.aborted ? 'cancelled' : 'offline');
     }
     if (!res.ok) {
-      let code = 'server_error';
-      try { code = (await res.json()).error.code || code; } catch (e) {}
+      let code = 'server_error', info = {};
+      try { info = (await res.json()).error || {}; code = info.code || code; } catch (e) {}
+      if (code === 'monthly_limit') {
+        noteAiUses({ tier: info.tier, limit: info.limit, remaining: 0, resetsAt: info.resetsAt });
+        setTimeout(() => openPlans('limit'), 250);
+      }
       throw aiError(code);
     }
 
@@ -9352,6 +9531,8 @@
             if (opts.onText) opts.onText({ text });
           } else if (event.type === 'error') {
             throw stoppedEarly(event.code);
+          } else if (event.type === 'done') {
+            noteAiUses(event);
           }
         }
       }
@@ -9649,7 +9830,8 @@ Give concise, specific, practical feedback grounded in the material above when a
       case 'image_rejected': return "That image couldn't be used — try a different file.";
       case 'images_unavailable': return "Images aren't supported in this view — try describing it in words.";
       case 'offline': return "Couldn't reach Adonis. Check your internet connection and try again.";
-      case 'daily_limit': return "You've reached today's Adonis message limit. It resets at midnight UTC.";
+      case 'daily_limit': return "You've used a lot of AI today. Take a break and try again tomorrow.";
+      case 'monthly_limit': return "You've used all your AI for this month. Upgrade your plan for more.";
       case 'license_missing':
       case 'license_inactive': return 'Adonis needs an active CreativeFlow membership.';
       case 'license_unverifiable': return "Couldn't confirm your membership right now — try again in a few minutes.";
@@ -11023,7 +11205,7 @@ Give concise, specific, practical feedback grounded in the material above when a
       : '<div class="an-change muted">Growth shows from tomorrow</div>';
     const viewsChange = growth ? '<div class="an-small-change ' + (growth.views >= 0 ? 'up' : 'down') + '">' + signed(growth.views) + '</div>' : '';
 
-    body.innerHTML =
+    body.innerHTML = channelSwitcherHtml(ch.id) +
       '<div class="an-channel">'
       + (ch.thumbnail ? '<img class="an-avatar" src="' + escapeHtml(ch.thumbnail) + '" alt="">' : '<div class="an-avatar"></div>')
       + '<div class="an-channel-text"><div class="an-channel-name">' + escapeHtml(ch.title) + '</div><div class="an-channel-handle">' + escapeHtml(ch.handle || 'YouTube channel') + '</div></div>'
@@ -11087,8 +11269,12 @@ Give concise, specific, practical feedback grounded in the material above when a
       return;
     }
     analyticsReport = data;
-    if (!saved || saved.id !== data.channel.id) {
-      state.profile.youtubeChannel = { input: newInput || input, id: data.channel.id, title: data.channel.title };
+    addingChannel = false;
+    const entry = { input: newInput || input, id: data.channel.id, title: data.channel.title, thumbnail: data.channel.thumbnail || '' };
+    const known = savedChannels().find(c => c.id === entry.id);
+    if (!saved || saved.id !== data.channel.id || !known || known.thumbnail !== entry.thumbnail) {
+      state.profile.youtubeChannel = entry;
+      rememberChannel(entry);
       save();
     }
     recordAnalyticsSnapshot(data.channel);
@@ -11108,7 +11294,532 @@ Give concise, specific, practical feedback grounded in the material above when a
     loadAnalytics();
   }
 
+  // ---------- Several channels (Creator Max) ----------
+  // Analytics can hold several YouTube channels (Max); everyone else has one. The one in
+  // state.profile.youtubeChannel is the one showing. Projects can belong to a channel (p.channelId),
+  // and the home screen can show one channel's projects.
+  const MAX_CHANNELS = 5;
+  function savedChannels() {
+    const list = (state.profile.youtubeChannels || []).filter(c => c && c.id);
+    const cur = state.profile.youtubeChannel;
+    if (cur && cur.id && !list.some(c => c.id === cur.id)) list.unshift(cur);
+    return list;
+  }
+  function rememberChannel(entry) {
+    let list = savedChannels();
+    const i = list.findIndex(c => c.id === entry.id);
+    if (i >= 0) list[i] = { ...list[i], ...entry };
+    else list.push(entry);
+    if (!isMax()) list = [entry];
+    state.profile.youtubeChannels = list.slice(0, MAX_CHANNELS);
+  }
+  var homeChannel = 'all';
+  try { homeChannel = localStorage.getItem('cf.homeChannel') || 'all'; } catch (e) {}
+  function channelFilterOn() { return isMax() && savedChannels().length > 1; }
+  function tagNewProject(p) {
+    if (channelFilterOn() && homeChannel !== 'all' && savedChannels().some(c => c.id === homeChannel)) p.channelId = homeChannel;
+    return p;
+  }
+  function channelSwitcherHtml(activeId) {
+    const list = savedChannels();
+    if (!isMax() && list.length <= 1) {
+      return '<div class="an-channels"><button type="button" class="an-channel-chip add" data-channel-add="1">+ Add another channel <span class="max-badge" style="margin-left:4px;">MAX</span></button></div>';
+    }
+    return '<div class="an-channels">' + list.map(c =>
+      '<button type="button" class="an-channel-chip" data-channel="' + escapeHtml(c.id) + '" aria-pressed="' + (c.id === activeId) + '">'
+      + (c.thumbnail ? '<img src="' + escapeHtml(c.thumbnail) + '" alt="">' : '<span class="comp-chip-blank"></span>')
+      + '<span>' + escapeHtml(c.title || 'Channel') + '</span></button>').join('')
+      + (list.length < MAX_CHANNELS ? '<button type="button" class="an-channel-chip add" data-channel-add="1">+ Add channel</button>' : '')
+      + '</div>';
+  }
+  let addingChannel = false;
+  document.getElementById('analyticsBody').addEventListener('click', (e) => {
+    const add = e.target.closest('[data-channel-add]');
+    if (add) {
+      if (!isMax()) { openPlans('max'); return; }
+      addingChannel = true;
+      renderAnalyticsConnect('');
+      return;
+    }
+    const chip = e.target.closest('[data-channel]');
+    if (chip && chip.getAttribute('aria-pressed') !== 'true') loadAnalytics(chip.dataset.channel);
+  });
+
   document.getElementById('analyticsBackBtn').addEventListener('click', () => switchScreen('home'));
+
+  // ---------- Creator Max section in Settings ----------
+  // Early access: features in testing show here for Max members first (none right now).
+  const EARLY_ACCESS_FEATURES = []; // [{ name, desc, open: () => {} }]
+  const DISCORD_URL = SYNC_URL.replace('/api/sync', '/api/discord');
+  let discordStatus = null;
+
+  function openExternalUrl(url) {
+    if (IS_IOS_APP && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser) window.Capacitor.Plugins.Browser.open({ url });
+    else window.open(url, '_blank', 'noopener');
+  }
+
+  async function discordRequest(action) {
+    let token = null;
+    try { token = clerk && clerk.session ? await clerk.session.getToken() : null; } catch (e) {}
+    if (!token) return { error: 'signed_out' };
+    try {
+      const res = await fetch(DISCORD_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify({ action, licenseKey: state.license.key || '' }),
+        signal: AbortSignal.timeout(15000)
+      });
+      const data = await res.json().catch(() => null);
+      return res.ok ? { data } : { error: (data && data.error && data.error.code) || 'server_error' };
+    } catch (e) {
+      return { error: 'offline' };
+    }
+  }
+
+  function renderSettingsMax() {
+    const wrap = document.getElementById('settingsMaxSection');
+    if (!wrap) return;
+    const max = isMax();
+    const perk = (icon, name, desc, btn) => '<div class="max-perk"><div class="max-perk-icon">' + icon + '</div><div class="max-perk-text"><div class="max-perk-name">' + name + '</div><div class="max-perk-desc">' + desc + '</div></div>' + (btn || '') + '</div>';
+    if (!max) {
+      wrap.innerHTML = '<div class="onboard-hint" style="margin-bottom:10px;">Competitor tracker, Team access, several channels, early access, a Max role in Discord and the Max badge, plus 800 AI uses a month.</div>'
+        + '<button type="button" class="sheet-btn" id="settingsMaxPlans">See Creator Max</button>';
+      document.getElementById('settingsMaxPlans').addEventListener('click', () => openPlans('max'));
+      return;
+    }
+    let discordBtn = '<button type="button" id="settingsDiscordBtn">Claim Max role</button>';
+    let discordDesc = 'Get the Max role and the private Max channel in the CreativeFlow Discord.';
+    if (discordStatus && discordStatus.linked) { discordDesc = 'Linked to @' + escapeHtml(discordStatus.linked.username) + '. You have the Max role.'; discordBtn = '<button type="button" class="ghost" id="settingsDiscordBtn">Link again</button>'; }
+    else if (discordStatus && !discordStatus.configured) { discordDesc = 'Coming very soon: the Max role and private channel are being set up.'; discordBtn = ''; }
+    wrap.innerHTML = perk('🔍', 'Competitor tracker', 'See outliers from channels in your niche.', '<button type="button" class="ghost" data-go="competitors">Open</button>')
+      + perk('👥', 'Team access', 'Invite up to 3 people to work on your videos.', '<button type="button" class="ghost" data-go="team">Open</button>')
+      + perk('📺', 'Several channels', 'Add channels in Analytics, then filter your videos by channel on the home screen.', '<button type="button" class="ghost" data-go="analytics">Open</button>')
+      + perk('<svg width="20" height="20" viewBox="0 0 24 24" fill="#5865F2" aria-hidden="true"><path d="M19.6 5.2A16.6 16.6 0 0 0 15.5 4l-.5 1a15.3 15.3 0 0 0-6 0l-.5-1a16.6 16.6 0 0 0-4.1 1.2C1.8 9 1.1 12.8 1.4 16.5a16.7 16.7 0 0 0 5 2.5l1.1-1.7a10.8 10.8 0 0 1-1.7-.8l.4-.3a11.9 11.9 0 0 0 11.6 0l.4.3a10.8 10.8 0 0 1-1.7.8l1.1 1.7a16.7 16.7 0 0 0 5-2.5c.4-4.3-.7-8-2-11.3zM8.7 14.3c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2zm6.6 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2z"/></svg>', 'Max role in Discord', discordDesc, discordBtn)
+      + perk('🧪', 'Early access', EARLY_ACCESS_FEATURES.length ? 'Try these before everyone else:' : "New features show up here for you first. Nothing in testing right now.", '')
+      + EARLY_ACCESS_FEATURES.map((f, i) => perk('✨', escapeHtml(f.name), escapeHtml(f.desc), '<button type="button" data-early="' + i + '">Try it</button>')).join('')
+      + perk('<span class="max-badge">MAX</span>', 'Max badge', 'Shows next to your name on the leaderboard.', '');
+    wrap.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => {
+      if (b.dataset.go === 'competitors') openCompetitors();
+      else if (b.dataset.go === 'team') openTeam();
+      else openAnalyticsScreen();
+    }));
+    wrap.querySelectorAll('[data-early]').forEach(b => b.addEventListener('click', () => EARLY_ACCESS_FEATURES[+b.dataset.early].open()));
+    const d = document.getElementById('settingsDiscordBtn');
+    if (d) d.addEventListener('click', async () => {
+      d.disabled = true;
+      const r = await discordRequest('start');
+      d.disabled = false;
+      if (r.error) { showToast(r.error === 'signed_out' ? 'Sign in first.' : r.error === 'max_required' ? 'The Max role is for Creator Max members.' : "Couldn't start linking Discord. Try again."); return; }
+      showToast('Approve CreativeFlow in Discord, then come back here.');
+      openExternalUrl(r.data.url);
+    });
+  }
+
+  async function refreshSettingsMax() {
+    renderSettingsMax();
+    if (!isMax()) return;
+    const r = await discordRequest('status');
+    if (r.data) { discordStatus = r.data; renderSettingsMax(); }
+  }
+  window.addEventListener('focus', () => { if (currentScreenName() === 'settings') refreshSettingsMax(); });
+
+  // ---------- Team access (Creator Max) ----------
+  // Owners on Creator Max invite up to 3 people with a one-time code (valid 7 days). Members open
+  // the owner's projects here and edit the script, title and ideas; the server writes their edits
+  // into the owner's synced data, and the owner's devices merge them in on their next sync.
+  const TEAM_URL = SYNC_URL.replace('/api/sync', '/api/team');
+  let teamView = { kind: 'home' }; // { kind: 'home' } | { kind: 'projects', teamId, ownerName, projects } | { kind: 'project', teamId, ownerName, project }
+  let teamStatusData = null;
+  let teamSaveTimer = null;
+
+  async function teamRequest(action, extra) {
+    let token = null;
+    try { token = clerk && clerk.session ? await clerk.session.getToken() : null; } catch (e) {}
+    if (!token) return { error: 'signed_out' };
+    try {
+      const res = await fetch(TEAM_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify({ action, licenseKey: state.license.key || '', ...(extra || {}) }),
+        signal: AbortSignal.timeout(20000)
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) return { error: (data && data.error && data.error.code) || 'server_error' };
+      return { data };
+    } catch (e) {
+      return { error: 'offline' };
+    }
+  }
+
+  function teamErrorText(code) {
+    switch (code) {
+      case 'signed_out': return 'Sign in to use Team.';
+      case 'offline': return "Couldn't reach CreativeFlow. Check your connection and try again.";
+      case 'max_required': return 'Inviting people is part of Creator Max.';
+      case 'team_full': return 'Your team is full (3 people, invites included). Remove someone or cancel an invite first.';
+      case 'bad_code': return "That code doesn't work. Codes are 6 characters and last 7 days. Ask for a new one.";
+      case 'own_team': return "That's your own team's code. Send it to the person you're inviting.";
+      case 'not_member': return "You're no longer on this team.";
+      case 'owner_not_max': return "This team is paused: the owner isn't on Creator Max right now.";
+      case 'project_not_found': return 'The owner deleted this video.';
+      default: return 'Something went wrong. Try again.';
+    }
+  }
+
+  function openTeam() {
+    teamView = { kind: 'home' };
+    switchScreen('team');
+    loadTeamStatus();
+  }
+
+  async function loadTeamStatus() {
+    const body = document.getElementById('teamBody');
+    if (!teamStatusData) body.innerHTML = '<div class="an-highlight">Loading your team…</div>';
+    renderTeamHeader();
+    const r = await teamRequest('status');
+    if (r.error) { body.innerHTML = '<div class="an-highlight">' + escapeHtml(teamErrorText(r.error)) + '</div>'; return; }
+    teamStatusData = r.data;
+    if (teamView.kind === 'home') renderTeamHome();
+  }
+
+  function renderTeamHeader() {
+    const back = teamView.kind !== 'home';
+    document.getElementById('teamTitle').textContent = teamView.kind === 'project' ? (teamView.project.title || teamView.project.name) : teamView.kind === 'projects' ? teamView.ownerName + "'s videos" : 'Team';
+    document.getElementById('teamSub').textContent = back ? 'Team' : 'Work on videos together';
+    document.getElementById('teamSaved').hidden = teamView.kind !== 'project';
+  }
+
+  function renderTeamHome() {
+    renderTeamHeader();
+    const s = teamStatusData;
+    const body = document.getElementById('teamBody');
+    const date = (t) => new Date(t).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+    let html = '<div class="team-section">Your team</div>';
+    if (s.canOwn) {
+      const used = s.team.members.length + s.team.invites.length;
+      html += '<div class="onboard-hint" style="margin-bottom:10px;">Invite up to ' + s.limit + ' people, like your editor or thumbnail designer. They can open your videos and edit the script, title and ideas. You stay the owner.</div>';
+      html += s.team.members.map(m => '<div class="team-row"><div class="team-avatar">' + escapeHtml((m.name || '?').charAt(0).toUpperCase()) + '</div>'
+        + '<div class="team-row-main"><div class="team-row-name">' + escapeHtml(m.name) + '</div><div class="team-row-meta">Joined ' + date(m.joinedAt) + '</div></div>'
+        + '<button type="button" class="team-x" data-remove="' + escapeHtml(m.userId) + '" data-name="' + escapeHtml(m.name) + '">Remove</button></div>').join('');
+      html += s.team.invites.map(i => '<div class="team-row"><div class="team-row-main"><div class="team-code">' + escapeHtml(i.code) + '</div>'
+        + '<div class="team-row-meta">Invite code · works until ' + date(i.expiresAt) + '</div></div>'
+        + '<button type="button" class="team-x" data-copy="' + escapeHtml(i.code) + '">Copy</button><button type="button" class="team-x" data-cancel="' + escapeHtml(i.code) + '">Cancel</button></div>').join('');
+      html += used < s.limit
+        ? '<button type="button" class="sheet-btn" id="teamInviteBtn">+ Invite someone (' + (s.limit - used) + ' left)</button>'
+        : '<div class="onboard-hint">Your team is full.</div>';
+    } else {
+      html += '<div class="an-highlight">Team access is part of <b>Creator Max</b>: invite up to 3 people to work on your videos with you.</div>'
+        + '<button type="button" class="sheet-btn" id="teamPlansBtn">See plans</button>';
+    }
+    html += '<div class="team-section">Teams you\'re in</div>';
+    html += s.memberOf.length
+      ? s.memberOf.map(t => '<button type="button" class="team-row team-project" data-team="' + escapeHtml(t.teamId) + '" data-owner="' + escapeHtml(t.ownerName) + '">'
+        + '<div class="team-avatar">' + escapeHtml(t.ownerName.charAt(0).toUpperCase()) + '</div><div class="team-row-main"><div class="team-row-name">' + escapeHtml(t.ownerName) + "'s team</div>"
+        + '<div class="team-row-meta">Open their videos</div></div><span aria-hidden="true">›</span></button>').join('')
+      : '<div class="onboard-hint" style="margin-bottom:10px;">Got an invite code? Enter it to join someone\'s team.</div>';
+    html += '<form class="comp-form" id="teamJoinForm" style="margin-top:8px;"><input type="text" class="onboard-input" id="teamJoinInput" placeholder="Invite code" aria-label="Invite code" maxlength="8" autocomplete="off" style="text-transform:uppercase;">'
+      + '<button type="submit" class="planner-action solid">Join</button></form>';
+    body.innerHTML = html;
+
+    const invite = document.getElementById('teamInviteBtn');
+    if (invite) invite.addEventListener('click', async () => {
+      invite.disabled = true;
+      const r = await teamRequest('invite');
+      if (r.error) { showToast(teamErrorText(r.error)); invite.disabled = false; return; }
+      copyText(r.data.code);
+      showToast('Invite code ' + r.data.code + ' copied. Send it to the person you\'re inviting.');
+      loadTeamStatus();
+    });
+    const plans = document.getElementById('teamPlansBtn');
+    if (plans) plans.addEventListener('click', () => openPlans('max'));
+    body.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', () => { copyText(b.dataset.copy); showToast('Code copied.'); }));
+    body.querySelectorAll('[data-cancel]').forEach(b => b.addEventListener('click', async () => {
+      const r = await teamRequest('cancel-invite', { code: b.dataset.cancel });
+      if (r.error) showToast(teamErrorText(r.error)); else loadTeamStatus();
+    }));
+    body.querySelectorAll('[data-remove]').forEach(b => b.addEventListener('click', () => {
+      showConfirm({
+        title: 'Remove ' + b.dataset.name + '?',
+        message: "They won't be able to open your videos any more. Their earlier edits stay.",
+        confirmLabel: 'Remove',
+        onConfirm: async () => {
+          const r = await teamRequest('remove', { userId: b.dataset.remove });
+          if (r.error) showToast(teamErrorText(r.error)); else loadTeamStatus();
+        }
+      });
+    }));
+    body.querySelectorAll('[data-team]').forEach(b => b.addEventListener('click', () => openTeamProjects(b.dataset.team, b.dataset.owner)));
+    document.getElementById('teamJoinForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const code = document.getElementById('teamJoinInput').value.trim();
+      if (!code) return;
+      const r = await teamRequest('join', { code });
+      if (r.error) { showToast(teamErrorText(r.error)); return; }
+      showToast("You joined " + r.data.ownerName + "'s team.");
+      await loadTeamStatus();
+      openTeamProjects(r.data.teamId, r.data.ownerName);
+    });
+  }
+
+  function copyText(text) {
+    try { navigator.clipboard.writeText(text); } catch (e) {}
+  }
+
+  async function openTeamProjects(teamId, ownerName) {
+    flushTeamSave();
+    teamView = { kind: 'projects', teamId, ownerName, projects: null };
+    renderTeamHeader();
+    const body = document.getElementById('teamBody');
+    body.innerHTML = '<div class="an-highlight">Loading ' + escapeHtml(ownerName) + "'s videos…</div>";
+    const r = await teamRequest('projects', { teamId });
+    if (teamView.kind !== 'projects' || teamView.teamId !== teamId) return;
+    if (r.error) {
+      body.innerHTML = '<div class="an-highlight">' + escapeHtml(teamErrorText(r.error)) + '</div>'
+        + (r.error === 'not_member' ? '' : '<button type="button" class="sheet-btn" id="teamLeaveBtn">Leave this team</button>');
+      wireLeave(teamId);
+      return;
+    }
+    teamView.projects = r.data.projects;
+    teamView.ownerName = r.data.ownerName;
+    renderTeamHeader();
+    body.innerHTML = (r.data.projects.length
+      ? r.data.projects.map((p, i) => '<button type="button" class="team-row team-project" data-i="' + i + '">'
+        + (p.thumbnail ? '<img src="' + escapeHtml(p.thumbnail) + '" alt="">' : '<span class="team-thumb-blank"></span>')
+        + '<div class="team-row-main"><div class="team-row-name">' + escapeHtml(p.title || p.name) + '</div>'
+        + '<div class="team-row-meta">' + (p.format === 'short' ? 'Short' : 'Long-form') + (p.published ? ' · Published' : '') + (scriptPlainText(p.script) ? ' · Has a script' : ' · No script yet') + '</div></div><span aria-hidden="true">›</span></button>').join('')
+      : '<div class="an-highlight">' + escapeHtml(r.data.ownerName) + " hasn't made any videos yet.</div>")
+      + '<button type="button" class="sheet-btn" id="teamLeaveBtn" style="margin-top:14px;">Leave this team</button>';
+    body.querySelectorAll('[data-i]').forEach(b => b.addEventListener('click', () => openTeamProject(teamView.projects[+b.dataset.i])));
+    wireLeave(teamId);
+  }
+
+  function wireLeave(teamId) {
+    const leave = document.getElementById('teamLeaveBtn');
+    if (leave) leave.addEventListener('click', () => showConfirm({
+      title: 'Leave this team?',
+      message: "You won't be able to open their videos any more. They can invite you again.",
+      confirmLabel: 'Leave',
+      onConfirm: async () => { await teamRequest('leave', { teamId }); teamView = { kind: 'home' }; loadTeamStatus(); }
+    }));
+  }
+
+  function setTeamSaved(text) { document.getElementById('teamSaved').textContent = text; }
+
+  function openTeamProject(p) {
+    teamView = { kind: 'project', teamId: teamView.teamId, ownerName: teamView.ownerName, project: JSON.parse(JSON.stringify(p)), dirty: {} };
+    renderTeamHeader();
+    setTeamSaved('Saved');
+    const body = document.getElementById('teamBody');
+    body.innerHTML = (p.thumbnail ? '<img src="' + escapeHtml(p.thumbnail) + '" alt="Thumbnail" style="width:100%;border-radius:12px;margin-bottom:12px;">' : '')
+      + '<div class="customize-sub">Title</div><input type="text" class="onboard-input" id="teamTitleInput" maxlength="200">'
+      + '<div class="customize-sub">Ideas</div><div id="teamIdeas"></div><button type="button" class="planner-add-row" id="teamAddIdea">+ Add idea</button>'
+      + '<div class="customize-sub">Script</div><div class="team-script" id="teamScript" contenteditable="true" spellcheck="true" aria-label="Script"></div>'
+      + '<div class="onboard-hint" style="margin-top:10px;">Changes save automatically and show up in ' + escapeHtml(teamView.ownerName) + "'s CreativeFlow.</div>";
+    const title = document.getElementById('teamTitleInput');
+    title.value = p.title || '';
+    title.addEventListener('input', () => { teamView.project.title = title.value; markTeamDirty('title'); });
+    const script = document.getElementById('teamScript');
+    script.innerHTML = p.script || '<p><br></p>';
+    script.addEventListener('input', () => { teamView.project.script = script.innerHTML; markTeamDirty('script'); });
+    const renderIdeas = () => {
+      const wrap = document.getElementById('teamIdeas');
+      wrap.innerHTML = '';
+      teamView.project.ideas.forEach(idea => {
+        const row = document.createElement('div');
+        row.className = 'team-idea';
+        const input = document.createElement('input');
+        input.type = 'text'; input.className = 'onboard-input'; input.maxLength = 300; input.value = idea.text;
+        input.addEventListener('input', () => { idea.text = input.value; markTeamDirty('ideas'); });
+        const del = document.createElement('button');
+        del.type = 'button'; del.className = 'team-x'; del.textContent = '✕'; del.setAttribute('aria-label', 'Remove idea');
+        del.style.cssText = 'background:none;border:1px solid var(--border);color:var(--text-muted);border-radius:8px;padding:8px 10px;cursor:pointer;';
+        del.addEventListener('click', () => { teamView.project.ideas = teamView.project.ideas.filter(x => x !== idea); markTeamDirty('ideas'); renderIdeas(); });
+        row.append(input, del);
+        wrap.appendChild(row);
+      });
+    };
+    renderIdeas();
+    document.getElementById('teamAddIdea').addEventListener('click', () => {
+      teamView.project.ideas.push({ id: uid(), text: '' });
+      renderIdeas();
+      const inputs = document.querySelectorAll('#teamIdeas input');
+      if (inputs.length) inputs[inputs.length - 1].focus();
+    });
+  }
+
+  function markTeamDirty(field) {
+    if (teamView.kind !== 'project') return;
+    teamView.dirty[field] = true;
+    setTeamSaved('Saving…');
+    clearTimeout(teamSaveTimer);
+    teamSaveTimer = setTimeout(flushTeamSave, 1500);
+  }
+
+  async function flushTeamSave() {
+    clearTimeout(teamSaveTimer);
+    if (teamView.kind !== 'project' || !Object.keys(teamView.dirty).length) return;
+    const v = teamView;
+    const changes = {};
+    if (v.dirty.title) changes.title = v.project.title;
+    if (v.dirty.script) changes.script = v.project.script;
+    if (v.dirty.ideas) changes.ideas = v.project.ideas.filter(i => i.text.trim());
+    v.dirty = {};
+    const r = await teamRequest('save', { teamId: v.teamId, projectId: v.project.id, changes });
+    if (teamView !== v) return;
+    if (r.error) { setTeamSaved('Not saved'); showToast(teamErrorText(r.error)); Object.keys(changes).forEach(k => { v.dirty[k] = true; }); return; }
+    setTeamSaved('Saved');
+  }
+
+  document.getElementById('teamBackBtn').addEventListener('click', () => {
+    if (teamView.kind === 'project') { const t = teamView; flushTeamSave(); openTeamProjects(t.teamId, t.ownerName); }
+    else if (teamView.kind === 'projects') { teamView = { kind: 'home' }; renderTeamHome(); }
+    else switchScreen('home');
+  });
+
+  // ---------- Competitor tracker (Creator Max) ----------
+  // Up to 10 channels. Their recent uploads come from the same YouTube lookup as Analytics (cached
+  // an hour on the server). An "outlier" is a video with at least 3x that channel's usual views
+  // (the median of its recent uploads).
+  const COMPETITOR_LIMIT = 10;
+  const OUTLIER_RATIO = 3;
+  const competitorReports = {};
+  let competitorTab = 'outliers';
+  let competitorsLoading = false;
+
+  async function fetchChannelReport(input) {
+    let token = null;
+    try { token = clerk && clerk.session ? await clerk.session.getToken() : null; } catch (e) {}
+    if (!token) return { error: 'signed_out' };
+    try {
+      const res = await fetch(YOUTUBE_URL + '?channel=' + encodeURIComponent(input), { headers: { Authorization: 'Bearer ' + token }, signal: AbortSignal.timeout(20000) });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data || !data.channel) return { error: (data && data.error && data.error.code) || 'youtube_unavailable' };
+      return { data };
+    } catch (e) {
+      return { error: 'offline' };
+    }
+  }
+
+  function competitorList() { return (state.profile.competitors || []).filter(c => c && c.id); }
+
+  function openCompetitors() {
+    if (!isMax()) { openPlans('max'); return; }
+    switchScreen('competitors');
+    renderCompetitors();
+    loadCompetitors();
+  }
+
+  async function loadCompetitors() {
+    if (competitorsLoading) return;
+    competitorsLoading = true;
+    renderCompetitors();
+    await Promise.all(competitorList().map(async c => {
+      const r = await fetchChannelReport(c.id);
+      if (r.data) competitorReports[c.id] = r.data;
+    }));
+    competitorsLoading = false;
+    renderCompetitors();
+  }
+
+  async function addCompetitor(input) {
+    const list = competitorList();
+    if (list.length >= COMPETITOR_LIMIT) { showToast('You can track up to ' + COMPETITOR_LIMIT + ' channels. Remove one first.'); return; }
+    const btn = document.getElementById('compAddBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Adding…'; }
+    const r = await fetchChannelReport(input);
+    if (btn) { btn.disabled = false; btn.textContent = 'Add'; }
+    if (r.error) { showToast(analyticsErrorText(r.error)); return; }
+    const ch = r.data.channel;
+    if (list.some(c => c.id === ch.id)) { showToast(ch.title + ' is already on your list.'); return; }
+    state.profile.competitors = [...list, { id: ch.id, input, title: ch.title, thumbnail: ch.thumbnail || '' }];
+    competitorReports[ch.id] = r.data;
+    save();
+    showToast('Now tracking ' + ch.title + '.');
+    renderCompetitors();
+  }
+
+  function removeCompetitor(id) {
+    state.profile.competitors = competitorList().filter(c => c.id !== id);
+    delete competitorReports[id];
+    save();
+    renderCompetitors();
+  }
+
+  function competitorVideos() {
+    const out = [];
+    competitorList().forEach(c => {
+      const r = competitorReports[c.id];
+      if (!r) return;
+      const counts = r.recent.map(v => v.views).filter(n => typeof n === 'number').sort((a, b) => a - b);
+      const median = counts.length >= 3 ? counts[Math.floor((counts.length - 1) / 2)] : 0;
+      r.recent.forEach(v => out.push({ ...v, channel: r.channel.title, channelThumb: r.channel.thumbnail, ratio: median && typeof v.views === 'number' ? v.views / median : null }));
+    });
+    return out;
+  }
+
+  function renderCompetitors() {
+    const body = document.getElementById('competitorsBody');
+    if (!body) return;
+    const list = competitorList();
+    const ago = (iso) => {
+      const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+      return days <= 0 ? 'Today' : days === 1 ? 'Yesterday' : days < 30 ? days + ' days ago' : new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    };
+    let html = '<form class="comp-form" id="compForm"><input type="text" class="onboard-input" id="compInput" placeholder="Channel link or @handle" aria-label="Channel to track" autocomplete="off" maxlength="300">'
+      + '<button type="submit" class="planner-action solid" id="compAddBtn">Add</button></form>';
+    if (list.length) {
+      html += '<div class="comp-chips">' + list.map(c =>
+        '<div class="comp-chip">' + (c.thumbnail ? '<img src="' + escapeHtml(c.thumbnail) + '" alt="">' : '<span class="comp-chip-blank"></span>')
+        + '<span>' + escapeHtml(c.title) + '</span><button type="button" data-remove="' + escapeHtml(c.id) + '" aria-label="Stop tracking ' + escapeHtml(c.title) + '">✕</button></div>').join('') + '</div>';
+    }
+    if (!list.length) {
+      html += '<div class="an-highlight">Add channels in your niche (up to ' + COMPETITOR_LIMIT + '). CreativeFlow shows their latest uploads and flags <b>outliers</b>: videos getting ' + OUTLIER_RATIO + '× or more their usual views. Those are the ideas worth studying.</div>';
+      body.innerHTML = html;
+    } else {
+      const vids = competitorVideos();
+      const outliers = vids.filter(v => v.ratio !== null && v.ratio >= OUTLIER_RATIO).sort((a, b) => b.ratio - a.ratio);
+      const latest = vids.slice().sort((a, b) => String(b.publishedAt).localeCompare(String(a.publishedAt))).slice(0, 30);
+      html += '<div class="comp-tabs" role="tablist">'
+        + '<button type="button" class="comp-tab" role="tab" data-tab="outliers" aria-selected="' + (competitorTab === 'outliers') + '">🔥 Outliers' + (outliers.length ? ' (' + outliers.length + ')' : '') + '</button>'
+        + '<button type="button" class="comp-tab" role="tab" data-tab="latest" aria-selected="' + (competitorTab === 'latest') + '">Latest uploads</button></div>';
+      const shown = competitorTab === 'outliers' ? outliers : latest;
+      if (competitorsLoading && !shown.length) html += '<div class="an-highlight">Loading their videos…</div>';
+      else if (!shown.length) html += '<div class="an-highlight">' + (competitorTab === 'outliers' ? 'No outliers right now: none of their recent videos are at ' + OUTLIER_RATIO + '× their usual views. Check back after their next uploads.' : 'No uploads found yet.') + '</div>';
+      else html += shown.map((v, i) =>
+        '<div class="comp-card"><a class="an-video" href="https://www.youtube.com/watch?v=' + encodeURIComponent(v.id) + '" target="_blank" rel="noopener">'
+        + (v.thumbnail ? '<img src="' + escapeHtml(v.thumbnail) + '" alt="" loading="lazy">' : '<span class="an-thumb-blank"></span>')
+        + '<div class="an-video-text"><div class="an-video-title">' + escapeHtml(v.title) + '</div>'
+        + '<div class="an-video-meta">' + escapeHtml(v.channel) + ' · <b>' + formatCount(v.views) + ' views</b> · ' + ago(v.publishedAt) + '</div>'
+        + (v.ratio !== null && v.ratio >= 1.3 ? '<span class="comp-ratio">' + (v.ratio >= 10 ? Math.round(v.ratio) : v.ratio.toFixed(1)) + '× their usual</span>' : '')
+        + '</div></a><div class="comp-actions"><button type="button" data-idea="' + i + '">💡 Save idea</button><button type="button" data-why="' + i + '">Ask Adonis why</button></div></div>').join('');
+      html += '<div class="analytics-updated">From YouTube · refreshes at most once an hour</div>';
+      body.innerHTML = html;
+      body.querySelectorAll('[data-idea]').forEach(b => b.addEventListener('click', () => {
+        const v = shown[+b.dataset.idea];
+        state.inbox.push({ id: uid(), text: 'Inspired by "' + v.title + '" (' + v.channel + ')', createdAt: Date.now() });
+        save();
+        b.textContent = '✓ Saved to Idea Bank';
+        b.disabled = true;
+      }));
+      body.querySelectorAll('[data-why]').forEach(b => b.addEventListener('click', () => {
+        const v = shown[+b.dataset.why];
+        openAiChat(null);
+        aiInput.value = 'Why did "' + v.title + '" by ' + v.channel + ' get ' + formatCount(v.views) + ' views'
+          + (v.ratio ? ', about ' + v.ratio.toFixed(1) + '× their usual' : '') + '? What can I learn from its topic, title and thumbnail for my own channel?';
+        autosizeAiInput();
+      }));
+    }
+    body.querySelectorAll('.comp-tab').forEach(t => t.addEventListener('click', () => { competitorTab = t.dataset.tab; renderCompetitors(); }));
+    body.querySelectorAll('[data-remove]').forEach(b => b.addEventListener('click', () => removeCompetitor(b.dataset.remove)));
+    document.getElementById('compForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const v = document.getElementById('compInput').value.trim();
+      if (v) addCompetitor(v);
+    });
+  }
+
+  document.getElementById('competitorsBackBtn').addEventListener('click', () => switchScreen('home'));
+  document.getElementById('competitorsRefreshBtn').addEventListener('click', () => loadCompetitors());
   document.getElementById('analyticsRefreshBtn').addEventListener('click', () => { if (ANALYTICS_READY) loadAnalytics(); });
 
   // ---------- Local auth (honest scope: device-local only, not real security) ----------
@@ -11421,6 +12132,7 @@ Give concise, specific, practical feedback grounded in the material above when a
         unmountClerkAuth();
         await startSync(user.id);
         afterAuthSuccess();
+        refreshPlan();
       } else if (changed && !user) {
         stopSync();
       }
@@ -11496,6 +12208,8 @@ Give concise, specific, practical feedback grounded in the material above when a
   });
   document.getElementById('topbarCalendarBtn').addEventListener('click', () => openCalendarScreen());
   document.getElementById('burgerAnalyticsBtn').addEventListener('click', () => openAnalyticsScreen());
+  document.getElementById('burgerCompetitorsBtn').addEventListener('click', () => openCompetitors());
+  document.getElementById('burgerTeamBtn').addEventListener('click', () => openTeam());
   document.addEventListener('click', (e) => {
     if (fabMenu.classList.contains('active') && !fabMenu.contains(e.target) && e.target.id !== 'fabBtn') {
       fabMenu.classList.remove('active');
@@ -11521,7 +12235,7 @@ Give concise, specific, practical feedback grounded in the material above when a
       id: uid(), name, color: COLORS[state.projects.length % COLORS.length], format: scriptsFilter === 'short' ? 'short' : 'long',
       ideas: [], script: '', title: '', thumbnail: null, published: false, playlists: [], scheduledDate: '', createdAt: Date.now()
     };
-    state.projects.unshift(p);
+    state.projects.unshift(tagNewProject(p));
     save();
     recordUsage('projectsCreated');
     input.value = '';
@@ -11727,7 +12441,7 @@ Give concise, specific, practical feedback grounded in the material above when a
       ideas: [], script: '', title: '', thumbnail: null,
       published: false, playlists: [], scheduledDate: '', createdAt: Date.now()
     };
-    state.projects.unshift(p);
+    state.projects.unshift(tagNewProject(p));
     state.inbox.splice(idx, 1);
     save();
     recordUsage('projectsCreated');
@@ -11798,6 +12512,141 @@ Give concise, specific, practical feedback grounded in the material above when a
 
   }
 
+  // ---------- Plans: Basic, Creator, Creator Max ----------
+  // The server decides the plan (/api/plan): the Gumroad tier, or the founder / an agency client
+  // from HQ by their signed-in account. The answer is kept on this device (not synced) so the app
+  // knows the plan offline. Every AI action (Adonis message, score, title ideas, Best fit) is one use.
+  const PLAN_URL = SYNC_URL.replace('/api/sync', '/api/plan');
+  const PLANS = {
+    basic: { name: 'Basic', price: '$4.99', blurb: 'The full planning app.',
+      features: ['Projects, planner, playlists & Idea Bank', 'Script editor with PDF & Word export', 'Calendar, daily tasks, XP & leaderboard', 'Analytics, sync & reminders', '10 AI uses a month to try Adonis'] },
+    creator: { name: 'Creator', price: '$12.99', blurb: 'Everything in Basic, plus AI.',
+      features: ['Everything in Basic', '200 AI uses a month', 'Adonis, your creator assistant', 'AI scores for hooks, titles & thumbnails', 'Title ideas & Best fit'] },
+    max: { name: 'Creator Max', price: '$39.99', blurb: 'For serious creators and teams.',
+      features: ['Everything in Creator', '800 AI uses a month', 'Competitor tracker', 'Team access: invite up to 3 people', 'Several channels', 'Early access to new features', 'Max role & private channel in Discord', 'Max badge on the leaderboard'] }
+  };
+  const PLAN_ORDER = ['basic', 'creator', 'max'];
+
+  function planCache() { try { return JSON.parse(localStorage.getItem('cf.plan') || 'null'); } catch (e) { return null; } }
+  function savePlanCache(p) { try { if (p) localStorage.setItem('cf.plan', JSON.stringify(p)); else localStorage.removeItem('cf.plan'); } catch (e) {} }
+  function currentTier() {
+    if (isFounder()) return 'max';
+    const p = planCache();
+    return p && PLANS[p.tier] ? p.tier : 'basic';
+  }
+  function isMax() { return currentTier() === 'max'; }
+
+  let planRefreshing = null;
+  function refreshPlan() {
+    if (planRefreshing) return planRefreshing;
+    planRefreshing = (async () => {
+      let token = null;
+      try { token = clerk && clerk.session ? await clerk.session.getToken() : null; } catch (e) {}
+      if (!token && !state.license.key) return;
+      try {
+        const res = await fetch(PLAN_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) },
+          body: JSON.stringify({ licenseKey: state.license.key || '' }),
+          signal: AbortSignal.timeout(15000)
+        });
+        if (res.ok) {
+          const j = await res.json();
+          savePlanCache({ tier: j.tier, source: j.source, used: j.used, limit: j.limit, remaining: j.remaining, resetsAt: j.resetsAt, checkedAt: Date.now() });
+        } else if (res.status === 401 || res.status === 403) {
+          savePlanCache(null); // no membership: the license screen explains what to do
+        }
+      } catch (e) {} // offline: keep the last answer
+      renderPlanBits();
+      enforceLicenseGate();
+    })().finally(() => { planRefreshing = null; });
+    return planRefreshing;
+  }
+
+  // After each AI reply the server says how many uses are left.
+  function noteAiUses(info) {
+    const p = planCache() || {};
+    if (info.tier) p.tier = info.tier;
+    if (typeof info.limit === 'number') p.limit = info.limit;
+    if (typeof info.remaining === 'number') { p.remaining = info.remaining; if (typeof p.limit === 'number') p.used = p.limit - info.remaining; }
+    if (info.resetsAt) p.resetsAt = info.resetsAt;
+    if (!p.checkedAt) p.checkedAt = Date.now();
+    savePlanCache(p);
+    renderPlanBits();
+  }
+
+  function planResetLabel(p) {
+    const d = p && p.resetsAt ? new Date(p.resetsAt) : null;
+    return d && !isNaN(d) ? d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : 'next month';
+  }
+
+  function renderPlanBits() {
+    const p = planCache();
+    const tier = currentTier();
+    const name = document.getElementById('accountPlanName');
+    if (name) {
+      name.innerHTML = escapeHtml(PLANS[tier].name) + (tier === 'max' ? ' <span class="max-badge">MAX</span>' : '');
+      const uses = document.getElementById('accountPlanUses');
+      const bar = document.getElementById('accountPlanBar');
+      if (p && typeof p.limit === 'number' && typeof p.remaining === 'number') {
+        uses.textContent = p.remaining + ' of ' + p.limit + ' AI uses left this month · resets ' + planResetLabel(p);
+        const pct = p.limit ? Math.round(p.remaining / p.limit * 100) : 0;
+        bar.style.width = Math.max(2, pct) + '%';
+        bar.classList.toggle('low', pct <= 20);
+      } else {
+        uses.textContent = isFounder() ? 'Founder: everything unlocked' : 'AI uses show here once your plan is checked.';
+        bar.style.width = isFounder() ? '100%' : '0%';
+      }
+    }
+    const pill = document.getElementById('aiUsesPill');
+    if (pill) {
+      const show = p && typeof p.remaining === 'number' && typeof p.limit === 'number';
+      pill.hidden = !show;
+      if (show) {
+        pill.textContent = p.remaining + ' AI uses left';
+        pill.classList.toggle('low', p.limit > 0 && p.remaining / p.limit <= 0.2);
+      }
+    }
+    renderFounderBadge();
+  }
+
+  const plansBackdrop = document.getElementById('plansBackdrop');
+  // reason: 'limit' (out of AI uses), 'max' (a Creator Max feature), or nothing (just looking).
+  function openPlans(reason) {
+    const tier = currentTier();
+    const p = planCache();
+    const title = document.getElementById('plansTitle');
+    const note = document.getElementById('plansNote');
+    if (reason === 'limit') {
+      title.textContent = "You've used this month's AI";
+      note.textContent = 'Your ' + PLANS[tier].name + ' plan includes ' + ((p && p.limit) || 0) + ' AI uses a month. They reset on ' + planResetLabel(p) + ', or upgrade for more.';
+    } else if (reason === 'max') {
+      title.textContent = 'A Creator Max feature';
+      note.textContent = 'This is part of Creator Max, along with 800 AI uses a month and more.';
+    } else {
+      title.textContent = 'Plans';
+      note.textContent = "You're on " + PLANS[tier].name + '. One AI use = one Adonis message, score, set of title ideas or Best fit.';
+    }
+    const list = document.getElementById('plansList');
+    list.innerHTML = PLAN_ORDER.map(k => {
+      const plan = PLANS[k];
+      const current = k === tier;
+      const btn = current
+        ? '<button type="button" class="plan-option-btn is-current" disabled>Your plan</button>'
+        : '<a class="plan-option-btn" href="' + GUMROAD_PRODUCT_URL + '" target="_blank" rel="noopener">' + (PLAN_ORDER.indexOf(k) > PLAN_ORDER.indexOf(tier) ? 'Upgrade to ' : 'Switch to ') + escapeHtml(plan.name) + '</a>';
+      return '<div class="plan-option' + (current ? ' current' : '') + (k === 'max' ? ' max' : '') + '">'
+        + '<div class="plan-option-head"><span class="plan-option-name">' + escapeHtml(plan.name) + (k === 'max' ? ' <span class="max-badge">MAX</span>' : '') + '</span>'
+        + '<span class="plan-option-price">' + plan.price + ' <small>/ month</small></span></div>'
+        + '<div class="plan-option-blurb">' + escapeHtml(plan.blurb) + '</div>'
+        + '<ul>' + plan.features.map(f => '<li>' + escapeHtml(f) + '</li>').join('') + '</ul>' + btn + '</div>';
+    }).join('');
+    plansBackdrop.classList.add('active');
+  }
+  document.getElementById('plansCloseBtn').addEventListener('click', () => plansBackdrop.classList.remove('active'));
+  plansBackdrop.addEventListener('click', (e) => { if (e.target === plansBackdrop) plansBackdrop.classList.remove('active'); });
+  document.getElementById('accountPlansBtn').addEventListener('click', () => openPlans());
+  document.getElementById('aiUsesPill').addEventListener('click', () => openPlans());
+
   // ---------- Membership license ----------
   const DAY_MS = 24 * 60 * 60 * 1000;
   let licenseCheckRunning = false;
@@ -11805,6 +12654,11 @@ Give concise, specific, practical feedback grounded in the material above when a
   // Usable when the last check confirmed an active membership within the grace period.
   function licenseAllowsUse() {
     if (isFounder()) return true;
+    const P = planCache();
+    if (P && ['agency', 'agency_ended', 'founder'].includes(P.source) && state.currentAccountEmail) {
+      const age = Date.now() - (P.checkedAt || 0);
+      if (age >= -DAY_MS && age <= LICENSE_GRACE_DAYS * DAY_MS) return true;
+    }
     const L = state.license;
     if (!L.key || L.status !== 'active' || !L.lastVerifiedAt) return false;
     const age = Date.now() - L.lastVerifiedAt;
@@ -11919,6 +12773,7 @@ Give concise, specific, practical feedback grounded in the material above when a
     enforceLicenseGate();
   }
 
+
   const licenseKeyInput = document.getElementById('licenseKeyInput');
   const licenseCheckBtn = document.getElementById('licenseCheckBtn');
 
@@ -11957,6 +12812,7 @@ Give concise, specific, practical feedback grounded in the material above when a
     try { result = await checkLicense(key); }
     finally { licenseCheckRunning = false; licenseCheckBtn.disabled = false; }
     if (licenseAllowsUse()) {
+      refreshPlan();
       showToast('Membership active. Welcome!');
       leaveLicenseScreen();
       return;
@@ -12574,6 +13430,9 @@ Give concise, specific, practical feedback grounded in the material above when a
   recheckLicenseInBackground();
   setInterval(recheckLicenseInBackground, LICENSE_RECHECK_HOURS * 60 * 60 * 1000);
   window.addEventListener('online', recheckLicenseInBackground);
+  renderPlanBits();
+  clerkReady.then(() => refreshPlan()).catch(() => refreshPlan());
+  setInterval(refreshPlan, LICENSE_RECHECK_HOURS * 60 * 60 * 1000);
 })();
 </script>
 </body>
