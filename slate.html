@@ -3543,6 +3543,12 @@
   html.plan-free #tabBar [data-screen="ai"] { position: relative; }
   html.plan-free #tabBar [data-screen="ai"]::after { content: '🔒'; position: absolute; top: 2px; right: 50%; margin-right: -22px; font-size: 11px; }
   html.plan-not-max .burger-max::before { content: '🔒 '; }
+  /* iPhone app = free Basic: no AI, plans, prices, locks or Max features anywhere. */
+  html.ios-app .ai-only, html.ios-app .paid-only, html.ios-app .planner-ai, html.ios-app #aiHomeBtn,
+  html.ios-app #burgerCompetitorsBtn, html.ios-app #burgerTeamBtn, html.ios-app #tabBar [data-screen="ai"],
+  html.ios-app .tab[data-tab="ai"], html.ios-app #accountPlanCard, html.ios-app #accountLicenseBtn, html.ios-app #aiUsesPill,
+  html.ios-app .max-badge, html.ios-app .lb-badge-max, html.ios-app .lbp-badge:has(.max-badge), html.ios-app .upgrade-overlay,
+  html.ios-app #plansBackdrop, html.ios-app .burger-max { display: none !important; }
   .plan-card { background: linear-gradient(135deg, rgba(131, 88, 255, 0.18), rgba(88, 101, 242, 0.08)); border: 1px solid rgba(131, 88, 255, 0.35);
     border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; }
   .plan-card-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
@@ -4261,11 +4267,11 @@
         </div>
         <p class="thumb-hint">This is just for planning how the thumbnail and title work together — export the final image whenever you're ready to upload it.</p>
         </div>
-        <div class="tt-rate">
+        <div class="tt-rate ai-only">
           <button type="button" class="planner-action solid planner-ai" id="ttRateBtn">✨ Rate title &amp; thumbnail</button>
           <span class="planner-status">Scores out of 100 · uses 1 Adonis message</span>
         </div>
-        <div class="tt-scores" id="ttScores"></div>
+        <div class="tt-scores ai-only" id="ttScores"></div>
         <p class="thumb-hint" id="shortTitleHint" hidden>Short-form videos don't need a custom thumbnail — just a title (or caption) that makes people stop scrolling.</p>
       </div>
     </div>
@@ -4706,8 +4712,10 @@
         </div>
       </div>
 
+      <div class="paid-only">
       <div class="onboard-field-label" style="margin-top:26px;">Creator Max <span class="max-badge" style="margin-left:6px;vertical-align:middle;">MAX</span></div>
       <div id="settingsMaxSection"></div>
+      </div>
 
       <div class="onboard-field-label" style="margin-top:26px;">Leaderboard</div>
       <div class="feature-toggle-row">
@@ -4748,12 +4756,14 @@
         </div>
       </div>
 
+      <div class="ai-only">
       <div class="onboard-field-label" style="margin-top:26px;">Adonis response style</div>
       <div class="onboard-hint" style="margin-bottom:12px;">Changes how Adonis answers you throughout the app.</div>
       <div class="onboard-options" id="settingsAiStyleOptions">
         <button type="button" class="onboard-option" data-style="concise">Concise</button>
         <button type="button" class="onboard-option" data-style="balanced">Balanced</button>
         <button type="button" class="onboard-option" data-style="detailed">Detailed</button>
+      </div>
       </div>
 
       <div class="onboard-field-label" style="margin-top:26px;">Workspace tools</div>
@@ -5146,11 +5156,19 @@
   // ---------- Version, what's new, bug reports ----------
   // Keep APP_VERSION in step with "version" in package.json. The desktop app reports its real
   // version itself; this is what the web/phone version shows.
-  const APP_VERSION = '1.0.14';
+  const APP_VERSION = '1.0.15';
+  // The iPhone app is the free Basic app until Apple in-app purchases are added: no AI, plans or Max.
+  const IOS_FREE = document.documentElement.classList.contains('ios-app');
   window.CF_APP_VERSION = APP_VERSION;
   const REPORT_URL = 'https://creativeflow-ai.netlify.app/api/report';
   // Newest first. Add an entry for every release; only the newest is shown on the Updates & help page.
   const CHANGELOG = [
+    { version: '1.0.15', date: '2026-10-10', changes: [
+      'Try Creator free for 7 days, right from Adonis or the Plans screen.',
+      'It\'s now clear what each plan includes: AI and Creator Max features show a lock, with an Upgrade to unlock button.',
+      'Bought a plan? Tap Enter license key in Account to unlock it.',
+      'Security improvements.'
+    ] },
     { version: '1.0.14', date: '2026-10-09', changes: [
       'CreativeFlow is now free! The Basic plan has the whole planning app. Creator adds Adonis and AI scores, and you can try it free for 7 days.',
       'New: Creator Max, with a Competitor tracker, Team access (invite up to 3 people), several channels, early access, a Max role in Discord and a Max badge.',
@@ -6421,6 +6439,7 @@
     const list = document.getElementById('settingsFeatureToggleList');
     list.innerHTML = '';
     TOOLS_CONFIG.forEach(tool => {
+      if (IOS_FREE && toolPlan(tool)) return; // no AI or Max tools in the iPhone app
       list.appendChild(featureToggleRow(tool, settingsDraft.enabledFeatures.includes(tool.key), () => {
         toggleInArray(settingsDraft.enabledFeatures, tool.key);
         markSettingsDirty();
@@ -6644,6 +6663,7 @@
     const hideList = document.getElementById('customizeHideList');
     hideList.innerHTML = '';
     HIDEABLE_FEATURES.forEach(f => {
+      if (IOS_FREE && f.key === 'adonis') return;
       const shown = !c.hidden.includes(f.key);
       const row = document.createElement('div');
       row.className = 'feature-toggle-row';
@@ -8417,7 +8437,7 @@
       renderPlanner();
     }, { 'Long-form': 'YouTube videos, with titles and a custom thumbnail.', 'Short-form': 'Shorts, TikTok and Reels. Focused on the hook and title.' });
     body.appendChild(formats);
-    body.insertAdjacentHTML('beforeend', '<div class="ob-section-q">What video is it?</div><div class="onboard-hint">Pick the kind of video. Adonis uses it to suggest titles that fit.</div>');
+    body.insertAdjacentHTML('beforeend', '<div class="ob-section-q">What video is it?</div><div class="onboard-hint">Pick the kind of video.' + (IOS_FREE ? '' : ' Adonis uses it to suggest titles that fit.') + '</div>');
     const opts = document.createElement('div');
     renderOptionTiles(opts, PLANNER_TOPICS, (t) => src.topic === t, (t) => {
       src.topic = t;
@@ -8806,8 +8826,8 @@
   function renderPlannerTitles(body, p) {
     const short = p.format === 'short';
     plannerHeader(body, 'Titles', 'Come up with 5 titles', short
-      ? 'Write your own, or let Adonis suggest some from your topic, hooks and script. Then star ★ your favourite — it becomes the video\'s title.'
-      : 'Write your own, or let Adonis suggest some from your topic, hooks and script. You can edit any of them.');
+      ? (IOS_FREE ? 'Write a few titles. Then star ★ your favourite — it becomes the video\'s title.' : 'Write your own, or let Adonis suggest some from your topic, hooks and script. Then star ★ your favourite — it becomes the video\'s title.')
+      : (IOS_FREE ? 'Write a few titles. You can edit any of them.' : 'Write your own, or let Adonis suggest some from your topic, hooks and script. You can edit any of them.'));
     const actions = document.createElement('div');
     actions.className = 'planner-actions';
     const gen = plannerButton(plannerBusy ? 'Adonis is thinking…' : '✨ Generate with Adonis', 'planner-action solid', plannerGenerateTitles);
@@ -8818,7 +8838,7 @@
     rate.disabled = plannerBusy || !!plannerScoring;
     actions.appendChild(rate);
     body.appendChild(actions);
-    body.insertAdjacentHTML('beforeend', '<div class="planner-status" style="margin:-8px 0 12px">Scores out of 100 · rating uses 1 Adonis message</div>');
+    body.insertAdjacentHTML('beforeend', '<div class="planner-status ai-only" style="margin:-8px 0 12px">Scores out of 100 · rating uses 1 Adonis message</div>');
     p.plan.titles.forEach((t, i) => {
       const row = document.createElement('div');
       row.className = 'planner-list-row';
@@ -8923,11 +8943,12 @@
     const b = plannerButton(busy ? 'Adonis is rating…' : '✨ ' + label, 'planner-action solid planner-ai', () => plannerRate(kind));
     b.disabled = !!plannerScoring || plannerBusy;
     bar.appendChild(b);
-    bar.insertAdjacentHTML('beforeend', '<div class="planner-status">Scores out of 100 · uses 1 Adonis message</div>');
+    bar.insertAdjacentHTML('beforeend', '<div class="planner-status ai-only">Scores out of 100 · uses 1 Adonis message</div>');
     return bar;
   }
 
   function plannerAiReady() {
+    if (IOS_FREE) return false;
     if (!aiAllowedOrUpsell()) return false;
     if (sampleApi) return true;
     showToast(sampleApi === null ? "Adonis isn't available right now." : 'Adonis is still starting up — try again in a moment.');
@@ -9093,7 +9114,7 @@
 
   function renderPlannerMatch(body, p) {
     const plan = p.plan;
-    plannerHeader(body, 'Best fit', 'Match your titles and thumbnails', 'Each row is a pair. Drag a title or thumbnail onto another to swap them (or click one, then another), hit Shuffle for new combos, or let Adonis pick. Then choose your favourite pair.');
+    plannerHeader(body, 'Best fit', 'Match your titles and thumbnails', 'Each row is a pair. Drag a title or thumbnail onto another to swap them (or click one, then another), hit Shuffle for new combos' + (IOS_FREE ? '' : ', or let Adonis pick') + '. Then choose your favourite pair.');
     const titled = plan.titles.filter(t => t.text.trim()).length;
     const pictured = plan.thumbs.filter(t => t.src).length;
 
@@ -9736,6 +9757,7 @@
   }
 
   function openAiChat(projectId) {
+    if (IOS_FREE) return;
     if (!isFounder() && currentTier() === 'basic') refreshPlan(); // the overlay shows until the plan includes AI
     aiContextId = projectId || null;
     const key = aiChatKey();
@@ -10226,6 +10248,7 @@ Give concise, specific, practical feedback grounded in the material above when a
         <div id="featureToggleList"></div>`;
       const list = document.getElementById('featureToggleList');
       TOOLS_CONFIG.forEach(tool => {
+        if (IOS_FREE && toolPlan(tool)) return; // no AI or Max tools in the iPhone app
         list.appendChild(featureToggleRow(tool, p.enabledFeatures.includes(tool.key), () => toggleInArray(p.enabledFeatures, tool.key)));
       });
       nextBtn.textContent = 'Finish';
@@ -11413,12 +11436,13 @@ Give concise, specific, practical feedback grounded in the material above when a
   }
   var homeChannel = 'all';
   try { homeChannel = localStorage.getItem('cf.homeChannel') || 'all'; } catch (e) {}
-  function channelFilterOn() { return isMax() && savedChannels().length > 1; }
+  function channelFilterOn() { return !IOS_FREE && isMax() && savedChannels().length > 1; }
   function tagNewProject(p) {
     if (channelFilterOn() && homeChannel !== 'all' && savedChannels().some(c => c.id === homeChannel)) p.channelId = homeChannel;
     return p;
   }
   function channelSwitcherHtml(activeId) {
+    if (IOS_FREE) return '';
     const list = savedChannels();
     if (!isMax() && list.length <= 1) {
       return '<div class="an-channels"><button type="button" class="an-channel-chip add" data-channel-add="1">+ Add another channel <span class="max-badge" style="margin-left:4px;">MAX</span></button></div>';
@@ -11475,6 +11499,7 @@ Give concise, specific, practical feedback grounded in the material above when a
   }
 
   function renderSettingsMax() {
+    if (IOS_FREE) return;
     const wrap = document.getElementById('settingsMaxSection');
     if (!wrap) return;
     const max = isMax();
@@ -11566,6 +11591,7 @@ Give concise, specific, practical feedback grounded in the material above when a
   }
 
   function openTeam() {
+    if (IOS_FREE) return;
     teamView = { kind: 'home' };
     switchScreen('team');
     loadTeamStatus();
@@ -11802,6 +11828,7 @@ Give concise, specific, practical feedback grounded in the material above when a
   function competitorList() { return (state.profile.competitors || []).filter(c => c && c.id); }
 
   function openCompetitors() {
+    if (IOS_FREE) return;
     switchScreen('competitors');
     renderCompetitors();
     if (isMax()) loadCompetitors();
@@ -12732,6 +12759,7 @@ Give concise, specific, practical feedback grounded in the material above when a
   const plansBackdrop = document.getElementById('plansBackdrop');
   // reason: 'limit' (out of AI uses), 'max' (a Creator Max feature), or nothing (just looking).
   function openPlans(reason) {
+    if (IOS_FREE) return;
     const tier = currentTier();
     const p = planCache();
     const title = document.getElementById('plansTitle');
@@ -13055,7 +13083,11 @@ Give concise, specific, practical feedback grounded in the material above when a
   function renderChangelog() {
     const list = document.getElementById('changelogList');
     // Only the newest release; older notes stay in CHANGELOG for reference but aren't shown.
-    list.innerHTML = CHANGELOG.slice(0, 1).map(entry => `
+    const iosChanges = (changes) => {
+      const kept = changes.filter(c => !/Creator|Adonis|\bAI\b|\bMax\b|plan|trial|license|Competitor|Team access|1-100/i.test(c));
+      return kept.length ? kept : ['Improvements and fixes.'];
+    };
+    list.innerHTML = CHANGELOG.slice(0, 1).map(e => IOS_FREE ? { ...e, changes: iosChanges(e.changes) } : e).map(entry => `
       <div class="changelog-entry">
         <div class="changelog-head">
           <span class="changelog-version">Version ${escapeHtml(entry.version)}</span>
