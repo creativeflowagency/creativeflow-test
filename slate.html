@@ -1601,6 +1601,13 @@
     border-bottom: 1px solid var(--border);
   }
   .feature-toggle-row:last-child { border-bottom: none; }
+  .feature-toggle-row.feature-locked { position: relative; }
+  .feature-toggle-row.feature-locked > .feature-toggle-text,
+  .feature-toggle-row.feature-locked > .feature-switch { filter: blur(3px); opacity: 0.55; pointer-events: none; user-select: none; }
+  .feature-lock-overlay { position: absolute; inset: 4px 0; display: flex; align-items: center; justify-content: center; gap: 8px; border: none; border-radius: 12px;
+    background: rgba(13, 10, 20, 0.35); color: #fff; font: inherit; font-weight: 900; font-size: 12.5px; letter-spacing: 0.1em; cursor: pointer; }
+  .feature-lock-overlay svg { color: #F2C94C; }
+  .feature-lock-plan { padding: 2px 7px; border-radius: 999px; font-size: 10px; letter-spacing: 0.06em; color: #1A1206; background: linear-gradient(135deg, #F2C94C, #F2994A); }
   .feature-toggle-text { min-width: 0; }
   .feature-toggle-name { font-size: 14.5px; font-weight: 600; color: var(--text); }
   .feature-toggle-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
@@ -5268,7 +5275,7 @@
     { key: 'thumbnails', name: 'Thumbnail Analysis', desc: 'AI feedback on thumbnails', icon: 'thumbnail', defaultOn: true, action: 'ai:Take a look at my thumbnail and tell me what\'s working and what could be stronger.' },
     { key: 'retention', name: 'Retention Analysis', desc: 'AI script pacing feedback', icon: 'retention', defaultOn: false, action: 'ai:Look at my script and flag any spots where viewers might drop off.' },
     { key: 'calendar', name: 'Content Calendar', desc: 'Plan your upload schedule', icon: 'calendar', defaultOn: true, action: 'calendar' },
-    { key: 'competitor', name: 'Competitor Research', desc: 'AI strategy brainstorming', icon: 'search', defaultOn: false, action: 'ai:What are creators in my space doing well right now that I could learn from?' },
+    { key: 'competitor', name: 'Competitor Research', desc: 'AI strategy brainstorming', icon: 'search', defaultOn: false, action: 'ai:What are creators in my space doing well right now that I could learn from?', plan: 'max' },
     { key: 'analytics', name: 'Analytics', desc: 'Real channel stats', icon: 'analytics', defaultOn: true, action: 'analytics' },
     { key: 'shorts', name: 'Shorts Generator', desc: 'Clip ideas from long-form', icon: 'film', defaultOn: false, action: 'soon' },
     { key: 'sponsorship', name: 'Sponsorship Assistant', desc: 'AI help with brand deals', icon: 'handshake', defaultOn: false, action: 'ai:Help me draft a pitch outline for reaching out to potential sponsors.' }
@@ -6370,25 +6377,51 @@
     });
   }
 
+  // The plan a workspace tool needs: AI tools need Creator, Competitor Research needs Creator Max.
+  function toolPlan(tool) { return tool.plan || (String(tool.action).startsWith('ai:') ? 'creator' : null); }
+  function toolLocked(tool) {
+    const need = toolPlan(tool);
+    if (!need || isFounder()) return false;
+    return need === 'max' ? !isMax() : currentTier() === 'basic';
+  }
+  // A workspace-tool row with its switch; locked tools are blurred under "UPGRADE TO UNLOCK".
+  function featureToggleRow(tool, on, onToggle) {
+    const row = document.createElement('div');
+    const locked = toolLocked(tool);
+    row.className = 'feature-toggle-row' + (locked ? ' feature-locked' : '');
+    row.innerHTML = `
+      <div class="feature-toggle-text">
+        <div class="feature-toggle-name"><span class="inline-icon">${iconSvg(tool.icon, 15)}</span>${tool.name}</div>
+        <div class="feature-toggle-desc">${tool.desc}</div>
+      </div>
+      <button type="button" class="feature-switch${on && !locked ? ' on' : ''}" aria-label="Toggle ${tool.name}"${locked ? ' tabindex="-1"' : ''}></button>`;
+    if (locked) {
+      const need = toolPlan(tool);
+      const lock = document.createElement('button');
+      lock.type = 'button';
+      lock.className = 'feature-lock-overlay';
+      lock.setAttribute('aria-label', tool.name + ' needs ' + (need === 'max' ? 'Creator Max' : 'Creator') + '. Upgrade to unlock.');
+      lock.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>'
+        + '<span>UPGRADE TO UNLOCK</span><span class="feature-lock-plan">' + (need === 'max' ? 'MAX' : 'CREATOR') + '</span>';
+      lock.addEventListener('click', () => openPlans(need === 'max' ? 'max' : 'ai'));
+      row.appendChild(lock);
+    } else {
+      row.querySelector('.feature-switch').addEventListener('click', (e) => {
+        onToggle();
+        e.target.classList.toggle('on');
+      });
+    }
+    return row;
+  }
+
   function renderSettingsFeatureToggles() {
     const list = document.getElementById('settingsFeatureToggleList');
     list.innerHTML = '';
     TOOLS_CONFIG.forEach(tool => {
-      const on = settingsDraft.enabledFeatures.includes(tool.key);
-      const row = document.createElement('div');
-      row.className = 'feature-toggle-row';
-      row.innerHTML = `
-        <div class="feature-toggle-text">
-          <div class="feature-toggle-name"><span class="inline-icon">${iconSvg(tool.icon, 15)}</span>${tool.name}</div>
-          <div class="feature-toggle-desc">${tool.desc}</div>
-        </div>
-        <button type="button" class="feature-switch${on ? ' on' : ''}" aria-label="Toggle ${tool.name}"></button>`;
-      row.querySelector('.feature-switch').addEventListener('click', (e) => {
+      list.appendChild(featureToggleRow(tool, settingsDraft.enabledFeatures.includes(tool.key), () => {
         toggleInArray(settingsDraft.enabledFeatures, tool.key);
-        e.target.classList.toggle('on');
         markSettingsDirty();
-      });
-      list.appendChild(row);
+      }));
     });
   }
 
@@ -10190,20 +10223,7 @@ Give concise, specific, practical feedback grounded in the material above when a
         <div id="featureToggleList"></div>`;
       const list = document.getElementById('featureToggleList');
       TOOLS_CONFIG.forEach(tool => {
-        const on = p.enabledFeatures.includes(tool.key);
-        const row = document.createElement('div');
-        row.className = 'feature-toggle-row';
-        row.innerHTML = `
-          <div class="feature-toggle-text">
-            <div class="feature-toggle-name"><span class="inline-icon">${iconSvg(tool.icon, 15)}</span>${tool.name}</div>
-            <div class="feature-toggle-desc">${tool.desc}</div>
-          </div>
-          <button type="button" class="feature-switch${on ? ' on' : ''}" aria-label="Toggle ${tool.name}"></button>`;
-        row.querySelector('.feature-switch').addEventListener('click', (e) => {
-          toggleInArray(p.enabledFeatures, tool.key);
-          e.target.classList.toggle('on');
-        });
-        list.appendChild(row);
+        list.appendChild(featureToggleRow(tool, p.enabledFeatures.includes(tool.key), () => toggleInArray(p.enabledFeatures, tool.key)));
       });
       nextBtn.textContent = 'Finish';
     }
