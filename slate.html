@@ -2474,6 +2474,7 @@
   }
   .tab-panel.active { display: flex; }
   .ai-chat-core {
+    position: relative;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -3508,6 +3509,33 @@
   .an-channel-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .an-channel-chip.add { padding: 5px 12px; color: var(--accent); }
   .chip.channel-chip { border-style: dashed; }
+  /* Free vs paid: overlays and lock tags (html.plan-free = Basic, html.plan-not-max = not Creator Max). */
+  .upgrade-overlay { display: none; position: absolute; inset: 0; z-index: 20; align-items: center; justify-content: center; padding: 20px;
+    background: rgba(13, 10, 20, 0.55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  html.plan-free #aiUpgradeOverlay, html.plan-not-max #competitorsUpgradeOverlay { display: flex; }
+  #screen-competitors { position: relative; }
+  #competitorsUpgradeOverlay { top: 64px; }
+  .upgrade-card { width: 100%; max-width: 340px; text-align: center; padding: 24px 20px 20px; border-radius: 20px;
+    background: linear-gradient(160deg, rgba(131, 88, 255, 0.28), rgba(36, 16, 73, 0.92)); border: 1px solid rgba(131, 88, 255, 0.5);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); color: #fff; }
+  .upgrade-lock { width: 54px; height: 54px; margin: 0 auto 12px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #F2C94C, #F2994A); color: #1A1206; }
+  .upgrade-title { font-family: var(--font-display); font-weight: 900; font-size: 13px; letter-spacing: 0.14em; color: #F2C94C; }
+  .upgrade-name { font-family: var(--font-display); font-weight: 800; font-size: 19px; margin: 6px 0 6px; }
+  .upgrade-text { font-size: 13.5px; line-height: 1.5; color: #CFCBE0; margin-bottom: 16px; }
+  .upgrade-btn { display: block; width: 100%; padding: 12px; border-radius: 12px; border: none; background: var(--accent); color: #fff;
+    font: inherit; font-weight: 800; font-size: 14.5px; cursor: pointer; margin-top: 8px; }
+  .upgrade-btn.ghost { background: transparent; border: 1px solid rgba(255, 255, 255, 0.25); }
+  .plan-lock-tag { display: inline-flex; align-items: center; gap: 3px; margin-left: 6px; padding: 1px 6px; border-radius: 999px; font-size: 9.5px; font-weight: 900;
+    letter-spacing: 0.04em; vertical-align: middle; color: #1A1206; background: linear-gradient(135deg, #F2C94C, #F2994A); }
+  html.plan-free .planner-ai::after { content: '🔒 CREATOR'; display: inline-block; margin-left: 7px; padding: 1px 6px; border-radius: 999px; font-size: 9.5px;
+    font-weight: 900; letter-spacing: 0.04em; vertical-align: middle; color: #1A1206; background: linear-gradient(135deg, #F2C94C, #F2994A); }
+  html.plan-free #aiHomeBtn::after { content: '🔒 CREATOR'; margin-left: auto; padding: 1px 6px; border-radius: 999px; font-size: 9px; font-weight: 900;
+    color: #1A1206; background: linear-gradient(135deg, #F2C94C, #F2994A); }
+  html.plan-free .tab[data-tab="ai"]::after { content: ' 🔒'; }
+  html.plan-free #tabBar [data-screen="ai"] { position: relative; }
+  html.plan-free #tabBar [data-screen="ai"]::after { content: '🔒'; position: absolute; top: 2px; right: 50%; margin-right: -22px; font-size: 11px; }
+  html.plan-not-max .burger-max::before { content: '🔒 '; }
   .plan-card { background: linear-gradient(135deg, rgba(131, 88, 255, 0.18), rgba(88, 101, 242, 0.08)); border: 1px solid rgba(131, 88, 255, 0.35);
     border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; }
   .plan-card-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
@@ -4391,6 +4419,16 @@
     </div>
 
     <div class="ai-chat-core" id="aiChatCore">
+      <div class="upgrade-overlay" id="aiUpgradeOverlay">
+        <div class="upgrade-card">
+          <div class="upgrade-lock" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+          <div class="upgrade-title">UPGRADE TO UNLOCK</div>
+          <div class="upgrade-name">Adonis is part of Creator</div>
+          <div class="upgrade-text">Your AI creative partner: ideas, hooks, titles, scripts and scores, built around your channel.</div>
+          <button type="button" class="upgrade-btn" data-upgrade="trial">Try Creator free for 7 days</button>
+          <button type="button" class="upgrade-btn ghost" data-upgrade="plans">See plans</button>
+        </div>
+      </div>
       <div class="ai-chat-list" id="aiChatList"></div>
 
       <div class="ai-attachments-row" id="aiAttachmentsRow"></div>
@@ -4590,6 +4628,16 @@
       </button>
     </div>
     <div class="analytics-body" id="competitorsBody"></div>
+    <div class="upgrade-overlay" id="competitorsUpgradeOverlay">
+        <div class="upgrade-card">
+          <div class="upgrade-lock" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+          <div class="upgrade-title">UPGRADE TO UNLOCK</div>
+          <div class="upgrade-name">Competitor tracker is part of Creator Max</div>
+          <div class="upgrade-text">Follow up to 10 channels in your niche and see their outlier videos: the ones getting 3× their usual views.</div>
+          
+          <button type="button" class="upgrade-btn" data-upgrade="plans">See plans</button>
+        </div>
+      </div>
   </section>
 
   <!-- SETTINGS -->
@@ -4895,6 +4943,7 @@
       <div class="account-level-track"><div class="account-level-bar plan-meter-bar" id="accountPlanBar" style="width:0%;"></div></div>
     </div>
 
+    <button type="button" class="sheet-btn" id="accountLicenseBtn">🔑 Enter license key</button>
     <button type="button" class="sheet-btn" id="accountEditProfileBtn">Edit Profile</button>
     <button type="button" class="sheet-btn" id="accountRedoSetupBtn">Redo setup questions</button>
 
@@ -9651,7 +9700,7 @@
   }
 
   function openAiChat(projectId) {
-    if (!aiAllowedOrUpsell()) return;
+    if (!isFounder() && currentTier() === 'basic') refreshPlan(); // the overlay shows until the plan includes AI
     aiContextId = projectId || null;
     const key = aiChatKey();
     if (!state.aiChats[key]) state.aiChats[key] = [];
@@ -11730,10 +11779,10 @@ Give concise, specific, practical feedback grounded in the material above when a
   function competitorList() { return (state.profile.competitors || []).filter(c => c && c.id); }
 
   function openCompetitors() {
-    if (!isMax()) { openPlans('max'); return; }
     switchScreen('competitors');
     renderCompetitors();
-    loadCompetitors();
+    if (isMax()) loadCompetitors();
+    else refreshPlan().then(() => { if (isMax()) loadCompetitors(); }); // the overlay shows until then
   }
 
   async function loadCompetitors() {
@@ -12618,6 +12667,8 @@ Give concise, specific, practical feedback grounded in the material above when a
   function renderPlanBits() {
     const p = planCache();
     const tier = currentTier();
+    document.documentElement.classList.toggle('plan-free', !isFounder() && tier === 'basic');
+    document.documentElement.classList.toggle('plan-not-max', !isMax());
     const name = document.getElementById('accountPlanName');
     if (name) {
       name.innerHTML = escapeHtml(PLANS[tier].name) + (p && p.source === 'trial' ? ' trial' : '') + (tier === 'max' ? ' <span class="max-badge">MAX</span>' : '');
@@ -12641,6 +12692,8 @@ Give concise, specific, practical feedback grounded in the material above when a
         bar.style.width = isFounder() ? '100%' : '0%';
       }
     }
+    const trialBtn = document.querySelector('#aiUpgradeOverlay [data-upgrade="trial"]');
+    if (trialBtn) trialBtn.textContent = p && p.trialUsed ? 'Upgrade to Creator' : 'Try Creator free for 7 days';
     const pill = document.getElementById('aiUsesPill');
     if (pill) {
       const show = p && typeof p.remaining === 'number' && typeof p.limit === 'number' && p.limit > 0;
@@ -12725,11 +12778,13 @@ Give concise, specific, practical feedback grounded in the material above when a
         const code = j && j.error && j.error.code;
         showToast(code === 'trial_used' ? "You've already had your free trial on this account." : code === 'already_paid' ? "You're already on a paid plan." : "Couldn't start the trial. Try again.");
         btn.disabled = false; btn.textContent = 'Try free for 7 days';
+        renderPlanBits();
         refreshPlan();
         return;
       }
       savePlanCache({ tier: j.tier, source: j.source, signedIn: j.signedIn, trialEndsAt: j.trialEndsAt, trialUsed: j.trialUsed,
         used: j.used, limit: j.limit, remaining: j.remaining, resetsAt: j.resetsAt, checkedAt: Date.now() });
+      btn.disabled = false;
       renderPlanBits();
       plansBackdrop.classList.remove('active');
       showToast('Your 7-day Creator trial has started. Say hi to Adonis! 👋');
@@ -12747,6 +12802,21 @@ Give concise, specific, practical feedback grounded in the material above when a
   });
   plansBackdrop.addEventListener('click', (e) => { if (e.target === plansBackdrop) plansBackdrop.classList.remove('active'); });
   document.getElementById('accountPlansBtn').addEventListener('click', () => openPlans());
+  document.getElementById('accountLicenseBtn').addEventListener('click', () => {
+    backupSheetBackdrop.classList.remove('active');
+    licenseReturnTo = null;
+    renderLicenseScreen();
+    switchScreen('license');
+  });
+  document.querySelectorAll('.upgrade-overlay [data-upgrade]').forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.upgrade === 'trial') {
+      const p = planCache();
+      if (p && p.trialUsed) { openPlans('ai'); return; }
+      startCreatorTrial(b);
+    } else {
+      openPlans(b.closest('#competitorsUpgradeOverlay') ? 'max' : 'ai');
+    }
+  }));
   document.getElementById('aiUsesPill').addEventListener('click', () => openPlans());
 
   // ---------- Membership license ----------
