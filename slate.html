@@ -3565,6 +3565,9 @@
     background: var(--accent); color: #fff; border: none; width: 100%; box-sizing: border-box; cursor: pointer; }
   .plan-option-btn.is-current { background: transparent; color: var(--accent); border: 1px solid var(--accent); cursor: default; }
   .plans-ios-note { display: none; margin-top: 10px; }
+  .plan-trial-note { font-size: 11.5px; color: var(--text-muted); text-align: center; margin-top: 6px; }
+  /* No outside checkout in the iPhone app (Apple's rules). */
+  html.ios-app .plan-trial-btn, html.ios-app .plan-trial-note, html.ios-app .upgrade-btn[data-upgrade="trial"] { display: none; }
   html.ios-app .plans-ios-note { display: block; }
   html.ios-app a.plan-option-btn { display: none; }
   .ai-uses-pill { margin-left: auto; flex: none; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-muted);
@@ -12695,7 +12698,7 @@ Give concise, specific, practical feedback grounded in the material above when a
       const uses = document.getElementById('accountPlanUses');
       const bar = document.getElementById('accountPlanBar');
       if (!isFounder() && tier === 'basic') {
-        uses.textContent = p && p.trialUsed ? 'Free plan · AI is part of Creator' : 'Free plan · Try Creator free for 7 days';
+        uses.textContent = 'Free plan · Try Creator free for 7 days';
         bar.style.width = '0%';
       } else if (p && p.source === 'trial' && typeof p.remaining === 'number') {
         uses.textContent = 'Free trial until ' + planResetLabel({ resetsAt: p.trialEndsAt }) + ' · ' + p.remaining + ' of ' + p.limit + ' AI uses left';
@@ -12713,7 +12716,7 @@ Give concise, specific, practical feedback grounded in the material above when a
       }
     }
     const trialBtn = document.querySelector('#aiUpgradeOverlay [data-upgrade="trial"]');
-    if (trialBtn) trialBtn.textContent = p && p.trialUsed ? 'Upgrade to Creator' : 'Try Creator free for 7 days';
+    if (trialBtn) trialBtn.textContent = 'Try Creator free for 7 days';
     const pill = document.getElementById('aiUsesPill');
     if (pill) {
       const show = p && typeof p.remaining === 'number' && typeof p.limit === 'number' && p.limit > 0;
@@ -12741,8 +12744,7 @@ Give concise, specific, practical feedback grounded in the material above when a
       note.textContent = 'Your ' + PLANS[tier].name + ' plan includes ' + ((p && p.limit) || 0) + ' AI uses a month. They reset on ' + planResetLabel(p) + ', or upgrade for more.';
     } else if (reason === 'ai') {
       title.textContent = 'Adonis is part of Creator';
-      note.textContent = (p && p.trialUsed) ? 'Basic is free and has no AI. Upgrade to Creator for Adonis, AI scores, title ideas and Best fit.'
-        : 'Basic is free and has no AI. Try Creator free for 7 days: Adonis, AI scores, title ideas and Best fit.';
+      note.textContent = 'Basic is free and has no AI. Try Creator free for 7 days: Adonis, AI scores, title ideas and Best fit.';
     } else if (reason === 'trial_over') {
       title.textContent = 'Your Creator trial is over';
       note.textContent = 'Hope you liked it! Upgrade to Creator to keep using Adonis and the AI scores.';
@@ -12761,8 +12763,9 @@ Give concise, specific, practical feedback grounded in the material above when a
       let btn;
       if (current && !(onTrial && k === 'creator')) btn = '<button type="button" class="plan-option-btn is-current" disabled>Your plan</button>';
       else if (k === 'basic') btn = ''; // free: nothing to buy
-      else if (k === 'creator' && tier === 'basic' && !(p && p.trialUsed)) {
-        btn = '<button type="button" class="plan-option-btn plan-trial-btn" id="plansTrialBtn">' + (p && p.signedIn ? 'Try free for 7 days' : 'Sign in to try free for 7 days') + '</button>';
+      else if (k === 'creator' && tier === 'basic') {
+        btn = '<button type="button" class="plan-option-btn plan-trial-btn" id="plansTrialBtn">Start 7-day free trial</button>'
+          + '<div class="plan-trial-note">Card needed. Cancel within 7 days and you won\'t be charged.</div>';
       } else btn = '<a class="plan-option-btn" href="' + GUMROAD_PRODUCT_URL + '" target="_blank" rel="noopener">' + (onTrial && k === 'creator' ? 'Keep Creator after the trial' : (PLAN_ORDER.indexOf(k) > PLAN_ORDER.indexOf(tier) ? 'Upgrade to ' : 'Switch to ') + escapeHtml(plan.name)) + '</a>';
       return '<div class="plan-option' + (current ? ' current' : '') + (k === 'max' ? ' max' : '') + '">'
         + '<div class="plan-option-head"><span class="plan-option-name">' + escapeHtml(plan.name) + (k === 'max' ? ' <span class="max-badge">MAX</span>' : '') + '</span>'
@@ -12771,47 +12774,16 @@ Give concise, specific, practical feedback grounded in the material above when a
         + '<ul>' + plan.features.map(f => '<li>' + escapeHtml(f) + '</li>').join('') + '</ul>' + btn + '</div>';
     }).join('');
     const trialBtn = document.getElementById('plansTrialBtn');
-    if (trialBtn) trialBtn.addEventListener('click', () => startCreatorTrial(trialBtn));
+    if (trialBtn) trialBtn.addEventListener('click', () => startCreatorTrial());
     plansBackdrop.classList.add('active');
   }
 
-  async function startCreatorTrial(btn) {
-    let token = null;
-    try { token = clerk && clerk.session ? await clerk.session.getToken() : null; } catch (e) {}
-    if (!token) {
-      plansBackdrop.classList.remove('active');
-      showToast('Sign in or create a free account, then start your trial.');
-      openClerkAuth('signup');
-      return;
-    }
-    btn.disabled = true;
-    btn.textContent = 'Starting your trial…';
-    try {
-      const res = await fetch(PLAN_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-        body: JSON.stringify({ action: 'start-trial', licenseKey: state.license.key || '' }),
-        signal: AbortSignal.timeout(15000)
-      });
-      const j = await res.json().catch(() => null);
-      if (!res.ok) {
-        const code = j && j.error && j.error.code;
-        showToast(code === 'trial_used' ? "You've already had your free trial on this account." : code === 'already_paid' ? "You're already on a paid plan." : "Couldn't start the trial. Try again.");
-        btn.disabled = false; btn.textContent = 'Try free for 7 days';
-        renderPlanBits();
-        refreshPlan();
-        return;
-      }
-      savePlanCache({ tier: j.tier, source: j.source, signedIn: j.signedIn, trialEndsAt: j.trialEndsAt, trialUsed: j.trialUsed,
-        used: j.used, limit: j.limit, remaining: j.remaining, resetsAt: j.resetsAt, checkedAt: Date.now() });
-      btn.disabled = false;
-      renderPlanBits();
-      plansBackdrop.classList.remove('active');
-      showToast('Your 7-day Creator trial has started. Say hi to Adonis! 👋');
-    } catch (e) {
-      btn.disabled = false; btn.textContent = 'Try free for 7 days';
-      showToast("Couldn't reach CreativeFlow. Check your connection and try again.");
-    }
+  // The free trial runs on Gumroad: the card is taken at the start and charged after 7 days unless
+  // they cancel. Gumroad emails the license key, which unlocks Creator here straight away.
+  function startCreatorTrial() {
+    plansBackdrop.classList.remove('active');
+    openExternalUrl(GUMROAD_PRODUCT_URL);
+    showToast('Choose Creator and start your free trial. Your license key comes by email: enter it in Account → Enter license key.');
   }
   document.getElementById('plansCloseBtn').addEventListener('click', () => plansBackdrop.classList.remove('active'));
   document.getElementById('plansLicenseBtn').addEventListener('click', () => {
@@ -12831,8 +12803,7 @@ Give concise, specific, practical feedback grounded in the material above when a
   document.querySelectorAll('.upgrade-overlay [data-upgrade]').forEach(b => b.addEventListener('click', () => {
     if (b.dataset.upgrade === 'trial') {
       const p = planCache();
-      if (p && p.trialUsed) { openPlans('ai'); return; }
-      startCreatorTrial(b);
+      startCreatorTrial();
     } else {
       openPlans(b.closest('#competitorsUpgradeOverlay') ? 'max' : 'ai');
     }
