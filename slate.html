@@ -3957,13 +3957,14 @@
   <!-- LICENSE (membership required) -->
   <section class="screen" id="screen-license">
     <div class="license-card">
-      <div class="splash-title">CreativeFlow membership</div>
+      <div class="splash-title">Your plan</div>
       <p class="license-message" id="licenseMessage"></p>
       <label class="onboard-field-label" for="licenseKeyInput">License key</label>
       <input type="text" class="onboard-input" id="licenseKeyInput" placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX" autocomplete="off" spellcheck="false">
       <p class="license-status" id="licenseStatus" hidden></p>
       <button type="button" class="splash-enter-btn license-check-btn" id="licenseCheckBtn">Activate</button>
-      <a class="splash-secondary-btn license-renew-btn" id="licenseRenewBtn" target="_blank" rel="noopener">Get or renew membership</a>
+      <a class="splash-secondary-btn license-renew-btn" id="licenseRenewBtn" target="_blank" rel="noopener">Get or renew a plan</a>
+      <button type="button" class="splash-secondary-btn" id="licenseFreeBtn">Keep using CreativeFlow free</button>
       <p class="auth-caveat">Your license key is in your Gumroad receipt email and in your Gumroad library.</p>
       <p class="consent-note">By activating you agree to our <button type="button" class="legal-link" data-legal="terms">Terms of Service</button> and <button type="button" class="legal-link" data-legal="privacy">Privacy Policy</button>. Memberships can be refunded within 7 days of payment.</p>
     </div>
@@ -4917,6 +4918,7 @@
     <div class="onboard-hint" id="plansNote" style="margin-bottom:12px;"></div>
     <div class="plans-list" id="plansList"></div>
     <div class="onboard-hint plans-ios-note">To change your plan, visit creativeflow.media on the web.</div>
+    <button type="button" class="plan-card-link" id="plansLicenseBtn" style="margin-top:10px;">Already bought a plan? Enter your license key</button>
     <div class="sheet-actions" style="margin-top:6px;">
       <button class="btn-cancel" id="plansCloseBtn">Close</button>
     </div>
@@ -8831,6 +8833,7 @@
   }
 
   function plannerAiReady() {
+    if (!aiAllowedOrUpsell()) return false;
     if (sampleApi) return true;
     showToast(sampleApi === null ? "Adonis isn't available right now." : 'Adonis is still starting up — try again in a moment.');
     return false;
@@ -9502,9 +9505,11 @@
     if (!res.ok) {
       let code = 'server_error', info = {};
       try { info = (await res.json()).error || {}; code = info.code || code; } catch (e) {}
-      if (code === 'monthly_limit') {
+      if (code === 'monthly_limit' || code === 'trial_limit') {
         noteAiUses({ tier: info.tier, limit: info.limit, remaining: 0, resetsAt: info.resetsAt });
         setTimeout(() => openPlans('limit'), 250);
+      } else if (code === 'plan_no_ai') {
+        refreshPlan().then(() => openPlans('ai'));
       }
       throw aiError(code);
     }
@@ -9628,7 +9633,15 @@
     document.getElementById('screen-ai').appendChild(document.getElementById('aiChatCore'));
   }
 
+  // Free Basic has no AI: show what Creator adds (and the trial) instead.
+  function aiAllowedOrUpsell() {
+    if (isFounder() || currentTier() !== 'basic') return true;
+    refreshPlan().then(() => { if (currentTier() === 'basic') openPlans('ai'); });
+    return false;
+  }
+
   function openAiChat(projectId) {
+    if (!aiAllowedOrUpsell()) return;
     aiContextId = projectId || null;
     const key = aiChatKey();
     if (!state.aiChats[key]) state.aiChats[key] = [];
@@ -9832,6 +9845,8 @@ Give concise, specific, practical feedback grounded in the material above when a
       case 'offline': return "Couldn't reach Adonis. Check your internet connection and try again.";
       case 'daily_limit': return "You've used a lot of AI today. Take a break and try again tomorrow.";
       case 'monthly_limit': return "You've used all your AI for this month. Upgrade your plan for more.";
+      case 'trial_limit': return "You've used all the AI in your free trial. Upgrade to Creator to keep going.";
+      case 'plan_no_ai': return 'Adonis is part of Creator. Try it free for 7 days.';
       case 'license_missing':
       case 'license_inactive': return 'Adonis needs an active CreativeFlow membership.';
       case 'license_unverifiable': return "Couldn't confirm your membership right now — try again in a few minutes.";
@@ -12518,9 +12533,9 @@ Give concise, specific, practical feedback grounded in the material above when a
   // knows the plan offline. Every AI action (Adonis message, score, title ideas, Best fit) is one use.
   const PLAN_URL = SYNC_URL.replace('/api/sync', '/api/plan');
   const PLANS = {
-    basic: { name: 'Basic', price: '$4.99', blurb: 'The full planning app.',
-      features: ['Projects, planner, playlists & Idea Bank', 'Script editor with PDF & Word export', 'Calendar, daily tasks, XP & leaderboard', 'Analytics, sync & reminders', '10 AI uses a month to try Adonis'] },
-    creator: { name: 'Creator', price: '$12.99', blurb: 'Everything in Basic, plus AI.',
+    basic: { name: 'Basic', price: 'Free', blurb: 'The full planning app. No AI.',
+      features: ['Projects, planner, playlists & Idea Bank', 'Script editor with PDF & Word export', 'Calendar, daily tasks, XP & leaderboard', 'Analytics, sync & reminders'] },
+    creator: { name: 'Creator', price: '$12.99', blurb: 'Everything in Basic, plus AI. Try it free for 7 days.',
       features: ['Everything in Basic', '200 AI uses a month', 'Adonis, your creator assistant', 'AI scores for hooks, titles & thumbnails', 'Title ideas & Best fit'] },
     max: { name: 'Creator Max', price: '$39.99', blurb: 'For serious creators and teams.',
       features: ['Everything in Creator', '800 AI uses a month', 'Competitor tracker', 'Team access: invite up to 3 people', 'Several channels', 'Early access to new features', 'Max role & private channel in Discord', 'Max badge on the leaderboard'] }
@@ -12542,7 +12557,11 @@ Give concise, specific, practical feedback grounded in the material above when a
     planRefreshing = (async () => {
       let token = null;
       try { token = clerk && clerk.session ? await clerk.session.getToken() : null; } catch (e) {}
-      if (!token && !state.license.key) return;
+      if (!token && !state.license.key) {
+        if (!isFounder()) savePlanCache({ tier: 'basic', source: 'free', signedIn: false, trialUsed: false, used: 0, limit: 0, remaining: 0, checkedAt: Date.now() });
+        renderPlanBits();
+        return;
+      }
       try {
         const res = await fetch(PLAN_URL, {
           method: 'POST',
@@ -12552,7 +12571,11 @@ Give concise, specific, practical feedback grounded in the material above when a
         });
         if (res.ok) {
           const j = await res.json();
-          savePlanCache({ tier: j.tier, source: j.source, used: j.used, limit: j.limit, remaining: j.remaining, resetsAt: j.resetsAt, checkedAt: Date.now() });
+          const before = planCache();
+          savePlanCache({ tier: j.tier, source: j.source, signedIn: j.signedIn, trialEndsAt: j.trialEndsAt, trialUsed: j.trialUsed,
+            used: j.used, limit: j.limit, remaining: j.remaining, resetsAt: j.resetsAt, checkedAt: Date.now() });
+          // The trial just ended: say so once.
+          if (before && before.source === 'trial' && j.source === 'free') setTimeout(() => openPlans('trial_over'), 600);
         } else if (res.status === 401 || res.status === 403) {
           savePlanCache(null); // no membership: the license screen explains what to do
         }
@@ -12585,10 +12608,18 @@ Give concise, specific, practical feedback grounded in the material above when a
     const tier = currentTier();
     const name = document.getElementById('accountPlanName');
     if (name) {
-      name.innerHTML = escapeHtml(PLANS[tier].name) + (tier === 'max' ? ' <span class="max-badge">MAX</span>' : '');
+      name.innerHTML = escapeHtml(PLANS[tier].name) + (p && p.source === 'trial' ? ' trial' : '') + (tier === 'max' ? ' <span class="max-badge">MAX</span>' : '');
       const uses = document.getElementById('accountPlanUses');
       const bar = document.getElementById('accountPlanBar');
-      if (p && typeof p.limit === 'number' && typeof p.remaining === 'number') {
+      if (!isFounder() && tier === 'basic') {
+        uses.textContent = p && p.trialUsed ? 'Free plan · AI is part of Creator' : 'Free plan · Try Creator free for 7 days';
+        bar.style.width = '0%';
+      } else if (p && p.source === 'trial' && typeof p.remaining === 'number') {
+        uses.textContent = 'Free trial until ' + planResetLabel({ resetsAt: p.trialEndsAt }) + ' · ' + p.remaining + ' of ' + p.limit + ' AI uses left';
+        const pct = p.limit ? Math.round(p.remaining / p.limit * 100) : 0;
+        bar.style.width = Math.max(2, pct) + '%';
+        bar.classList.toggle('low', pct <= 20);
+      } else if (p && typeof p.limit === 'number' && typeof p.remaining === 'number') {
         uses.textContent = p.remaining + ' of ' + p.limit + ' AI uses left this month · resets ' + planResetLabel(p);
         const pct = p.limit ? Math.round(p.remaining / p.limit * 100) : 0;
         bar.style.width = Math.max(2, pct) + '%';
@@ -12600,7 +12631,7 @@ Give concise, specific, practical feedback grounded in the material above when a
     }
     const pill = document.getElementById('aiUsesPill');
     if (pill) {
-      const show = p && typeof p.remaining === 'number' && typeof p.limit === 'number';
+      const show = p && typeof p.remaining === 'number' && typeof p.limit === 'number' && p.limit > 0;
       pill.hidden = !show;
       if (show) {
         pill.textContent = p.remaining + ' AI uses left';
@@ -12617,32 +12648,91 @@ Give concise, specific, practical feedback grounded in the material above when a
     const p = planCache();
     const title = document.getElementById('plansTitle');
     const note = document.getElementById('plansNote');
-    if (reason === 'limit') {
+    if (reason === 'limit' && p && p.source === 'trial') {
+      title.textContent = "You've used your trial's AI";
+      note.textContent = 'Your free trial includes ' + ((p && p.limit) || 0) + ' AI uses. Upgrade to Creator for 200 a month.';
+    } else if (reason === 'limit') {
       title.textContent = "You've used this month's AI";
       note.textContent = 'Your ' + PLANS[tier].name + ' plan includes ' + ((p && p.limit) || 0) + ' AI uses a month. They reset on ' + planResetLabel(p) + ', or upgrade for more.';
+    } else if (reason === 'ai') {
+      title.textContent = 'Adonis is part of Creator';
+      note.textContent = (p && p.trialUsed) ? 'Basic is free and has no AI. Upgrade to Creator for Adonis, AI scores, title ideas and Best fit.'
+        : 'Basic is free and has no AI. Try Creator free for 7 days: Adonis, AI scores, title ideas and Best fit.';
+    } else if (reason === 'trial_over') {
+      title.textContent = 'Your Creator trial is over';
+      note.textContent = 'Hope you liked it! Upgrade to Creator to keep using Adonis and the AI scores.';
     } else if (reason === 'max') {
       title.textContent = 'A Creator Max feature';
       note.textContent = 'This is part of Creator Max, along with 800 AI uses a month and more.';
     } else {
       title.textContent = 'Plans';
-      note.textContent = "You're on " + PLANS[tier].name + '. One AI use = one Adonis message, score, set of title ideas or Best fit.';
+      note.textContent = "You're on " + PLANS[tier].name + (p && p.source === 'trial' ? ' (free trial until ' + planResetLabel({ resetsAt: p.trialEndsAt }) + ')' : '') + '. One AI use = one Adonis message, score, set of title ideas or Best fit.';
     }
     const list = document.getElementById('plansList');
     list.innerHTML = PLAN_ORDER.map(k => {
       const plan = PLANS[k];
       const current = k === tier;
-      const btn = current
-        ? '<button type="button" class="plan-option-btn is-current" disabled>Your plan</button>'
-        : '<a class="plan-option-btn" href="' + GUMROAD_PRODUCT_URL + '" target="_blank" rel="noopener">' + (PLAN_ORDER.indexOf(k) > PLAN_ORDER.indexOf(tier) ? 'Upgrade to ' : 'Switch to ') + escapeHtml(plan.name) + '</a>';
+      const onTrial = p && p.source === 'trial';
+      let btn;
+      if (current && !(onTrial && k === 'creator')) btn = '<button type="button" class="plan-option-btn is-current" disabled>Your plan</button>';
+      else if (k === 'basic') btn = ''; // free: nothing to buy
+      else if (k === 'creator' && tier === 'basic' && !(p && p.trialUsed)) {
+        btn = '<button type="button" class="plan-option-btn plan-trial-btn" id="plansTrialBtn">' + (p && p.signedIn ? 'Try free for 7 days' : 'Sign in to try free for 7 days') + '</button>';
+      } else btn = '<a class="plan-option-btn" href="' + GUMROAD_PRODUCT_URL + '" target="_blank" rel="noopener">' + (onTrial && k === 'creator' ? 'Keep Creator after the trial' : (PLAN_ORDER.indexOf(k) > PLAN_ORDER.indexOf(tier) ? 'Upgrade to ' : 'Switch to ') + escapeHtml(plan.name)) + '</a>';
       return '<div class="plan-option' + (current ? ' current' : '') + (k === 'max' ? ' max' : '') + '">'
         + '<div class="plan-option-head"><span class="plan-option-name">' + escapeHtml(plan.name) + (k === 'max' ? ' <span class="max-badge">MAX</span>' : '') + '</span>'
-        + '<span class="plan-option-price">' + plan.price + ' <small>/ month</small></span></div>'
+        + '<span class="plan-option-price">' + plan.price + (plan.price === 'Free' ? '' : ' <small>/ month</small>') + '</span></div>'
         + '<div class="plan-option-blurb">' + escapeHtml(plan.blurb) + '</div>'
         + '<ul>' + plan.features.map(f => '<li>' + escapeHtml(f) + '</li>').join('') + '</ul>' + btn + '</div>';
     }).join('');
+    const trialBtn = document.getElementById('plansTrialBtn');
+    if (trialBtn) trialBtn.addEventListener('click', () => startCreatorTrial(trialBtn));
     plansBackdrop.classList.add('active');
   }
+
+  async function startCreatorTrial(btn) {
+    let token = null;
+    try { token = clerk && clerk.session ? await clerk.session.getToken() : null; } catch (e) {}
+    if (!token) {
+      plansBackdrop.classList.remove('active');
+      showToast('Sign in or create a free account, then start your trial.');
+      openClerkAuth('signup');
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'Starting your trial…';
+    try {
+      const res = await fetch(PLAN_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify({ action: 'start-trial', licenseKey: state.license.key || '' }),
+        signal: AbortSignal.timeout(15000)
+      });
+      const j = await res.json().catch(() => null);
+      if (!res.ok) {
+        const code = j && j.error && j.error.code;
+        showToast(code === 'trial_used' ? "You've already had your free trial on this account." : code === 'already_paid' ? "You're already on a paid plan." : "Couldn't start the trial. Try again.");
+        btn.disabled = false; btn.textContent = 'Try free for 7 days';
+        refreshPlan();
+        return;
+      }
+      savePlanCache({ tier: j.tier, source: j.source, signedIn: j.signedIn, trialEndsAt: j.trialEndsAt, trialUsed: j.trialUsed,
+        used: j.used, limit: j.limit, remaining: j.remaining, resetsAt: j.resetsAt, checkedAt: Date.now() });
+      renderPlanBits();
+      plansBackdrop.classList.remove('active');
+      showToast('Your 7-day Creator trial has started. Say hi to Adonis! 👋');
+    } catch (e) {
+      btn.disabled = false; btn.textContent = 'Try free for 7 days';
+      showToast("Couldn't reach CreativeFlow. Check your connection and try again.");
+    }
+  }
   document.getElementById('plansCloseBtn').addEventListener('click', () => plansBackdrop.classList.remove('active'));
+  document.getElementById('plansLicenseBtn').addEventListener('click', () => {
+    plansBackdrop.classList.remove('active');
+    licenseReturnTo = null;
+    renderLicenseScreen();
+    switchScreen('license');
+  });
   plansBackdrop.addEventListener('click', (e) => { if (e.target === plansBackdrop) plansBackdrop.classList.remove('active'); });
   document.getElementById('accountPlansBtn').addEventListener('click', () => openPlans());
   document.getElementById('aiUsesPill').addEventListener('click', () => openPlans());
@@ -12652,20 +12742,10 @@ Give concise, specific, practical feedback grounded in the material above when a
   let licenseCheckRunning = false;
 
   // Usable when the last check confirmed an active membership within the grace period.
+  // Basic is free, so the app is always usable; a license key only unlocks a paid plan (see refreshPlan).
   function licenseAllowsUse() {
-    if (isFounder()) return true;
-    const P = planCache();
-    if (P && ['agency', 'agency_ended', 'founder'].includes(P.source) && state.currentAccountEmail) {
-      const age = Date.now() - (P.checkedAt || 0);
-      if (age >= -DAY_MS && age <= LICENSE_GRACE_DAYS * DAY_MS) return true;
-    }
-    const L = state.license;
-    if (!L.key || L.status !== 'active' || !L.lastVerifiedAt) return false;
-    const age = Date.now() - L.lastVerifiedAt;
-    // A last check "in the future" means the clock moved backwards; require a fresh check.
-    return age >= -DAY_MS && age <= LICENSE_GRACE_DAYS * DAY_MS;
+    return true;
   }
-
   // Returns why the purchase no longer grants access, or null if the membership is active.
   function membershipProblem(p) {
     if (!p) return "Gumroad didn't return any purchase details for this key.";
@@ -12755,14 +12835,10 @@ Give concise, specific, practical feedback grounded in the material above when a
   }
 
   // Lock the app if the membership lapsed, or unlock it if a background check just succeeded.
+  // Nothing is locked behind a membership now (Basic is free); this just keeps the license screen's
+  // message current after a background check.
   function enforceLicenseGate() {
-    const screen = currentScreenName();
-    if (screen === 'license') {
-      if (licenseAllowsUse()) leaveLicenseScreen();
-      else renderLicenseScreen();
-    } else if (!LICENSE_OPEN_SCREENS.includes(screen) && !licenseAllowsUse()) {
-      switchScreen(screen);
-    }
+    if (currentScreenName() === 'license') renderLicenseScreen();
   }
 
   async function recheckLicenseInBackground() {
@@ -12789,11 +12865,11 @@ Give concise, specific, practical feedback grounded in the material above when a
     const msg = document.getElementById('licenseMessage');
     document.getElementById('licenseRenewBtn').href = GUMROAD_PRODUCT_URL;
     if (!L.key) {
-      msg.textContent = 'CreativeFlow needs an active membership. Enter the license key from your Gumroad purchase to continue.';
+      msg.textContent = 'Bought Creator or Creator Max? Enter the license key from your Gumroad purchase to unlock it. Without one, you keep using CreativeFlow free on Basic.';
     } else if (L.status === 'inactive') {
-      msg.textContent = `${L.reason || "Your membership isn't active."} Renew your membership to keep using CreativeFlow, then check again. Your projects are still saved on this device.`;
+      msg.textContent = `${L.reason || "Your membership isn't active."} You're on the free Basic plan until you renew. Your projects are all still here.`;
     } else {
-      msg.textContent = `CreativeFlow hasn't been able to confirm your membership for over ${LICENSE_GRACE_DAYS} days. Connect to the internet and check again.`;
+      msg.textContent = `CreativeFlow hasn't been able to confirm your plan for over ${LICENSE_GRACE_DAYS} days. Connect to the internet and check again.`;
     }
     if (!licenseKeyInput.value && L.key) licenseKeyInput.value = L.key;
     if (!licenseCheckBtn.disabled) licenseCheckBtn.textContent = L.key ? 'Check again' : 'Activate';
@@ -12811,9 +12887,9 @@ Give concise, specific, practical feedback grounded in the material above when a
     let result;
     try { result = await checkLicense(key); }
     finally { licenseCheckRunning = false; licenseCheckBtn.disabled = false; }
-    if (licenseAllowsUse()) {
-      refreshPlan();
-      showToast('Membership active. Welcome!');
+    if (state.license.status === 'active') {
+      await refreshPlan();
+      showToast('License activated: you\'re on ' + PLANS[currentTier()].name + '. Welcome!');
       leaveLicenseScreen();
       return;
     }
@@ -12822,6 +12898,7 @@ Give concise, specific, practical feedback grounded in the material above when a
       setLicenseStatus("Couldn't reach Gumroad. Check your internet connection and try again.", true);
     }
   });
+  document.getElementById('licenseFreeBtn').addEventListener('click', () => leaveLicenseScreen());
   licenseKeyInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') licenseCheckBtn.click();
   });
