@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <meta name="robots" content="noindex, nofollow">
 <title>Budget Planner</title>
@@ -16,7 +16,7 @@
     "currency": "ISK",
     "categories": [
       { "id": "income",   "name": "Income",              "lines": [ { "name": "Paycheck", "amount": 440000, "note": "optional text" } ] },
-      { "id": "bills",    "name": "Bills",               "lines": [] },
+      { "id": "bills",    "name": "Bills",               "lines": [ { "name": "Rent", "amount": 177675, "paid": false } ] },
       { "id": "debt",     "name": "Debt",                "lines": [] },
       { "id": "subs",     "name": "Subscriptions",       "lines": [] },
       { "id": "savings",  "name": "Savings & investing", "lines": [] },
@@ -25,7 +25,11 @@
   }
   - category ids must be one of the six above, no duplicates; missing categories are treated as empty.
   - "name" is a string, "amount" is a finite number in kr (negative allowed), "note" is optional.
-  - Left over = income total - (bills + debt + subs + savings + everyday).
+  - "paid" is an optional boolean on any line. Missing means not paid. Older saves have no "paid"
+    field and still load; amounts and notes are kept. Income lines have no tick box.
+  - Left over = income total − (bills + debt + subs + savings + everyday). Paid ticks do not change that.
+  - Still to pay = that same spending total minus amounts ticked paid.
+  - Money in account now = income total − amounts ticked paid.
 -->
 <style>
   :root {
@@ -34,12 +38,13 @@
     --text: #0b0b0c;
     --text2: rgba(0,0,0,0.62);
     --text3: rgba(0,0,0,0.44);
-    --glass: rgba(255,255,255,0.55);
+    --glass: rgba(255,255,255,0.68);
     --glass-strong: rgba(255,255,255,0.8);
     --border: rgba(255,255,255,0.85);
     --hair: rgba(0,0,0,0.10);
     --track: rgba(0,0,0,0.10);
     --fill: #111111;
+    --on-fill: #ffffff;
     --red: #c4251c;
     --shadow: 0 8px 32px rgba(0,0,0,0.08);
     --s0: #111111; --s1: #3f3f3f; --s2: #6e6e6e; --s3: #9d9d9d; --s4: #c6c6c6;
@@ -50,38 +55,40 @@
       --text: #f5f5f5;
       --text2: rgba(255,255,255,0.62);
       --text3: rgba(255,255,255,0.42);
-      --glass: rgba(255,255,255,0.07);
+      --glass: rgba(28,28,30,0.72);
       --glass-strong: rgba(255,255,255,0.12);
       --border: rgba(255,255,255,0.16);
       --hair: rgba(255,255,255,0.10);
       --track: rgba(255,255,255,0.12);
       --fill: #f5f5f5;
+      --on-fill: #0a0a0a;
       --red: #ff6b63;
       --shadow: 0 8px 32px rgba(0,0,0,0.35);
       --s0: #ffffff; --s1: #d0d0d0; --s2: #a0a0a0; --s3: #707070; --s4: #4a4a4a;
     }
   }
   * { box-sizing: border-box; }
-  html, body { margin: 0; }
+  html, body { margin: 0; max-width: 100%; overflow-x: hidden; }
   body {
     min-height: 100vh;
+    min-height: 100dvh;
     background: var(--bg);
-    background-attachment: fixed;
     color: var(--text);
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     padding: clamp(16px, 4vw, 40px);
+    padding-left: max(clamp(16px, 4vw, 40px), env(safe-area-inset-left));
+    padding-right: max(clamp(16px, 4vw, 40px), env(safe-area-inset-right));
     -webkit-text-size-adjust: 100%;
   }
-  .wrap { max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+  .wrap { max-width: 1100px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
   .glass {
     background: var(--glass);
     border: 1px solid var(--border);
     border-radius: 24px;
-    -webkit-backdrop-filter: blur(20px) saturate(140%);
-    backdrop-filter: blur(20px) saturate(140%);
     box-shadow: var(--shadow);
     padding: 20px;
     min-width: 0;
+    max-width: 100%;
   }
   .top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
   .title { font-size: 28px; font-weight: 500; letter-spacing: -0.02em; }
@@ -95,11 +102,10 @@
     border-radius: 9999px;
     padding: 8px 16px;
     cursor: pointer;
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+    min-height: 44px;
   }
   .pill:hover { border-color: var(--text2); }
-  .pill:focus-visible, .ghost:focus-visible, .x:focus-visible { outline: 2px solid var(--text2); outline-offset: 2px; }
+  .pill:focus-visible, .ghost:focus-visible, .x:focus-visible, .tick input:focus-visible { outline: 2px solid var(--text2); outline-offset: 2px; }
   .label { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text2); font-weight: 500; }
   .hero { padding: 24px; }
   .big { font-size: clamp(40px, 10vw, 72px); line-height: 1.05; font-weight: 300; letter-spacing: -0.03em; padding: 8px 0 20px; overflow-wrap: anywhere; }
@@ -107,9 +113,15 @@
   .stats { display: flex; flex-wrap: wrap; gap: 24px; padding-bottom: 20px; }
   .stat { flex: 1 1 140px; min-width: 0; }
   .stat .v { font-size: 22px; font-weight: 500; padding-top: 4px; overflow-wrap: anywhere; }
+  #cash.neg { color: var(--red); }
+  .paid-block { margin-top: 16px; padding-top: 20px; border-top: 1px solid var(--hair); }
+  .paid-block .stats { padding-bottom: 0; }
+  .paid-block .stat { flex-basis: 120px; }
+  .paid-block .bar { margin-top: 16px; }
   .bar { height: 10px; border-radius: 9999px; background: var(--track); overflow: hidden; }
   .bar > div { height: 100%; border-radius: 9999px; background: var(--fill); width: 0; }
-  .over .bar > div { background: var(--red); }
+  body.ready .bar > div { transition: width 550ms cubic-bezier(0.22, 1, 0.36, 1), background 300ms ease; }
+  .over .spend-bar > div { background: var(--red); }
   .note { font-size: 13px; color: var(--text2); padding-top: 8px; }
   .warn { display: none; font-size: 14px; font-weight: 500; padding-top: 12px; }
   .over .warn { display: block; }
@@ -122,30 +134,84 @@
   .lvals { display: flex; gap: 12px; margin-left: auto; font-size: 15px; }
   .lvals .p { color: var(--text2); }
   .lvals .a { font-weight: 500; }
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 16px; align-items: start; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 16px; align-items: start; min-width: 0; }
   .chead { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; padding-bottom: 12px; }
   .cname { font-size: 18px; font-weight: 500; }
-  .csum { text-align: right; }
+  .csum { text-align: right; min-width: 0; }
   .csum .a { font-size: 18px; font-weight: 500; }
   .csum .p { font-size: 12px; color: var(--text2); }
-  .line { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding: 8px 0; border-top: 1px solid var(--hair); }
+  .line { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding: 8px 0; border-top: 1px solid var(--hair); min-width: 0; max-width: 100%; }
   .lname-col { flex: 1 1 130px; min-width: 0; }
-  .nm { width: 100%; font-size: 15px; background: transparent; border: none; outline: none; padding: 4px 0; }
+  .nm { width: 100%; max-width: 100%; font-size: 16px; background: transparent; border: none; outline: none; padding: 4px 0; }
   .nm::placeholder { color: var(--text3); }
-  .lnote { font-size: 12px; color: var(--text3); }
-  .amt { flex: 0 1 140px; min-width: 0; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 12px; border: 1px solid var(--hair); }
+  .line.is-paid .nm { text-decoration: line-through; opacity: 0.55; }
+  .line.is-paid .lnote,
+  .line.is-paid .amt { opacity: 0.55; }
+  .paid-tag { font-size: 12px; color: var(--text2); }
+  .lnote { font-size: 12px; color: var(--text3); overflow-wrap: anywhere; }
+  .tick {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tick input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .tick .box {
+    width: 22px;
+    height: 22px;
+    border-radius: 7px;
+    border: 1.5px solid var(--text3);
+    background: transparent;
+    color: var(--on-fill);
+    font-size: 14px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .tick input:checked + .box { background: var(--fill); border-color: var(--fill); }
+  .tick input:checked + .box::before { content: "✓"; }
+  .amt { flex: 0 1 150px; min-width: 0; min-height: 44px; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 12px; border: 1px solid var(--hair); }
   .amt:focus-within { background: var(--glass-strong); border-color: var(--text2); }
-  .amt input { width: 100%; min-width: 0; font-size: 15px; text-align: right; background: transparent; border: none; outline: none; padding: 0; }
-  .amt span { font-size: 13px; color: var(--text2); }
-  .x { font-size: 18px; line-height: 1; color: var(--text3); background: transparent; border: none; cursor: pointer; padding: 4px 6px; }
+  .amt input { width: 100%; min-width: 0; font-size: 16px; text-align: right; background: transparent; border: none; outline: none; padding: 0; }
+  .amt span { font-size: 13px; color: var(--text2); flex: none; }
+  .x { font-size: 18px; line-height: 1; color: var(--text3); background: transparent; border: none; cursor: pointer; padding: 4px 6px; flex: none; min-width: 44px; min-height: 44px; }
   .x:hover { color: var(--text); }
   .addrow { padding-top: 8px; border-top: 1px solid var(--hair); }
-  .ghost { font-size: 14px; color: var(--text2); background: transparent; border: none; cursor: pointer; padding: 6px 0; }
+  .ghost { font-size: 14px; color: var(--text2); background: transparent; border: none; cursor: pointer; padding: 6px 0; min-height: 44px; }
   .ghost:hover { color: var(--text); }
   .foot { font-size: 13px; color: var(--text2); text-align: center; padding: 8px 0 16px; }
   #status { color: var(--text3); }
   #status.bad { color: var(--red); }
   input[type=file] { display: none; }
+  .count {
+    display: inline-block;
+    transition: transform 220ms ease, opacity 220ms ease;
+    transform-origin: left center;
+    font-variant-numeric: tabular-nums;
+  }
+  .csum .count, .lvals .count { transform-origin: right center; }
+  .count.pop { transform: scale(1.04); opacity: 0.85; }
+  @media (prefers-reduced-motion: reduce) {
+    .count { transition: none; }
+    body.ready .bar > div { transition: none; }
+    .count.pop { transform: none; opacity: 1; }
+  }
 </style>
 </head>
 <body>
@@ -158,6 +224,7 @@
     <div class="actions">
       <button class="pill" id="export" type="button">Export</button>
       <button class="pill" id="import" type="button">Import</button>
+      <button class="pill" id="new-month" type="button">New month</button>
       <button class="pill" id="clear" type="button">Clear all</button>
       <input type="file" id="file" accept="application/json,.json">
     </div>
@@ -170,8 +237,17 @@
       <div class="stat"><div class="label">Income</div><div class="v" id="income">0 kr</div></div>
       <div class="stat"><div class="label">Spent</div><div class="v" id="spent">0 kr</div></div>
     </div>
-    <div class="bar"><div id="progress"></div></div>
+    <div class="bar spend-bar"><div id="progress"></div></div>
     <div class="note" id="progressNote">No income entered</div>
+    <div class="paid-block">
+      <div class="stats">
+        <div class="stat"><div class="label">Paid so far</div><div class="v" id="paid">0 kr</div></div>
+        <div class="stat"><div class="label">Still to pay</div><div class="v" id="still">0 kr</div></div>
+        <div class="stat"><div class="label">Money in account now</div><div class="v" id="cash">0 kr</div></div>
+      </div>
+      <div class="bar"><div id="paid-progress"></div></div>
+      <div class="note" id="paid-note">Nothing to pay yet</div>
+    </div>
     <div class="warn" id="warn"></div>
   </div>
 
@@ -184,7 +260,7 @@
   <div class="cards" id="cards"></div>
 
   <div class="foot">
-    Saved automatically in this browser only. Use Export to keep a backup file and Import to load one. <span id="status"></span>
+    Saved automatically in this browser only. Paid ticks stay until you tap New month. Use Export to keep a backup file and Import to load one. <span id="status"></span>
   </div>
 </div>
 
@@ -203,8 +279,14 @@
   ];
   var OUT = ["bills", "debt", "subs", "savings", "everyday"];
 
-  // state: { income: [{name, amount (string while editing), note?}], ... }
+  // state: { income: [{name, amount (string while editing), note?, paid?}], ... }
   var state = emptyState();
+  var pageReady = false;
+  var reduceMotion = false;
+  try {
+    reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  } catch (e) { /* matchMedia can throw in odd embeds */ }
+  var anims = Object.create(null);
 
   function emptyState() {
     var s = {};
@@ -227,6 +309,61 @@
     if (text != null) e.textContent = text;
     return e;
   }
+  function tickLabel(line) {
+    var what = line.name ? line.name : "line";
+    return (line.paid ? "Mark as not paid: " : "Mark as paid: ") + what;
+  }
+
+  // Count a displayed total from its current value to the next one.
+  // The first paint of each total snaps, so opening the page does not animate.
+  function paintTotal(node, id, value) {
+    if (!node) return;
+    node.classList.add("count");
+    var rec = anims[id];
+    if (!rec) {
+      anims[id] = { shown: value, target: value, raf: 0, node: node };
+      node.textContent = fmt(value);
+      return;
+    }
+    rec.node = node;
+    if (!pageReady || reduceMotion || rec.shown === value) {
+      if (rec.raf) { cancelAnimationFrame(rec.raf); rec.raf = 0; }
+      rec.shown = value;
+      rec.target = value;
+      node.textContent = fmt(value);
+      node.classList.remove("pop");
+      return;
+    }
+    if (rec.target === value && rec.raf) {
+      node.textContent = fmt(rec.shown);
+      node.classList.add("pop");
+      return;
+    }
+    var from = rec.shown;
+    var to = value;
+    rec.target = to;
+    var start = performance.now();
+    var dur = 550;
+    if (rec.raf) cancelAnimationFrame(rec.raf);
+    node.classList.add("pop");
+    function tick(now) {
+      var p = Math.min(1, (now - start) / dur);
+      var eased = 1 - Math.pow(1 - p, 3);
+      rec.shown = from + (to - from) * eased;
+      if (rec.node) rec.node.textContent = fmt(rec.shown);
+      if (p < 1) {
+        rec.raf = requestAnimationFrame(tick);
+      } else {
+        rec.raf = 0;
+        rec.shown = to;
+        if (rec.node) {
+          rec.node.textContent = fmt(to);
+          rec.node.classList.remove("pop");
+        }
+      }
+    }
+    rec.raf = requestAnimationFrame(tick);
+  }
 
   // ---------- schema ----------
   function toSchema() {
@@ -240,13 +377,14 @@
           lines: state[c.id].map(function (l) {
             var o = { name: l.name, amount: num(l.amount) };
             if (l.note) o.note = l.note;
+            if (c.id !== "income") o.paid = !!l.paid;
             return o;
           })
         };
       })
     };
   }
-  // Returns { state } or { error }
+  // Returns { state } or { error }. Missing "paid" is not paid; lines are never dropped for that.
   function parseSchema(obj) {
     if (!obj || typeof obj !== "object" || Array.isArray(obj)) return { error: "File is not a budget object." };
     if (obj.version !== 1) return { error: "Unsupported or missing version (expected 1)." };
@@ -269,7 +407,8 @@
         if (typeof l.name !== "string") return { error: "A line in " + c.id + " has no name." };
         if (typeof l.amount !== "number" || !isFinite(l.amount)) return { error: 'Line "' + l.name + '" in ' + c.id + " has no valid amount." };
         if (l.note !== undefined && typeof l.note !== "string") return { error: 'Line "' + l.name + '" has an invalid note.' };
-        var line = { name: l.name, amount: String(l.amount) };
+        if (l.paid !== undefined && typeof l.paid !== "boolean") return { error: 'Line "' + l.name + '" has an invalid paid flag.' };
+        var line = { name: l.name, amount: String(l.amount), paid: l.paid === true };
         if (l.note) line.note = l.note;
         out[c.id].push(line);
       }
@@ -313,15 +452,31 @@
     var out = totals.reduce(function (a, t) { return a + t.total; }, 0);
     var left = income - out;
     var over = left < 0;
+    var paidOut = 0;
+    OUT.forEach(function (k) {
+      state[k].forEach(function (l) { if (l.paid) paidOut += num(l.amount); });
+    });
+    var stillToPay = out - paidOut;
+    var cashNow = income - paidOut;
     function pct(v) { return income > 0 ? Math.round(v / income * 100) + "%" : "–"; }
 
     $("hero").classList.toggle("over", over);
-    $("left").textContent = fmt(left);
-    $("income").textContent = fmt(income);
-    $("spent").textContent = fmt(out);
+    paintTotal($("left"), "left", left);
+    paintTotal($("income"), "income", income);
+    paintTotal($("spent"), "spent", out);
+    paintTotal($("paid"), "paid", paidOut);
+    paintTotal($("still"), "still", stillToPay);
+    $("cash").classList.toggle("neg", cashNow < 0);
+    paintTotal($("cash"), "cash", cashNow);
+
     var spentPct = income > 0 ? Math.min(100, out / income * 100) : (out > 0 ? 100 : 0);
+    var paidPct = out > 0 ? Math.min(100, paidOut / out * 100) : 0;
     $("progress").style.width = spentPct + "%";
     $("progressNote").textContent = income > 0 ? Math.round(out / income * 100) + "% of income spent" : "No income entered";
+    $("paid-progress").style.width = paidPct + "%";
+    $("paid-note").textContent = out > 0
+      ? Math.round(paidPct) + "% of this month's spending is paid. Tick a line below when it's paid."
+      : "Nothing to pay yet";
     $("warn").textContent = over ? "Over budget: spending is " + fmt(-left) + " more than income." : "";
 
     var den = Math.max(income, out, 1);
@@ -337,13 +492,21 @@
     });
     totals.forEach(function (t, i) {
       legendEls[i].p.textContent = pct(t.total);
-      legendEls[i].a.textContent = fmt(t.total);
+      paintTotal(legendEls[i].a, "legend:" + t.key, t.total);
     });
 
     CATS.forEach(function (c) {
       var s = subtotalEls[c.id];
-      s.a.textContent = fmt(sum(c.id));
+      paintTotal(s.a, "sum:" + c.id, sum(c.id));
       if (s.p) s.p.textContent = pct(sum(c.id)) + " of income";
+      if (s.still) {
+        var anyPaid = state[c.id].some(function (l) { return !!l.paid; });
+        var unpaid = state[c.id].reduce(function (a, l) {
+          return a + (l.paid ? 0 : num(l.amount));
+        }, 0);
+        s.still.hidden = !anyPaid;
+        paintTotal(s.stillNum, "unpaid:" + c.id, unpaid);
+      }
     });
   }
 
@@ -374,6 +537,21 @@
 
   function lineRow(k, line) {
     var row = el("div", "line");
+    if (line.paid && k !== "income") row.classList.add("is-paid");
+
+    var cb = null;
+    if (k !== "income") {
+      var tick = el("label", "tick");
+      cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = !!line.paid;
+      cb.setAttribute("aria-label", tickLabel(line));
+      var box = el("span", "box");
+      box.setAttribute("aria-hidden", "true");
+      tick.appendChild(cb);
+      tick.appendChild(box);
+      row.appendChild(tick);
+    }
 
     var nameCol = el("div", "lname-col");
     var nm = el("input", "nm");
@@ -381,20 +559,43 @@
     nm.placeholder = "Name";
     nm.value = line.name;
     nm.setAttribute("aria-label", "Line name");
-    nm.addEventListener("input", function () { line.name = nm.value; save(); });
+    nm.autocomplete = "off";
+    var tag = el("div", "paid-tag", "Paid");
+    tag.hidden = !(line.paid && k !== "income");
+    nm.addEventListener("input", function () {
+      line.name = nm.value;
+      if (cb) cb.setAttribute("aria-label", tickLabel(line));
+      save();
+    });
+    if (cb) {
+      cb.addEventListener("change", function () {
+        line.paid = cb.checked;
+        row.classList.toggle("is-paid", line.paid);
+        tag.hidden = !line.paid;
+        cb.setAttribute("aria-label", tickLabel(line));
+        updateTotals();
+        save();
+      });
+    }
     nameCol.appendChild(nm);
+    if (k !== "income") nameCol.appendChild(tag);
     if (line.note) nameCol.appendChild(el("div", "lnote", line.note));
 
     var amt = el("div", "amt");
     var inp = el("input");
     inp.type = "text";
     inp.setAttribute("inputmode", "decimal");
+    inp.setAttribute("enterkeyhint", "done");
     inp.setAttribute("aria-label", "Amount in kr");
+    inp.setAttribute("autocomplete", "off");
+    inp.setAttribute("autocorrect", "off");
+    inp.setAttribute("autocapitalize", "off");
+    inp.setAttribute("spellcheck", "false");
     inp.placeholder = "0";
     inp.value = grouped(num(line.amount));
     inp.addEventListener("focus", function () {
       inp.value = line.amount === "0" || line.amount === "" ? "" : line.amount;
-      inp.select();
+      setTimeout(function () { try { inp.select(); } catch (e) {} }, 0);
     });
     inp.addEventListener("blur", function () {
       if (line.amount === "") line.amount = "0";
@@ -433,19 +634,28 @@
     subtotalEls = {};
     CATS.forEach(function (c) {
       var card = el("div", "glass");
+      card.setAttribute("data-cat", c.id);
       var head = el("div", "chead");
       head.appendChild(el("div", "cname", c.name));
       var sumBox = el("div", "csum");
       var a = el("div", "a", "0 kr");
       sumBox.appendChild(a);
       var p = null;
+      var still = null;
+      var stillNum = null;
       if (c.id !== "income") {
+        still = el("div", "p still");
+        stillNum = el("span", null, "0 kr");
+        still.appendChild(stillNum);
+        still.appendChild(document.createTextNode(" still to pay"));
+        still.hidden = true;
+        sumBox.appendChild(still);
         p = el("div", "p", "– of income");
         sumBox.appendChild(p);
       }
       head.appendChild(sumBox);
       card.appendChild(head);
-      subtotalEls[c.id] = { a: a, p: p };
+      subtotalEls[c.id] = { a: a, p: p, still: still, stillNum: stillNum };
 
       state[c.id].forEach(function (line) { card.appendChild(lineRow(c.id, line)); });
 
@@ -453,12 +663,12 @@
       var add = el("button", "ghost", "+ Add line");
       add.type = "button";
       add.addEventListener("click", function () {
-        var line = { name: "", amount: "0" };
+        var line = { name: "", amount: "0", paid: false };
         state[c.id].push(line);
         renderCards();
         updateTotals();
         save();
-        var cardEl = $("cards").children[CATS.indexOf(c)];
+        var cardEl = cards.querySelector('[data-cat="' + c.id + '"]');
         var inputs = cardEl.querySelectorAll(".nm");
         if (inputs.length) inputs[inputs.length - 1].focus();
       });
@@ -473,7 +683,7 @@
     updateTotals();
   }
 
-  // ---------- export / import / clear ----------
+  // ---------- export / import / clear / new month ----------
   function todayStamp() {
     var d = new Date();
     function z(n) { return (n < 10 ? "0" : "") + n; }
@@ -507,10 +717,19 @@
     renderAll();
     save();
   }
+  function doNewMonth() {
+    if (!confirm("Start a new month? This clears every paid tick but keeps all amounts.")) return;
+    CATS.forEach(function (c) {
+      state[c.id].forEach(function (l) { l.paid = false; });
+    });
+    renderAll();
+    save();
+  }
 
   $("export").addEventListener("click", doExport);
   $("import").addEventListener("click", function () { $("file").click(); });
   $("clear").addEventListener("click", doClear);
+  $("new-month").addEventListener("click", doNewMonth);
   $("file").addEventListener("change", function () {
     var f = $("file").files && $("file").files[0];
     if (!f) return;
@@ -523,6 +742,12 @@
   buildLegend();
   load();
   renderAll();
+  pageReady = true;
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
+      document.body.classList.add("ready");
+    });
+  });
 })();
 </script>
 </body>
