@@ -4469,7 +4469,7 @@
   html.cf-glass #screen-splash.splash-v2 { background: var(--bg); }
 
   /* Type: the agency's tight, confident headings. */
-  html.cf-glass body, html.cf-glass :is(#screen-onboarding, #screen-planner, #screen-splash, #screen-splash *), html.cf-glass :is(.cf-chunky, .splash-guest-btn, input, textarea, button, select) { font-family: var(--font-body); }
+  html.cf-glass body, html.cf-glass :is(#screen-onboarding, #screen-onboarding *, #screen-planner, #screen-planner *, #screen-splash, #screen-splash *), html.cf-glass :is(.cf-chunky, .splash-guest-btn, input, textarea, button, select) { font-family: var(--font-body); }
   html.cf-v2.cf-glass :is(.project-title, .onboard-question, .sheet h3, .splash-v2-title, h1, h2) { font-weight: 800; letter-spacing: -0.035em; }
   html.cf-glass .splash-v2-title { font-size: clamp(25px, 7vw, 34px); white-space: nowrap; }
   html.cf-glass .splash-v2-sub { color: var(--text-muted); font-weight: 500; }
@@ -4569,7 +4569,7 @@
   @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
     html.cf-glass { --g-panel: #1B1C24; }
   }
-/*GLASS-END*/
+
 </style>
 </head>
 <body><div id="testZoneBanner" style="position:fixed;top:0;left:0;right:0;z-index:99999;background:#F2B400;color:#1A1A1A;font:700 12px/1.4 Helvetica,Arial,sans-serif;text-align:center;padding:calc(3px + env(safe-area-inset-top,0px)) 8px 3px;pointer-events:none;letter-spacing:.5px">TEST ZONE · not the real app</div><style>:root{--safe-top:calc(env(safe-area-inset-top,0px) + 24px) !important}</style>
