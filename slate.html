@@ -4574,6 +4574,10 @@
   .account-signin[hidden], #accountDataBox[hidden] { display: none; }
   .account-signin .btn-create { width: 100%; padding: 15px 16px; }
   .account-signin .sheet-btn { margin-bottom: 0; text-align: center; }
+  /* Home filters: both rows are exactly the same width, and each row's buttons share it evenly. */
+  html.cf-v2.cf-glass :is(.home-seg, .home-format) { width: min(100%, 440px); padding: 0; gap: 8px; }
+  html.cf-v2.cf-glass :is(.home-seg-btn, .home-format-btn) { flex: 1 1 0; min-width: 0; padding: 10px 6px; text-align: center; white-space: nowrap; }
+  html.cf-v2.cf-glass .home-format-btn { font-size: 14px; }
   /* Project cards: everything sits inside the box. */
   html.cf-v2.cf-glass .card { padding: 10px; overflow: hidden; }
   html.cf-glass .card-title { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
