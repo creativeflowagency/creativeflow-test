@@ -4568,6 +4568,10 @@
     html.cf-glass body.has-tab-bar #screen-home > .grid { padding-bottom: 112px; }
     html.cf-glass body.has-tab-bar .fab-menu { bottom: calc(92px + var(--safe-bottom)); }
   }
+  /* Small violet text is hard to read on ink, so it uses the lavender. */
+  html.cf-glass :is(.account-avatar-change, .account-level-text, .quest-xp, .an-link) { color: var(--g-lav); }
+  /* Account page: comfortable width on computers. */
+  #screen-account .settings-body { width: 100%; max-width: 640px; margin-left: auto; margin-right: auto; }
   /* No blur support: keep floating panels readable. */
   @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
     html.cf-glass { --g-panel: #1B1C24; }
