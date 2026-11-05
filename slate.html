@@ -4570,6 +4570,10 @@
   }
   /* Small violet text is hard to read on ink, so it uses the lavender. */
   html.cf-glass :is(.account-avatar-change, .account-level-text, .quest-xp, .an-link) { color: var(--g-lav); }
+  .account-signin { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+  .account-signin[hidden], #accountDataBox[hidden] { display: none; }
+  .account-signin .btn-create { width: 100%; padding: 15px 16px; }
+  .account-signin .sheet-btn { margin-bottom: 0; text-align: center; }
   /* Account page: comfortable width on computers. */
   #screen-account .settings-body { width: 100%; max-width: 640px; margin-left: auto; margin-right: auto; }
   /* No blur support: keep floating panels readable. */
@@ -5215,6 +5219,11 @@
       </div>
     </div>
 
+    <div class="account-signin" id="accountSignInBox" hidden>
+      <button type="button" class="btn-create" id="accountCreateBtn">Create account</button>
+      <button type="button" class="sheet-btn" id="accountSignInBtn">Sign in</button>
+    </div>
+
     <div class="account-level-card">
       <div class="account-level-row">
         <span class="account-level-text" id="accountLevelText">Level 1</span>
@@ -5240,8 +5249,10 @@
     <button type="button" class="sheet-btn" id="backupExportBtn">Export backup file</button>
     <button type="button" class="sheet-btn" id="backupImportBtn">Import from backup file</button>
 
-    <div class="sheet-section-label">Your data</div>
-    <button type="button" class="sheet-btn danger-btn" id="deleteAccountBtn">Delete my account and data</button>
+    <div id="accountDataBox">
+      <div class="sheet-section-label">Your data</div>
+      <button type="button" class="sheet-btn danger-btn" id="deleteAccountBtn">Delete my account and data</button>
+    </div>
     </div>
   </section>
 
@@ -7034,6 +7045,10 @@
 
   function renderAccountSheet() {
     renderLevelBadge();
+    // Signed out: offer sign-in here, and there is no account to delete.
+    const signedIn = !!((clerk && clerk.user) || state.currentAccountEmail || syncMeta.userId);
+    document.getElementById('accountSignInBox').hidden = signedIn;
+    document.getElementById('accountDataBox').hidden = !signedIn;
     const avatarImg = document.getElementById('accountAvatarImg');
     const placeholder = document.getElementById('accountAvatarPlaceholder');
     if (state.profile.profilePicture) {
@@ -7066,6 +7081,9 @@
     switchScreen('account');
     window.scrollTo(0, 0);
   });
+  let authFromAccount = false; // Back on the sign-in screen returns to the Account page
+  document.getElementById('accountCreateBtn').addEventListener('click', () => { authFromAccount = true; openClerkAuth('signup'); });
+  document.getElementById('accountSignInBtn').addEventListener('click', () => { authFromAccount = true; openClerkAuth('signin'); });
   document.getElementById('accountBackBtn').addEventListener('click', () => { renderHome(); switchScreen('home'); });
 
   document.getElementById('accountAvatarBtn').addEventListener('click', () => {
@@ -13288,7 +13306,10 @@ Give concise, specific, practical feedback grounded in the material above when a
   })();
   clerkReady.catch(e => console.error('CreativeFlow: Clerk failed to load', e));
 
-  document.getElementById('authBackBtn').addEventListener('click', () => switchScreen('splash'));
+  document.getElementById('authBackBtn').addEventListener('click', () => {
+    if (authFromAccount) { authFromAccount = false; document.getElementById('accountBtn').click(); }
+    else switchScreen('splash');
+  });
 
   document.getElementById('splashSignUpBtn').addEventListener('click', () => openClerkAuth('signup'));
   document.getElementById('splashSignInBtn').addEventListener('click', () => openClerkAuth('signin'));
