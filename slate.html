@@ -2533,21 +2533,21 @@
     height: 100%;
     background: var(--accent);
   }
+  /* Like a YouTube video: thumbnail on top, then logo with the title and details beside it. */
   .card-body {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 12px 10px 14px;
-    align-items: center;
-    text-align: center;
+    gap: 12px;
+    padding: 12px 4px 4px;
+    align-items: flex-start;
+    text-align: left;
   }
   .card-avatar {
-    width: 34px; height: 34px;
+    width: 36px; height: 36px;
     border-radius: 50%;
     flex-shrink: 0;
-    margin-top: 1px;
+    object-fit: contain;
   }
-  .card-text { min-width: 0; width: 100%; }
+  .card-text { min-width: 0; flex: 1; }
   .card-title {
     font-family: var(--font-body);
     font-weight: 600;
@@ -4574,6 +4574,9 @@
   .account-signin[hidden], #accountDataBox[hidden] { display: none; }
   .account-signin .btn-create { width: 100%; padding: 15px 16px; }
   .account-signin .sheet-btn { margin-bottom: 0; text-align: center; }
+  /* Project cards: everything sits inside the box. */
+  html.cf-v2.cf-glass .card { padding: 10px; overflow: hidden; }
+  html.cf-glass .card-title { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
   /* Account page: comfortable width on computers. */
   #screen-account .settings-body { width: 100%; max-width: 640px; margin-left: auto; margin-right: auto; }
   /* No blur support: keep floating panels readable. */
