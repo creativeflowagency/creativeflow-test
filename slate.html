@@ -4584,6 +4584,18 @@
     html.cf-glass body.has-tab-bar .fab-menu { left: auto; right: 14px; transform: none; align-items: flex-end; }
     html.cf-glass body.has-tab-bar .fab-menu.active .fab-menu-item { transform-origin: right bottom; animation: cfFromPlus 0.32s cubic-bezier(0.2, 0.9, 0.25, 1.15) both; }
   }
+  /* Phones: the + floats on its own at the bottom right, just above the bottom bar (the bar keeps 4 tabs). */
+  @media (max-width: 699px) {
+    html.cf-glass body.has-tab-bar .tab-bar-add {
+      position: absolute; right: 2px; bottom: calc(100% + 12px); flex: none; width: 58px; height: 58px; min-height: 0; padding: 0; border-radius: 50%; background: none;
+    }
+    html.cf-glass body.has-tab-bar .tab-bar-add-circle { width: 58px; height: 58px; }
+    html.cf-glass body.has-tab-bar .tab-bar-add-circle svg { width: 26px; height: 26px; }
+    html.cf-glass body.has-tab-bar .fab-menu { bottom: calc(162px + var(--safe-bottom)); }
+    html.cf-glass body.has-tab-bar .screen.active { padding-bottom: calc(150px + var(--safe-bottom)); }
+    /* Home: Active / Published leave room for the + on the right. */
+    html.cf-glass body.has-tab-bar #screen-home .chip-row { padding-right: 92px; }
+  }
   /* Project cards: everything sits inside the box. */
   html.cf-v2.cf-glass .card { padding: 10px; overflow: hidden; }
   html.cf-glass .card-title { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
