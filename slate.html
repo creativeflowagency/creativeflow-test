@@ -4578,6 +4578,12 @@
   html.cf-v2.cf-glass :is(.home-seg, .home-format) { width: min(100%, 440px); padding: 0; gap: 8px; }
   html.cf-v2.cf-glass :is(.home-seg-btn, .home-format-btn) { flex: 1 1 0; min-width: 0; padding: 10px 6px; text-align: center; white-space: nowrap; }
   html.cf-v2.cf-glass .home-format-btn { font-size: 14px; }
+  /* Phones: the + menu grows out of the + button and slides in from the right. */
+  @keyframes cfFromPlus { from { opacity: 0; transform: translateX(46px) scale(0.86); } to { opacity: 1; transform: none; } }
+  @media (max-width: 699px) {
+    html.cf-glass body.has-tab-bar .fab-menu { left: auto; right: 14px; transform: none; align-items: flex-end; }
+    html.cf-glass body.has-tab-bar .fab-menu.active .fab-menu-item { transform-origin: right bottom; animation: cfFromPlus 0.32s cubic-bezier(0.2, 0.9, 0.25, 1.15) both; }
+  }
   /* Project cards: everything sits inside the box. */
   html.cf-v2.cf-glass .card { padding: 10px; overflow: hidden; }
   html.cf-glass .card-title { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
