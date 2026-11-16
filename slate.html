@@ -10606,6 +10606,7 @@
         switchTab('ai');
         return;
       }
+      if (tab.dataset.tab === 'script') { scriptOpenBtn.click(); return; } // the Script tab opens the script itself
       switchTab(tab.dataset.tab);
     });
   });
