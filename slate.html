@@ -4607,6 +4607,8 @@
   html.cf-glass .card-title { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
   /* Account page: comfortable width on computers. */
   #screen-account .settings-body { width: 100%; max-width: 640px; margin-left: auto; margin-right: auto; }
+  /* Your plan (license) page: no box around it. */
+  html.cf-v2 #screen-license .license-card, html.cf-v2.cf-glass #screen-license .license-card { border: none; background: none; box-shadow: none; }
   /* Account page: a short profile header, then one menu. */
   #screen-account .account-avatar-row { gap: 14px; margin-bottom: 18px; }
   #screen-account .account-avatar-wrap { position: relative; flex-shrink: 0; }
@@ -5483,12 +5485,10 @@
       <button type="button" class="acct-row" id="accountEditProfileBtn">
         <svg class="cfi" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"/></svg>
         <span class="acct-row-label">Edit profile</span>
-        <svg class="acct-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
       </button>
       <button type="button" class="acct-row" id="accountRedoSetupBtn">
         <svg class="cfi" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 5v6h-6"/></svg>
         <span class="acct-row-label">Redo setup questions</span>
-        <svg class="acct-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
       </button>
       <button type="button" class="acct-row" id="accountBackupToggle" aria-expanded="false" aria-controls="accountBackupSub">
         <svg class="cfi" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="5" rx="1.5"/><path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9M10 13h4"/></svg>
