@@ -13556,6 +13556,16 @@ Give concise, specific, practical feedback grounded in the material above when a
     clerkMounted = { mode, el };
   }
 
+  // The "Sign up" / "Sign in" link under the form: switch forms here. Clerk's own link goes to a
+  // web address, which it refuses inside the iPhone app (the page isn't on http/https there).
+  document.getElementById('clerk-auth-mount').addEventListener('click', (e) => {
+    const link = e.target.closest('.cl-footerActionLink');
+    if (!link || !clerkMounted) return;
+    e.preventDefault();
+    e.stopPropagation();
+    openClerkAuth(clerkMounted.mode === 'signin' ? 'signup' : 'signin');
+  }, true);
+
   window.addEventListener('hashchange', () => {
     const hash = window.location.hash;
     const mode = hash.startsWith('#sign-up') ? 'signup' : hash.startsWith('#sign-in') ? 'signin' : null;
